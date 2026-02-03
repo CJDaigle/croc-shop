@@ -40,7 +40,7 @@ spec:
     spec:
       containers:
       - name: user
-        image: user:latest
+        image: crock-shop/user:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3002

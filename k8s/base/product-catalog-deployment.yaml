@@ -35,7 +35,7 @@ spec:
     spec:
       containers:
       - name: product-catalog
-        image: product-catalog:latest
+        image: crock-shop/product-catalog:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3001
