@@ -31,7 +31,7 @@ spec:
     spec:
       containers:
       - name: order
-        image: crock-shop/order:latest
+        image: cjdaigle2/crock-shop:order
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3004

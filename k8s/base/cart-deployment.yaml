@@ -33,7 +33,7 @@ spec:
     spec:
       containers:
       - name: cart
-        image: crock-shop/cart:latest
+        image: cjdaigle2/crock-shop:cart
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3003
