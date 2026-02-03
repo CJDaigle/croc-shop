@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: crock-shop
+  labels:
+    name: crock-shop
+    istio-injection: enabled

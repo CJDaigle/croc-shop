@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: crock-shop-frontend
+  labels:
+    name: crock-shop-frontend
+    istio-injection: enabled
+    app: crock-shop
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: crock-shop-product-catalog
+  labels:
+    name: crock-shop-product-catalog
+    istio-injection: enabled
+    app: crock-shop
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: crock-shop-user
+  labels:
+    name: crock-shop-user
+    istio-injection: enabled
+    app: crock-shop
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: crock-shop-cart
+  labels:
+    name: crock-shop-cart
+    istio-injection: enabled
+    app: crock-shop
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: crock-shop-order
+  labels:
+    name: crock-shop-order
+    istio-injection: enabled
+    app: crock-shop
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: crock-shop-data
+  labels:
+    name: crock-shop-data
+    istio-injection: enabled
+    app: crock-shop
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: crock-shop-monitoring
+  labels:
+    name: crock-shop-monitoring
+    istio-injection: enabled
+    app: crock-shop

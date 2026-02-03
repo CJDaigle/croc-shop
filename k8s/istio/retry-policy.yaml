@@ -1,0 +1,37 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: product-catalog-retry
+  namespace: crock-shop-product-catalog
+spec:
+  hosts:
+  - product-catalog.crock-shop-product-catalog.svc.cluster.local
+  http:
+  - route:
+    - destination:
+        host: product-catalog.crock-shop-product-catalog.svc.cluster.local
+        subset: v1
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
+      retryOn: 5xx,reset,connect-failure,refused-stream
+    timeout: 10s
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: order-retry
+  namespace: crock-shop-order
+spec:
+  hosts:
+  - order.crock-shop-order.svc.cluster.local
+  http:
+  - route:
+    - destination:
+        host: order.crock-shop-order.svc.cluster.local
+        subset: v1
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
+      retryOn: 5xx,reset,connect-failure,refused-stream
+    timeout: 10s

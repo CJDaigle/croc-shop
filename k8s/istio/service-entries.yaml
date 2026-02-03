@@ -1,0 +1,89 @@
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: product-catalog-entry
+  namespace: crock-shop-frontend
+spec:
+  hosts:
+  - product-catalog.crock-shop-product-catalog.svc.cluster.local
+  ports:
+  - number: 3001
+    name: http
+    protocol: HTTP
+  location: MESH_INTERNAL
+  resolution: DNS
+---
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: user-entry
+  namespace: crock-shop-frontend
+spec:
+  hosts:
+  - user.crock-shop-user.svc.cluster.local
+  ports:
+  - number: 3002
+    name: http
+    protocol: HTTP
+  location: MESH_INTERNAL
+  resolution: DNS
+---
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: cart-entry
+  namespace: crock-shop-frontend
+spec:
+  hosts:
+  - cart.crock-shop-cart.svc.cluster.local
+  ports:
+  - number: 3003
+    name: http
+    protocol: HTTP
+  location: MESH_INTERNAL
+  resolution: DNS
+---
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: order-entry
+  namespace: crock-shop-frontend
+spec:
+  hosts:
+  - order.crock-shop-order.svc.cluster.local
+  ports:
+  - number: 3004
+    name: http
+    protocol: HTTP
+  location: MESH_INTERNAL
+  resolution: DNS
+---
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: postgres-entry
+  namespace: crock-shop-product-catalog
+spec:
+  hosts:
+  - postgres.crock-shop-data.svc.cluster.local
+  ports:
+  - number: 5432
+    name: postgres
+    protocol: TCP
+  location: MESH_INTERNAL
+  resolution: DNS
+---
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: redis-entry
+  namespace: crock-shop-cart
+spec:
+  hosts:
+  - redis.crock-shop-data.svc.cluster.local
+  ports:
+  - number: 6379
+    name: redis
+    protocol: TCP
+  location: MESH_INTERNAL
+  resolution: DNS

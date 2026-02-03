@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: crockshop
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  product-catalog:
+    build: ./services/product-catalog
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: crockshop
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  user:
+    build: ./services/user
+    ports:
+      - "3002:3002"
+    environment:
+      PORT: 3002
+      JWT_SECRET: dev-secret-change-in-production
+
+  cart:
+    build: ./services/cart
+    ports:
+      - "3003:3003"
+    environment:
+      PORT: 3003
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  order:
+    build: ./services/order
+    ports:
+      - "3004:3004"
+    environment:
+      PORT: 3004
+
+  frontend:
+    build: ./services/frontend
+    ports:
+      - "3000:80"
+    environment:
+      REACT_APP_API_BASE: http://localhost:3001
+      REACT_APP_CART_API: http://localhost:3003
+      REACT_APP_ORDER_API: http://localhost:3004
+      REACT_APP_USER_API: http://localhost:3002
+    depends_on:
+      - product-catalog
+      - user
+      - cart
+      - order
+
+volumes:
+  postgres-data:
