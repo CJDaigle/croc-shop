@@ -43,6 +43,11 @@ yarn-error.log*
 # Kubernetes
 *.kubeconfig
 
+# Local cluster artifacts
+.kube/
+istio-1.28.3/
+set-k8s.sh
+
 # Go
 *.exe
 *.exe~
