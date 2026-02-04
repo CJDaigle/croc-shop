@@ -16,7 +16,7 @@ spec:
     loadBalancer:
       simple: LEAST_REQUEST
     outlierDetection:
-      consecutiveErrors: 5
+      consecutive5xxErrors: 5
       interval: 30s
       baseEjectionTime: 30s
       maxEjectionPercent: 50

@@ -20,7 +20,7 @@ spec:
         image: redis:7-alpine
         ports:
         - containerPort: 6379
-          name: redis
+          name: tcp-redis
         livenessProbe:
           exec:
             command:
@@ -56,6 +56,6 @@ spec:
   - port: 6379
     targetPort: 6379
     protocol: TCP
-    name: redis
+    name: tcp-redis
   selector:
     app: redis

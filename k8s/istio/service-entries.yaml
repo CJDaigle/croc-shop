@@ -83,7 +83,7 @@ spec:
   - redis.crock-shop-data.svc.cluster.local
   ports:
   - number: 6379
-    name: redis
+    name: tcp-redis
     protocol: TCP
   location: MESH_INTERNAL
   resolution: DNS

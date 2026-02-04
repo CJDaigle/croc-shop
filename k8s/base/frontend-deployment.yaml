@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: cjdaigle2/crock-shop:frontend
+        image: cjdaigle2/crock-shop-frontend:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 80

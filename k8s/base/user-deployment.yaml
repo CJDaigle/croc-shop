@@ -40,7 +40,7 @@ spec:
     spec:
       containers:
       - name: user
-        image: cjdaigle2/crock-shop:user
+        image: cjdaigle2/crock-shop-user:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 3002

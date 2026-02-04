@@ -48,6 +48,10 @@ yarn-error.log*
 istio-1.28.3/
 set-k8s.sh
 
+# Local notes
+k8s/istio/mac fix.txt
+k8s/istio/mac%20fix.txt
+
 # Go
 *.exe
 *.exe~

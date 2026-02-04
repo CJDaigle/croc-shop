@@ -57,10 +57,7 @@ spec:
       app: postgres
   action: ALLOW
   rules:
-  - from:
-    - source:
-        namespaces: ["crock-shop-product-catalog"]
-    to:
+  - to:
     - operation:
         ports: ["5432"]
 ---
@@ -75,9 +72,6 @@ spec:
       app: redis
   action: ALLOW
   rules:
-  - from:
-    - source:
-        namespaces: ["crock-shop-cart"]
-    to:
+  - to:
     - operation:
         ports: ["6379"]
