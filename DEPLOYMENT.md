@@ -6,6 +6,10 @@ This guide covers building Docker images, pushing them to Docker Hub, and deploy
 
 - **Docker**: For building container images
 - **Docker Hub Account**: For hosting container images (free account works)
+  - Login to Docker Hub before building/pushing images:
+    ```bash
+    docker login
+    ```
 - **Kubernetes Cluster**: 
   - Local: minikube, kind, Docker Desktop
   - Cloud: GKE, EKS, AKS, or any managed Kubernetes
