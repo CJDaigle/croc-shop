@@ -32,7 +32,7 @@ spec:
       containers:
       - name: order
         image: cjdaigle2/crock-shop:order
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         ports:
         - containerPort: 3004
           name: http

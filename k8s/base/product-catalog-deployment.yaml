@@ -36,7 +36,7 @@ spec:
       containers:
       - name: product-catalog
         image: cjdaigle2/crock-shop:product-catalog
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         ports:
         - containerPort: 3001
           name: http

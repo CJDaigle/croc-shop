@@ -41,7 +41,7 @@ spec:
       containers:
       - name: user
         image: cjdaigle2/crock-shop:user
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         ports:
         - containerPort: 3002
           name: http
