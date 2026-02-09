@@ -36,6 +36,8 @@ metadata:
   labels:
     app: postgres
 spec:
+  strategy:
+    type: Recreate
   replicas: 1
   selector:
     matchLabels:
@@ -45,12 +47,21 @@ spec:
       labels:
         app: postgres
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        fsGroupChangePolicy: OnRootMismatch
+      terminationGracePeriodSeconds: 60
       containers:
       - name: postgres
         image: postgres:15-alpine
         ports:
         - containerPort: 5432
           name: postgres
+        securityContext:
+          allowPrivilegeEscalation: false
         env:
         - name: PGDATA
           value: /var/lib/postgresql/data/pgdata
@@ -62,6 +73,14 @@ spec:
         volumeMounts:
         - name: postgres-storage
           mountPath: /var/lib/postgresql/data
+        startupProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - postgres
+          failureThreshold: 30
+          periodSeconds: 2
         livenessProbe:
           exec:
             command:

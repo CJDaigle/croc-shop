@@ -589,6 +589,10 @@ When you make changes to your code and want to update the deployment:
 - Implement backup strategies for PostgreSQL
 - Use StatefulSets for stateful workloads
 
+### Product Catalog Data
+- The Product Catalog service persists products in PostgreSQL.
+- On startup, the service will automatically initialize the `products` table (if missing) and seed the catalog (if empty).
+
 ### 6. TLS/SSL
 - Install cert-manager for automatic certificate management
 - Configure HTTPS in Istio Gateway

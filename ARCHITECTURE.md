@@ -64,9 +64,10 @@ Crocs Shop is a cloud-native microservices application designed to demonstrate K
 - **Endpoints**:
   - `GET /api/products` - List all products
   - `GET /api/products/:id` - Get product details
-  - `POST /api/products` - Create new product (admin)
+  - `POST /api/products` - Create new product
 - **Features**:
-  - Product CRUD operations
+  - Postgres-backed product catalog with automatic schema initialization
+  - Automatic catalog seeding on startup (at least 25 products)
   - Category filtering
   - Stock management
   - Prometheus metrics

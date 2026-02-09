@@ -8,7 +8,7 @@ This application demonstrates a **multi-namespace service mesh architecture** wh
 
 ### Microservices (Each in Dedicated Namespace)
 - **Frontend Service** (`crock-shop-frontend`): React-based web UI
-- **Product Catalog Service** (`crock-shop-product-catalog`): Manages product inventory (Node.js)
+- **Product Catalog Service** (`crock-shop-product-catalog`): Postgres-backed product catalog (Node.js)
 - **Shopping Cart Service** (`crock-shop-cart`): Handles user shopping carts (Python/Flask)
 - **Order Service** (`crock-shop-order`): Processes orders (Go)
 - **User Service** (`crock-shop-user`): User authentication and profiles (Node.js)
