@@ -57,8 +57,13 @@ function ProductList({ user, setCartCount }) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map((product) => (
           <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-            <div className="h-48 bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
-              <span className="text-6xl">🍲</span>
+            <div className="h-48 bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center overflow-hidden">
+              <img
+                src={product.image}
+                alt={product.name}
+                className="w-full h-full object-cover"
+                onError={(e) => { e.target.style.display = 'none'; e.target.parentNode.innerHTML = `<div class="text-gray-400 text-sm">Image unavailable</div>`; }}
+              />
             </div>
             <div className="p-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-2">{product.name}</h3>
