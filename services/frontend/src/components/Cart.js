@@ -25,9 +25,14 @@ function Cart({ user, setCartCount }) {
     }
   }, [user, navigate]);
 
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    return { headers: { Authorization: `Bearer ${token}` } };
+  };
+
   const fetchCart = async () => {
     try {
-      const response = await axios.get(`${CART_API}/api/cart/${user.id}`);
+      const response = await axios.get(`${CART_API}/api/cart/${user.id}`, getAuthHeaders());
       setCart(response.data);
       setCartCount(response.data.items.length);
       setLoading(false);
@@ -51,7 +56,7 @@ function Cart({ user, setCartCount }) {
 
   const removeFromCart = async (productId) => {
     try {
-      await axios.delete(`${CART_API}/api/cart/${user.id}/items/${productId}`);
+      await axios.delete(`${CART_API}/api/cart/${user.id}/items/${productId}`, getAuthHeaders());
       fetchCart();
     } catch (err) {
       alert('Failed to remove item');
@@ -76,8 +81,10 @@ function Cart({ user, setCartCount }) {
     await new Promise(resolve => setTimeout(resolve, 1500));
 
     try {
+      const token = localStorage.getItem('token');
+      const authHeaders = { headers: { Authorization: `Bearer ${token}` } };
+
       const orderResponse = await axios.post(`${ORDER_API}/api/orders`, {
-        userId: user.id,
         items: cart.items,
         total: cart.total,
         shippingAddress: shippingAddress.shippingAddress,
@@ -85,7 +92,7 @@ function Cart({ user, setCartCount }) {
         shippingState: shippingAddress.shippingState,
         shippingZip: shippingAddress.shippingZip,
         paymentMethod: paymentMethod
-      });
+      }, authHeaders);
 
       setOrderResult(orderResponse.data);
 
@@ -93,11 +100,11 @@ function Cart({ user, setCartCount }) {
 
       await axios.patch(`${ORDER_API}/api/orders/${orderResponse.data.id}/status`, {
         status: 'shipped'
-      });
+      }, authHeaders);
 
       setOrderResult(prev => ({ ...prev, status: 'shipped' }));
 
-      await axios.delete(`${CART_API}/api/cart/${user.id}`);
+      await axios.delete(`${CART_API}/api/cart/${user.id}`, authHeaders);
       setCartCount(0);
 
       setStep('complete');

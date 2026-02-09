@@ -20,7 +20,10 @@ function Orders({ user }) {
 
   const fetchOrders = async () => {
     try {
-      const response = await axios.get(`${ORDER_API}/api/orders?userId=${user.id}`);
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${ORDER_API}/api/orders`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setOrders(response.data || []);
       setLoading(false);
     } catch (err) {

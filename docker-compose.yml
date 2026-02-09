@@ -66,6 +66,7 @@ services:
       PORT: 3003
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      JWT_SECRET: dev-secret-change-in-production
     depends_on:
       redis:
         condition: service_healthy
@@ -81,6 +82,7 @@ services:
       DB_NAME: crocshop
       DB_USER: postgres
       DB_PASSWORD: postgres
+      JWT_SECRET: dev-secret-change-in-production
     depends_on:
       postgres:
         condition: service_healthy

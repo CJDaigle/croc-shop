@@ -32,14 +32,17 @@ function ProductList({ user, setCartCount }) {
     }
 
     try {
+      const token = localStorage.getItem('token');
+      const authHeaders = { headers: { Authorization: `Bearer ${token}` } };
+
       await axios.post(`${CART_API}/api/cart/${user.id}/items`, {
         productId: product.id,
         name: product.name,
         price: product.price,
         quantity: 1
-      });
+      }, authHeaders);
       
-      const cartResponse = await axios.get(`${CART_API}/api/cart/${user.id}`);
+      const cartResponse = await axios.get(`${CART_API}/api/cart/${user.id}`, authHeaders);
       setCartCount(cartResponse.data.items.length);
       
       alert('Added to cart!');

@@ -51,8 +51,12 @@ async function ensureSchema() {
     { name: 'shipping_state', type: 'TEXT' },
     { name: 'shipping_zip', type: 'TEXT' }
   ];
+  const validTypes = ['TEXT', 'INTEGER', 'BOOLEAN', 'TIMESTAMPTZ', 'NUMERIC'];
   for (const col of cols) {
-    await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS ${col.name} ${col.type};`);
+    if (!/^[a-z_]+$/.test(col.name) || !validTypes.includes(col.type)) {
+      throw new Error(`Invalid column definition: ${col.name} ${col.type}`);
+    }
+    await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS "${col.name}" ${col.type};`);
   }
 }
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -8,8 +9,10 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
+	jwt "github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 	"github.com/prometheus/client_golang/prometheus"
@@ -18,6 +21,57 @@ import (
 )
 
 var db *sql.DB
+var jwtSecret []byte
+
+type contextKey string
+
+const ctxUserID contextKey = "userID"
+
+func authMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+			http.Error(w, `{"error":"Missing or invalid Authorization header"}`, http.StatusUnauthorized)
+			return
+		}
+
+		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+		token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			}
+			return jwtSecret, nil
+		})
+		if err != nil || !token.Valid {
+			http.Error(w, `{"error":"Invalid token"}`, http.StatusUnauthorized)
+			return
+		}
+
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			http.Error(w, `{"error":"Invalid token claims"}`, http.StatusUnauthorized)
+			return
+		}
+
+		var userID int
+		switch v := claims["userId"].(type) {
+		case float64:
+			userID = int(v)
+		case string:
+			userID, err = strconv.Atoi(v)
+			if err != nil {
+				http.Error(w, `{"error":"Invalid userId in token"}`, http.StatusUnauthorized)
+				return
+			}
+		default:
+			http.Error(w, `{"error":"Missing userId in token"}`, http.StatusUnauthorized)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), ctxUserID, userID)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
 
 type Order struct {
 	ID              int       `json:"id"`
@@ -106,8 +160,12 @@ func ensureSchema() error {
 		{"paid_at", "TIMESTAMPTZ"},
 		{"shipped_at", "TIMESTAMPTZ"},
 	}
+	validTypes := map[string]bool{"TEXT": true, "INTEGER": true, "BOOLEAN": true, "TIMESTAMPTZ": true, "NUMERIC": true}
 	for _, c := range cols {
-		db.Exec(fmt.Sprintf("ALTER TABLE orders ADD COLUMN IF NOT EXISTS %s %s;", c.name, c.typ))
+		if !validTypes[c.typ] {
+			return fmt.Errorf("invalid column type: %s", c.typ)
+		}
+		db.Exec(fmt.Sprintf(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS "%s" %s;`, c.name, c.typ))
 	}
 	return nil
 }
@@ -160,21 +218,11 @@ func getOrdersHandler(w http.ResponseWriter, r *http.Request) {
 	timer := prometheus.NewTimer(httpRequestDuration.WithLabelValues("GET", "/api/orders"))
 	defer timer.ObserveDuration()
 
-	userIDStr := r.URL.Query().Get("userId")
+	authUserID := r.Context().Value(ctxUserID).(int)
+
 	var rows *sql.Rows
 	var err error
-
-	if userIDStr != "" {
-		userID, convErr := strconv.Atoi(userIDStr)
-		if convErr != nil {
-			httpRequestsTotal.WithLabelValues("GET", "/api/orders", "400").Inc()
-			http.Error(w, "Invalid user ID", http.StatusBadRequest)
-			return
-		}
-		rows, err = db.Query(fmt.Sprintf("SELECT %s FROM orders WHERE user_id = $1 ORDER BY created_at DESC", orderCols), userID)
-	} else {
-		rows, err = db.Query(fmt.Sprintf("SELECT %s FROM orders ORDER BY created_at DESC", orderCols))
-	}
+	rows, err = db.Query(fmt.Sprintf("SELECT %s FROM orders WHERE user_id = $1 ORDER BY created_at DESC", orderCols), authUserID)
 
 	if err != nil {
 		httpRequestsTotal.WithLabelValues("GET", "/api/orders", "500").Inc()
@@ -202,12 +250,16 @@ func createOrderHandler(w http.ResponseWriter, r *http.Request) {
 	timer := prometheus.NewTimer(httpRequestDuration.WithLabelValues("POST", "/api/orders"))
 	defer timer.ObserveDuration()
 
+	authUserID := r.Context().Value(ctxUserID).(int)
+
 	var req CreateOrderRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		httpRequestsTotal.WithLabelValues("POST", "/api/orders", "400").Inc()
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
+
+	req.UserID = authUserID
 
 	itemsJSON, _ := json.Marshal(req.Items)
 
@@ -239,6 +291,8 @@ func getOrderHandler(w http.ResponseWriter, r *http.Request) {
 	timer := prometheus.NewTimer(httpRequestDuration.WithLabelValues("GET", "/api/orders/:id"))
 	defer timer.ObserveDuration()
 
+	authUserID := r.Context().Value(ctxUserID).(int)
+
 	vars := mux.Vars(r)
 	orderID, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -247,7 +301,7 @@ func getOrderHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	row := db.QueryRow(fmt.Sprintf("SELECT %s FROM orders WHERE id = $1", orderCols), orderID)
+	row := db.QueryRow(fmt.Sprintf("SELECT %s FROM orders WHERE id = $1 AND user_id = $2", orderCols), orderID, authUserID)
 	order, err := scanOrder(row)
 	if err != nil {
 		httpRequestsTotal.WithLabelValues("GET", "/api/orders/:id", "404").Inc()
@@ -263,6 +317,8 @@ func getOrderHandler(w http.ResponseWriter, r *http.Request) {
 func updateOrderStatusHandler(w http.ResponseWriter, r *http.Request) {
 	timer := prometheus.NewTimer(httpRequestDuration.WithLabelValues("PATCH", "/api/orders/:id/status"))
 	defer timer.ObserveDuration()
+
+	authUserID := r.Context().Value(ctxUserID).(int)
 
 	vars := mux.Vars(r)
 	orderID, err := strconv.Atoi(vars["id"])
@@ -289,8 +345,8 @@ func updateOrderStatusHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	row := db.QueryRow(
-		fmt.Sprintf("UPDATE orders SET status = $1%s WHERE id = $2 RETURNING %s", extra, orderCols),
-		req.Status, orderID,
+		fmt.Sprintf("UPDATE orders SET status = $1%s WHERE id = $2 AND user_id = $3 RETURNING %s", extra, orderCols),
+		req.Status, orderID, authUserID,
 	)
 	order, err := scanOrder(row)
 	if err != nil {
@@ -305,6 +361,12 @@ func updateOrderStatusHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		secret = "your-secret-key-change-in-production"
+	}
+	jwtSecret = []byte(secret)
+
 	dbHost := os.Getenv("DB_HOST")
 	if dbHost == "" {
 		dbHost = "postgres"
@@ -350,10 +412,12 @@ func main() {
 	r.HandleFunc("/ready", readyHandler).Methods("GET")
 	r.Handle("/metrics", promhttp.Handler()).Methods("GET")
 
-	r.HandleFunc("/api/orders", getOrdersHandler).Methods("GET")
-	r.HandleFunc("/api/orders", createOrderHandler).Methods("POST")
-	r.HandleFunc("/api/orders/{id}", getOrderHandler).Methods("GET")
-	r.HandleFunc("/api/orders/{id}/status", updateOrderStatusHandler).Methods("PATCH")
+	api := r.PathPrefix("/api/orders").Subrouter()
+	api.Use(authMiddleware)
+	api.HandleFunc("", getOrdersHandler).Methods("GET")
+	api.HandleFunc("", createOrderHandler).Methods("POST")
+	api.HandleFunc("/{id}", getOrderHandler).Methods("GET")
+	api.HandleFunc("/{id}/status", updateOrderStatusHandler).Methods("PATCH")
 
 	handler := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},

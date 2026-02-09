@@ -191,7 +191,7 @@ app.get('/api/products/:id', async (req, res) => {
 app.post('/api/products', async (req, res) => {
   const end = httpRequestDuration.startTimer();
   try {
-    const { name, price, description, stock, category } = req.body;
+    const { name, price, description, stock, category, image } = req.body;
 
     if (!name || price === undefined || stock === undefined) {
       res.status(400).json({ error: 'Missing required fields' });
@@ -200,8 +200,8 @@ app.post('/api/products', async (req, res) => {
     }
 
     const result = await pool.query(
-      'INSERT INTO products (name, price, description, stock, category) VALUES ($1, $2, $3, $4, $5) RETURNING id, name, price::float8 AS price, description, stock, category',
-      [name, price, description || null, stock, category || null]
+      'INSERT INTO products (name, price, description, stock, category, image) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, name, price::float8 AS price, description, stock, category, image',
+      [name, price, description || null, stock, category || null, image || null]
     );
 
     res.status(201).json(result.rows[0]);

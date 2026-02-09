@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import axios from 'axios';
 import { ShoppingCart, User, Package } from 'lucide-react';
 import ProductList from './components/ProductList';
 import Cart from './components/Cart';
@@ -7,23 +8,51 @@ import Login from './components/Login';
 import Orders from './components/Orders';
 import Profile from './components/Profile';
 
+function isTokenExpired(token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    if (!payload.exp) return false;
+    return Date.now() >= payload.exp * 1000;
+  } catch {
+    return true;
+  }
+}
+
 function App() {
   const [user, setUser] = useState(null);
   const [cartCount, setCartCount] = useState(0);
+
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    setCartCount(0);
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
     if (token && userData) {
-      setUser(JSON.parse(userData));
+      if (isTokenExpired(token)) {
+        handleLogout();
+      } else {
+        setUser(JSON.parse(userData));
+      }
     }
-  }, []);
+  }, [handleLogout]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
-  };
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response && error.response.status === 401) {
+          handleLogout();
+        }
+        return Promise.reject(error);
+      }
+    );
+    return () => axios.interceptors.response.eject(interceptor);
+  }, [handleLogout]);
 
   return (
     <Router>
