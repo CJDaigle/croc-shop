@@ -23,7 +23,7 @@ const httpRequestDuration = new promClient.Histogram({
 const pool = new Pool({
   host: process.env.DB_HOST || 'postgres',
   port: process.env.DB_PORT || 5432,
-  database: process.env.DB_NAME || 'crockshop',
+  database: process.env.DB_NAME || 'crocshop',
   user: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASSWORD || 'postgres'
 });

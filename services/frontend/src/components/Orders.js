@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Package } from 'lucide-react';
 
-const ORDER_API = process.env.REACT_APP_ORDER_API || 'http://localhost:3004';
+const ORDER_API = process.env.REACT_APP_ORDER_API || '';
 
 function Orders({ user }) {
   const [orders, setOrders] = useState([]);

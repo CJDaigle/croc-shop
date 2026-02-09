@@ -4,32 +4,33 @@ set -e
 
 echo "Cleaning up Crocs Shop deployment..."
 
-# Delete all crock-shop namespaces
-echo "Deleting all crock-shop namespaces and resources..."
-kubectl delete namespace crock-shop-frontend --ignore-not-found=true
-kubectl delete namespace crock-shop-product-catalog --ignore-not-found=true
-kubectl delete namespace crock-shop-user --ignore-not-found=true
-kubectl delete namespace crock-shop-cart --ignore-not-found=true
-kubectl delete namespace crock-shop-order --ignore-not-found=true
-kubectl delete namespace crock-shop-data --ignore-not-found=true
-kubectl delete namespace crock-shop-monitoring --ignore-not-found=true
+# Delete all croc-shop namespaces
+echo "Deleting all croc-shop namespaces and resources..."
+kubectl delete namespace croc-shop --ignore-not-found=true
+kubectl delete namespace croc-shop-frontend --ignore-not-found=true
+kubectl delete namespace croc-shop-product-catalog --ignore-not-found=true
+kubectl delete namespace croc-shop-user --ignore-not-found=true
+kubectl delete namespace croc-shop-cart --ignore-not-found=true
+kubectl delete namespace croc-shop-order --ignore-not-found=true
+kubectl delete namespace croc-shop-data --ignore-not-found=true
+kubectl delete namespace croc-shop-monitoring --ignore-not-found=true
 
 # Delete Istio resources from istio-system namespace
 echo "Cleaning up Istio Gateway and VirtualService..."
-kubectl delete gateway crock-shop-gateway -n istio-system --ignore-not-found=true
-kubectl delete virtualservice crock-shop-vs -n istio-system --ignore-not-found=true
+kubectl delete gateway croc-shop-gateway -n istio-system --ignore-not-found=true
+kubectl delete virtualservice croc-shop-vs -n istio-system --ignore-not-found=true
 
 echo ""
 echo "Cleanup complete!"
 echo ""
-echo "All crock-shop namespaces have been deleted:"
-echo "  ✓ crock-shop-frontend"
-echo "  ✓ crock-shop-product-catalog"
-echo "  ✓ crock-shop-user"
-echo "  ✓ crock-shop-cart"
-echo "  ✓ crock-shop-order"
-echo "  ✓ crock-shop-data"
-echo "  ✓ crock-shop-monitoring"
+echo "All croc-shop namespaces have been deleted:"
+echo "  ✓ croc-shop-frontend"
+echo "  ✓ croc-shop-product-catalog"
+echo "  ✓ croc-shop-user"
+echo "  ✓ croc-shop-cart"
+echo "  ✓ croc-shop-order"
+echo "  ✓ croc-shop-data"
+echo "  ✓ croc-shop-monitoring"
 echo ""
 echo "To also remove Istio (if installed):"
 echo "  istioctl uninstall --purge -y"

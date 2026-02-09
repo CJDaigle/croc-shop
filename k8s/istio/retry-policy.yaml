@@ -2,14 +2,14 @@ apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
   name: product-catalog-retry
-  namespace: crock-shop-product-catalog
+  namespace: croc-shop-product-catalog
 spec:
   hosts:
-  - product-catalog.crock-shop-product-catalog.svc.cluster.local
+  - product-catalog.croc-shop-product-catalog.svc.cluster.local
   http:
   - route:
     - destination:
-        host: product-catalog.crock-shop-product-catalog.svc.cluster.local
+        host: product-catalog.croc-shop-product-catalog.svc.cluster.local
         subset: v1
     retries:
       attempts: 3
@@ -21,14 +21,14 @@ apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
   name: order-retry
-  namespace: crock-shop-order
+  namespace: croc-shop-order
 spec:
   hosts:
-  - order.crock-shop-order.svc.cluster.local
+  - order.croc-shop-order.svc.cluster.local
   http:
   - route:
     - destination:
-        host: order.crock-shop-order.svc.cluster.local
+        host: order.croc-shop-order.svc.cluster.local
         subset: v1
     retries:
       attempts: 3

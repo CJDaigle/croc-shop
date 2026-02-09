@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ShoppingCart } from 'lucide-react';
 
-const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:3001';
-const CART_API = process.env.REACT_APP_CART_API || 'http://localhost:3003';
+const API_BASE = process.env.REACT_APP_API_BASE || '';
+const CART_API = process.env.REACT_APP_CART_API || '';
 
 function ProductList({ user, setCartCount }) {
   const [products, setProducts] = useState([]);

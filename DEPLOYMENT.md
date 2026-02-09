@@ -66,24 +66,24 @@ Build and push each service individually:
 export DOCKER_USERNAME=yourusername
 
 # Product Catalog Service (Node.js)
-docker build -t $DOCKER_USERNAME/crock-shop-product-catalog:latest ./services/product-catalog
-docker push $DOCKER_USERNAME/crock-shop-product-catalog:latest
+docker build -t $DOCKER_USERNAME/croc-shop-product-catalog:latest ./services/product-catalog
+docker push $DOCKER_USERNAME/croc-shop-product-catalog:latest
 
 # User Service (Node.js)
-docker build -t $DOCKER_USERNAME/crock-shop-user:latest ./services/user
-docker push $DOCKER_USERNAME/crock-shop-user:latest
+docker build -t $DOCKER_USERNAME/croc-shop-user:latest ./services/user
+docker push $DOCKER_USERNAME/croc-shop-user:latest
 
 # Cart Service (Python/Flask)
-docker build -t $DOCKER_USERNAME/crock-shop-cart:latest ./services/cart
-docker push $DOCKER_USERNAME/crock-shop-cart:latest
+docker build -t $DOCKER_USERNAME/croc-shop-cart:latest ./services/cart
+docker push $DOCKER_USERNAME/croc-shop-cart:latest
 
 # Order Service (Go)
-docker build -t $DOCKER_USERNAME/crock-shop-order:latest ./services/order
-docker push $DOCKER_USERNAME/crock-shop-order:latest
+docker build -t $DOCKER_USERNAME/croc-shop-order:latest ./services/order
+docker push $DOCKER_USERNAME/croc-shop-order:latest
 
 # Frontend Service (React)
-docker build -t $DOCKER_USERNAME/crock-shop-frontend:latest ./services/frontend
-docker push $DOCKER_USERNAME/crock-shop-frontend:latest
+docker build -t $DOCKER_USERNAME/croc-shop-frontend:latest ./services/frontend
+docker push $DOCKER_USERNAME/croc-shop-frontend:latest
 ```
 
 3. **Verify images on Docker Hub**
@@ -96,11 +96,11 @@ Update all deployment manifests to use your Docker Hub images:
 
 ```bash
 # Replace 'yourusername' with your actual Docker Hub username in all deployment files
-find k8s/base -name "*-deployment.yaml" -type f -exec sed -i '' "s|image: product-catalog:latest|image: $DOCKER_USERNAME/crock-shop-product-catalog:latest|g" {} \;
-find k8s/base -name "*-deployment.yaml" -type f -exec sed -i '' "s|image: user:latest|image: $DOCKER_USERNAME/crock-shop-user:latest|g" {} \;
-find k8s/base -name "*-deployment.yaml" -type f -exec sed -i '' "s|image: cart:latest|image: $DOCKER_USERNAME/crock-shop-cart:latest|g" {} \;
-find k8s/base -name "*-deployment.yaml" -type f -exec sed -i '' "s|image: order:latest|image: $DOCKER_USERNAME/crock-shop-order:latest|g" {} \;
-find k8s/base -name "*-deployment.yaml" -type f -exec sed -i '' "s|image: frontend:latest|image: $DOCKER_USERNAME/crock-shop-frontend:latest|g" {} \;
+find k8s/base -name "*-deployment.yaml" -type f -exec sed -i '' "s|image: product-catalog:latest|image: $DOCKER_USERNAME/croc-shop-product-catalog:latest|g" {} \;
+find k8s/base -name "*-deployment.yaml" -type f -exec sed -i '' "s|image: user:latest|image: $DOCKER_USERNAME/croc-shop-user:latest|g" {} \;
+find k8s/base -name "*-deployment.yaml" -type f -exec sed -i '' "s|image: cart:latest|image: $DOCKER_USERNAME/croc-shop-cart:latest|g" {} \;
+find k8s/base -name "*-deployment.yaml" -type f -exec sed -i '' "s|image: order:latest|image: $DOCKER_USERNAME/croc-shop-order:latest|g" {} \;
+find k8s/base -name "*-deployment.yaml" -type f -exec sed -i '' "s|image: frontend:latest|image: $DOCKER_USERNAME/croc-shop-frontend:latest|g" {} \;
 
 # Update imagePullPolicy to Always (to pull from Docker Hub)
 find k8s/base -name "*-deployment.yaml" -type f -exec sed -i '' "s|imagePullPolicy: IfNotPresent|imagePullPolicy: Always|g" {} \;
@@ -157,12 +157,12 @@ chmod +x scripts/deploy-monitoring.sh
 
 The script will:
 - Create all 7 namespaces with Istio injection enabled
-- Deploy PostgreSQL and Redis to `crock-shop-data` namespace
+- Deploy PostgreSQL and Redis to `croc-shop-data` namespace
 - Deploy all microservices to their respective namespaces
 - Configure Istio Gateway, VirtualServices, and DestinationRules
 - Set up ServiceEntries for cross-namespace communication
 - Apply authorization policies and network policies
-- Deploy Prometheus and Grafana to `crock-shop-monitoring` namespace
+- Deploy Prometheus and Grafana to `croc-shop-monitoring` namespace
 
 ### Option B: Manual Step-by-Step Deployment
 
@@ -177,8 +177,8 @@ The script will:
    kubectl apply -f k8s/base/redis-deployment.yaml
    
    # Wait for databases to be ready
-   kubectl wait --for=condition=ready pod -l app=postgres -n crock-shop-data --timeout=300s
-   kubectl wait --for=condition=ready pod -l app=redis -n crock-shop-data --timeout=300s
+   kubectl wait --for=condition=ready pod -l app=postgres -n croc-shop-data --timeout=300s
+   kubectl wait --for=condition=ready pod -l app=redis -n croc-shop-data --timeout=300s
    ```
 
 3. **Deploy microservices**
@@ -190,11 +190,11 @@ The script will:
    kubectl apply -f k8s/base/frontend-deployment.yaml
    
    # Wait for services to be ready
-   kubectl wait --for=condition=ready pod -l app=product-catalog -n crock-shop-product-catalog --timeout=300s
-   kubectl wait --for=condition=ready pod -l app=user -n crock-shop-user --timeout=300s
-   kubectl wait --for=condition=ready pod -l app=cart -n crock-shop-cart --timeout=300s
-   kubectl wait --for=condition=ready pod -l app=order -n crock-shop-order --timeout=300s
-   kubectl wait --for=condition=ready pod -l app=frontend -n crock-shop-frontend --timeout=300s
+   kubectl wait --for=condition=ready pod -l app=product-catalog -n croc-shop-product-catalog --timeout=300s
+   kubectl wait --for=condition=ready pod -l app=user -n croc-shop-user --timeout=300s
+   kubectl wait --for=condition=ready pod -l app=cart -n croc-shop-cart --timeout=300s
+   kubectl wait --for=condition=ready pod -l app=order -n croc-shop-order --timeout=300s
+   kubectl wait --for=condition=ready pod -l app=frontend -n croc-shop-frontend --timeout=300s
    ```
 
 4. **Deploy Istio configurations**
@@ -223,8 +223,8 @@ The script will:
    kubectl apply -f k8s/monitoring/grafana.yaml
    
    # Wait for monitoring to be ready
-   kubectl wait --for=condition=ready pod -l app=prometheus -n crock-shop-monitoring --timeout=300s
-   kubectl wait --for=condition=ready pod -l app=grafana -n crock-shop-monitoring --timeout=300s
+   kubectl wait --for=condition=ready pod -l app=prometheus -n croc-shop-monitoring --timeout=300s
+   kubectl wait --for=condition=ready pod -l app=grafana -n croc-shop-monitoring --timeout=300s
    ```
 
 ## Step 6: Access the Application
@@ -250,13 +250,13 @@ kubectl port-forward -n istio-system svc/istio-ingressgateway 8080:80
 
 **Prometheus:**
 ```bash
-kubectl port-forward -n crock-shop-monitoring svc/prometheus 9090:9090
+kubectl port-forward -n croc-shop-monitoring svc/prometheus 9090:9090
 # Open: http://localhost:9090
 ```
 
 **Grafana:**
 ```bash
-kubectl port-forward -n crock-shop-monitoring svc/grafana 3000:3000
+kubectl port-forward -n croc-shop-monitoring svc/grafana 3000:3000
 # Open: http://localhost:3000
 # Default credentials: admin/admin
 ```
@@ -277,47 +277,47 @@ istioctl dashboard grafana
 
 ### Check All Namespaces
 ```bash
-kubectl get namespaces -l app=crock-shop
+kubectl get namespaces -l app=croc-shop
 ```
 
 Expected output:
 ```
 NAME                          STATUS   AGE
-crock-shop-cart               Active   5m
-crock-shop-data               Active   5m
-crock-shop-frontend           Active   5m
-crock-shop-monitoring         Active   5m
-crock-shop-order              Active   5m
-crock-shop-product-catalog    Active   5m
-crock-shop-user               Active   5m
+croc-shop-cart               Active   5m
+croc-shop-data               Active   5m
+croc-shop-frontend           Active   5m
+croc-shop-monitoring         Active   5m
+croc-shop-order              Active   5m
+croc-shop-product-catalog    Active   5m
+croc-shop-user               Active   5m
 ```
 
 ### Check All Pods Across Namespaces
 ```bash
-kubectl get pods --all-namespaces -l app=crock-shop
+kubectl get pods --all-namespaces -l app=croc-shop
 ```
 
 All pods should show `2/2` READY (application + Istio sidecar) and `Running` status.
 
 ### Check Services
 ```bash
-kubectl get svc --all-namespaces -l app=crock-shop
+kubectl get svc --all-namespaces -l app=croc-shop
 ```
 
 ### Verify Istio Sidecar Injection
 ```bash
 # Check a pod has both application and istio-proxy containers
-kubectl get pod -n crock-shop-frontend -l app=frontend -o jsonpath='{.items[0].spec.containers[*].name}'
+kubectl get pod -n croc-shop-frontend -l app=frontend -o jsonpath='{.items[0].spec.containers[*].name}'
 # Should output: frontend istio-proxy
 ```
 
 ### Test Cross-Namespace Communication
 ```bash
 # Exec into frontend pod
-kubectl exec -it -n crock-shop-frontend $(kubectl get pod -n crock-shop-frontend -l app=frontend -o jsonpath='{.items[0].metadata.name}') -c frontend -- sh
+kubectl exec -it -n croc-shop-frontend $(kubectl get pod -n croc-shop-frontend -l app=frontend -o jsonpath='{.items[0].metadata.name}') -c frontend -- sh
 
 # Test connection to product catalog in different namespace
-curl http://product-catalog.crock-shop-product-catalog.svc.cluster.local:3001/api/products
+curl http://product-catalog.croc-shop-product-catalog.svc.cluster.local:3001/api/products
 ```
 
 ### Check Istio Configuration
@@ -338,19 +338,19 @@ kubectl get virtualservices --all-namespaces
 ### Test API Endpoints via Port-Forward
 ```bash
 # Product Catalog
-kubectl port-forward -n crock-shop-product-catalog svc/product-catalog 3001:3001
+kubectl port-forward -n croc-shop-product-catalog svc/product-catalog 3001:3001
 curl http://localhost:3001/api/products
 
 # User Service
-kubectl port-forward -n crock-shop-user svc/user 3002:3002
+kubectl port-forward -n croc-shop-user svc/user 3002:3002
 curl http://localhost:3002/health
 
 # Cart Service
-kubectl port-forward -n crock-shop-cart svc/cart 3003:3003
+kubectl port-forward -n croc-shop-cart svc/cart 3003:3003
 curl http://localhost:3003/health
 
 # Order Service
-kubectl port-forward -n crock-shop-order svc/order 3004:3004
+kubectl port-forward -n croc-shop-order svc/order 3004:3004
 curl http://localhost:3004/health
 ```
 
@@ -358,19 +358,19 @@ curl http://localhost:3004/health
 
 ### Check Horizontal Pod Autoscalers
 ```bash
-kubectl get hpa -n crock-shop-product-catalog
-kubectl get hpa -n crock-shop-user
-kubectl get hpa -n crock-shop-cart
-kubectl get hpa -n crock-shop-order
+kubectl get hpa -n croc-shop-product-catalog
+kubectl get hpa -n croc-shop-user
+kubectl get hpa -n croc-shop-cart
+kubectl get hpa -n croc-shop-order
 ```
 
 ### Manual Scaling
 ```bash
 # Scale product catalog to 5 replicas
-kubectl scale deployment product-catalog -n crock-shop-product-catalog --replicas=5
+kubectl scale deployment product-catalog -n croc-shop-product-catalog --replicas=5
 
 # Verify
-kubectl get pods -n crock-shop-product-catalog
+kubectl get pods -n croc-shop-product-catalog
 ```
 
 ### Auto-scaling
@@ -383,38 +383,38 @@ HPA is already configured and will automatically scale based on CPU/memory usage
 **Application logs:**
 ```bash
 # Product Catalog
-kubectl logs -n crock-shop-product-catalog -l app=product-catalog --tail=100 -f
+kubectl logs -n croc-shop-product-catalog -l app=product-catalog --tail=100 -f
 
 # User Service
-kubectl logs -n crock-shop-user -l app=user --tail=100 -f
+kubectl logs -n croc-shop-user -l app=user --tail=100 -f
 
 # Cart Service
-kubectl logs -n crock-shop-cart -l app=cart --tail=100 -f
+kubectl logs -n croc-shop-cart -l app=cart --tail=100 -f
 
 # Order Service
-kubectl logs -n crock-shop-order -l app=order --tail=100 -f
+kubectl logs -n croc-shop-order -l app=order --tail=100 -f
 ```
 
 **Istio sidecar logs:**
 ```bash
-kubectl logs -n crock-shop-product-catalog <pod-name> -c istio-proxy --tail=100
+kubectl logs -n croc-shop-product-catalog <pod-name> -c istio-proxy --tail=100
 ```
 
 ### Debug Pod Issues
 
 **Describe pod:**
 ```bash
-kubectl describe pod -n crock-shop-product-catalog <pod-name>
+kubectl describe pod -n croc-shop-product-catalog <pod-name>
 ```
 
 **Get events:**
 ```bash
-kubectl get events -n crock-shop-product-catalog --sort-by='.lastTimestamp'
+kubectl get events -n croc-shop-product-catalog --sort-by='.lastTimestamp'
 ```
 
 **Execute into pod:**
 ```bash
-kubectl exec -it -n crock-shop-product-catalog <pod-name> -c product-catalog -- /bin/sh
+kubectl exec -it -n croc-shop-product-catalog <pod-name> -c product-catalog -- /bin/sh
 ```
 
 ### Common Issues
@@ -425,10 +425,10 @@ kubectl exec -it -n crock-shop-product-catalog <pod-name> -c product-catalog -- 
 **Solution:**
 ```bash
 # Verify image exists on Docker Hub
-docker pull $DOCKER_USERNAME/crock-shop-product-catalog:latest
+docker pull $DOCKER_USERNAME/croc-shop-product-catalog:latest
 
 # Check if image name in deployment is correct
-kubectl get deployment -n crock-shop-product-catalog product-catalog -o yaml | grep image:
+kubectl get deployment -n croc-shop-product-catalog product-catalog -o yaml | grep image:
 
 # If using private Docker Hub repo, create image pull secret
 kubectl create secret docker-registry dockerhub-secret \
@@ -436,10 +436,10 @@ kubectl create secret docker-registry dockerhub-secret \
   --docker-username=$DOCKER_USERNAME \
   --docker-password=$DOCKER_PASSWORD \
   --docker-email=$DOCKER_EMAIL \
-  -n crock-shop-product-catalog
+  -n croc-shop-product-catalog
 
 # Add to deployment
-kubectl patch serviceaccount default -n crock-shop-product-catalog \
+kubectl patch serviceaccount default -n croc-shop-product-catalog \
   -p '{"imagePullSecrets": [{"name": "dockerhub-secret"}]}'
 ```
 
@@ -449,15 +449,15 @@ kubectl patch serviceaccount default -n crock-shop-product-catalog \
 **Solution:**
 ```bash
 # Verify databases are running
-kubectl get pods -n crock-shop-data
+kubectl get pods -n croc-shop-data
 
 # Check database service endpoints
-kubectl get endpoints -n crock-shop-data
+kubectl get endpoints -n croc-shop-data
 
 # Test connection from a service pod
-kubectl exec -it -n crock-shop-product-catalog <pod-name> -c product-catalog -- sh
+kubectl exec -it -n croc-shop-product-catalog <pod-name> -c product-catalog -- sh
 # Inside pod:
-nc -zv postgres.crock-shop-data.svc.cluster.local 5432
+nc -zv postgres.croc-shop-data.svc.cluster.local 5432
 ```
 
 #### 3. Cross-Namespace Communication Blocked
@@ -475,7 +475,7 @@ kubectl get authorizationpolicies --all-namespaces
 kubectl get networkpolicies --all-namespaces
 
 # Verify namespace labels
-kubectl get namespace crock-shop-frontend --show-labels
+kubectl get namespace croc-shop-frontend --show-labels
 ```
 
 #### 4. Istio Sidecar Not Injected
@@ -484,13 +484,13 @@ kubectl get namespace crock-shop-frontend --show-labels
 **Solution:**
 ```bash
 # Check namespace has istio-injection label
-kubectl get namespace crock-shop-frontend -o yaml | grep istio-injection
+kubectl get namespace croc-shop-frontend -o yaml | grep istio-injection
 
 # Add label if missing
-kubectl label namespace crock-shop-frontend istio-injection=enabled
+kubectl label namespace croc-shop-frontend istio-injection=enabled
 
 # Restart pods to inject sidecar
-kubectl rollout restart deployment -n crock-shop-frontend
+kubectl rollout restart deployment -n croc-shop-frontend
 ```
 
 #### 5. Gateway Not Accessible
@@ -520,13 +520,13 @@ chmod +x scripts/cleanup.sh
 ./scripts/cleanup.sh
 
 # Or manually delete namespaces
-kubectl delete namespace crock-shop-frontend
-kubectl delete namespace crock-shop-product-catalog
-kubectl delete namespace crock-shop-user
-kubectl delete namespace crock-shop-cart
-kubectl delete namespace crock-shop-order
-kubectl delete namespace crock-shop-data
-kubectl delete namespace crock-shop-monitoring
+kubectl delete namespace croc-shop-frontend
+kubectl delete namespace croc-shop-product-catalog
+kubectl delete namespace croc-shop-user
+kubectl delete namespace croc-shop-cart
+kubectl delete namespace croc-shop-order
+kubectl delete namespace croc-shop-data
+kubectl delete namespace croc-shop-monitoring
 ```
 
 ### Remove Istio
@@ -542,31 +542,31 @@ When you make changes to your code and want to update the deployment:
 1. **Rebuild and push images**
    ```bash
    # Rebuild specific service
-   docker build -t $DOCKER_USERNAME/crock-shop-product-catalog:v1.1 ./services/product-catalog
-   docker push $DOCKER_USERNAME/crock-shop-product-catalog:v1.1
+   docker build -t $DOCKER_USERNAME/croc-shop-product-catalog:v1.1 ./services/product-catalog
+   docker push $DOCKER_USERNAME/croc-shop-product-catalog:v1.1
    ```
 
 2. **Update deployment**
    ```bash
    # Update image in deployment
    kubectl set image deployment/product-catalog \
-     product-catalog=$DOCKER_USERNAME/crock-shop-product-catalog:v1.1 \
-     -n crock-shop-product-catalog
+     product-catalog=$DOCKER_USERNAME/croc-shop-product-catalog:v1.1 \
+     -n croc-shop-product-catalog
    
    # Or use rolling update
-   kubectl rollout restart deployment/product-catalog -n crock-shop-product-catalog
+   kubectl rollout restart deployment/product-catalog -n croc-shop-product-catalog
    ```
 
 3. **Monitor rollout**
    ```bash
-   kubectl rollout status deployment/product-catalog -n crock-shop-product-catalog
+   kubectl rollout status deployment/product-catalog -n croc-shop-product-catalog
    ```
 
 ## Production Considerations
 
 ### 1. Image Versioning
 - Use semantic versioning tags instead of `latest`
-- Example: `$DOCKER_USERNAME/crock-shop-product-catalog:v1.0.0`
+- Example: `$DOCKER_USERNAME/croc-shop-product-catalog:v1.0.0`
 - Update deployment manifests with specific versions
 
 ### 2. Secrets Management

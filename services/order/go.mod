@@ -1,4 +1,4 @@
-module github.com/crockshop/order-service
+module github.com/croc-shop/order-service
 
 go 1.21
 

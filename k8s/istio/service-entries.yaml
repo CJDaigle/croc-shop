@@ -2,10 +2,10 @@ apiVersion: networking.istio.io/v1beta1
 kind: ServiceEntry
 metadata:
   name: product-catalog-entry
-  namespace: crock-shop-frontend
+  namespace: croc-shop-frontend
 spec:
   hosts:
-  - product-catalog.crock-shop-product-catalog.svc.cluster.local
+  - product-catalog.croc-shop-product-catalog.svc.cluster.local
   ports:
   - number: 3001
     name: http
@@ -17,10 +17,10 @@ apiVersion: networking.istio.io/v1beta1
 kind: ServiceEntry
 metadata:
   name: user-entry
-  namespace: crock-shop-frontend
+  namespace: croc-shop-frontend
 spec:
   hosts:
-  - user.crock-shop-user.svc.cluster.local
+  - user.croc-shop-user.svc.cluster.local
   ports:
   - number: 3002
     name: http
@@ -32,10 +32,10 @@ apiVersion: networking.istio.io/v1beta1
 kind: ServiceEntry
 metadata:
   name: cart-entry
-  namespace: crock-shop-frontend
+  namespace: croc-shop-frontend
 spec:
   hosts:
-  - cart.crock-shop-cart.svc.cluster.local
+  - cart.croc-shop-cart.svc.cluster.local
   ports:
   - number: 3003
     name: http
@@ -47,10 +47,10 @@ apiVersion: networking.istio.io/v1beta1
 kind: ServiceEntry
 metadata:
   name: order-entry
-  namespace: crock-shop-frontend
+  namespace: croc-shop-frontend
 spec:
   hosts:
-  - order.crock-shop-order.svc.cluster.local
+  - order.croc-shop-order.svc.cluster.local
   ports:
   - number: 3004
     name: http
@@ -62,10 +62,10 @@ apiVersion: networking.istio.io/v1beta1
 kind: ServiceEntry
 metadata:
   name: postgres-entry
-  namespace: crock-shop-product-catalog
+  namespace: croc-shop-product-catalog
 spec:
   hosts:
-  - postgres.crock-shop-data.svc.cluster.local
+  - postgres.croc-shop-data.svc.cluster.local
   ports:
   - number: 5432
     name: postgres
@@ -77,10 +77,10 @@ apiVersion: networking.istio.io/v1beta1
 kind: ServiceEntry
 metadata:
   name: redis-entry
-  namespace: crock-shop-cart
+  namespace: croc-shop-cart
 spec:
   hosts:
-  - redis.crock-shop-data.svc.cluster.local
+  - redis.croc-shop-data.svc.cluster.local
   ports:
   - number: 6379
     name: tcp-redis

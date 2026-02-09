@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: grafana-datasources
-  namespace: crock-shop-monitoring
+  namespace: croc-shop-monitoring
 data:
   prometheus.yaml: |
     apiVersion: 1
@@ -10,14 +10,14 @@ data:
     - name: Prometheus
       type: prometheus
       access: proxy
-      url: http://prometheus.crock-shop-monitoring.svc.cluster.local:9090
+      url: http://prometheus.croc-shop-monitoring.svc.cluster.local:9090
       isDefault: true
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: grafana
-  namespace: crock-shop-monitoring
+  namespace: croc-shop-monitoring
 spec:
   replicas: 1
   selector:
@@ -58,7 +58,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: grafana
-  namespace: crock-shop-monitoring
+  namespace: croc-shop-monitoring
 spec:
   type: NodePort
   ports:

@@ -13,6 +13,7 @@ fi
 
 # Create namespaces with Istio injection
 echo "Creating namespaces with Istio injection enabled..."
+kubectl apply -f k8s/base/namespace.yaml
 kubectl apply -f k8s/base/namespaces.yaml
 
 # Deploy base resources
@@ -21,17 +22,17 @@ kubectl apply -f k8s/base/
 
 # Wait for databases
 echo "Waiting for databases to be ready..."
-kubectl wait --for=condition=ready pod -l app=postgres -n crock-shop-data --timeout=300s
-kubectl wait --for=condition=ready pod -l app=redis -n crock-shop-data --timeout=300s
+kubectl wait --for=condition=ready pod -l app=postgres -n croc-shop-data --timeout=300s
+kubectl wait --for=condition=ready pod -l app=redis -n croc-shop-data --timeout=300s
 
 # Wait for services
 echo "Waiting for services to be ready..."
 sleep 10
-kubectl wait --for=condition=ready pod -l app=product-catalog -n crock-shop-product-catalog --timeout=300s
-kubectl wait --for=condition=ready pod -l app=user -n crock-shop-user --timeout=300s
-kubectl wait --for=condition=ready pod -l app=cart -n crock-shop-cart --timeout=300s
-kubectl wait --for=condition=ready pod -l app=order -n crock-shop-order --timeout=300s
-kubectl wait --for=condition=ready pod -l app=frontend -n crock-shop-frontend --timeout=300s
+kubectl wait --for=condition=ready pod -l app=product-catalog -n croc-shop-product-catalog --timeout=300s
+kubectl wait --for=condition=ready pod -l app=user -n croc-shop-user --timeout=300s
+kubectl wait --for=condition=ready pod -l app=cart -n croc-shop-cart --timeout=300s
+kubectl wait --for=condition=ready pod -l app=order -n croc-shop-order --timeout=300s
+kubectl wait --for=condition=ready pod -l app=frontend -n croc-shop-frontend --timeout=300s
 
 # Deploy Istio configurations
 echo "Deploying Istio Gateway and VirtualService..."
@@ -56,13 +57,13 @@ echo ""
 echo "Multi-Namespace Service Mesh Deployment Complete!"
 echo ""
 echo "Namespaces with Istio sidecar injection:"
-echo "  ✓ crock-shop-frontend"
-echo "  ✓ crock-shop-product-catalog"
-echo "  ✓ crock-shop-user"
-echo "  ✓ crock-shop-cart"
-echo "  ✓ crock-shop-order"
-echo "  ✓ crock-shop-data"
-echo "  ✓ crock-shop-monitoring"
+echo "  ✓ croc-shop-frontend"
+echo "  ✓ croc-shop-product-catalog"
+echo "  ✓ croc-shop-user"
+echo "  ✓ croc-shop-cart"
+echo "  ✓ croc-shop-order"
+echo "  ✓ croc-shop-data"
+echo "  ✓ croc-shop-monitoring"
 echo ""
 echo "Service Mesh Features Enabled:"
 echo "  ✓ Cross-namespace service discovery (ServiceEntries)"

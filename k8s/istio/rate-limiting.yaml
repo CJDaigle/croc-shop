@@ -2,7 +2,7 @@ apiVersion: networking.istio.io/v1beta1
 kind: EnvoyFilter
 metadata:
   name: rate-limit-filter
-  namespace: crock-shop-product-catalog
+  namespace: croc-shop-product-catalog
 spec:
   workloadSelector:
     labels:

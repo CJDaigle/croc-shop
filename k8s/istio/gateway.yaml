@@ -1,7 +1,7 @@
 apiVersion: networking.istio.io/v1beta1
 kind: Gateway
 metadata:
-  name: crock-shop-gateway
+  name: croc-shop-gateway
   namespace: istio-system
 spec:
   selector:
@@ -17,20 +17,20 @@ spec:
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
-  name: crock-shop-vs
+  name: croc-shop-vs
   namespace: istio-system
 spec:
   hosts:
   - "*"
   gateways:
-  - crock-shop-gateway
+  - croc-shop-gateway
   http:
   - match:
     - uri:
         prefix: /api/products
     route:
     - destination:
-        host: product-catalog.crock-shop-product-catalog.svc.cluster.local
+        host: product-catalog.croc-shop-product-catalog.svc.cluster.local
         port:
           number: 3001
   - match:
@@ -40,7 +40,7 @@ spec:
         prefix: /api/users
     route:
     - destination:
-        host: user.crock-shop-user.svc.cluster.local
+        host: user.croc-shop-user.svc.cluster.local
         port:
           number: 3002
   - match:
@@ -48,7 +48,7 @@ spec:
         prefix: /api/cart
     route:
     - destination:
-        host: cart.crock-shop-cart.svc.cluster.local
+        host: cart.croc-shop-cart.svc.cluster.local
         port:
           number: 3003
   - match:
@@ -56,7 +56,7 @@ spec:
         prefix: /api/orders
     route:
     - destination:
-        host: order.crock-shop-order.svc.cluster.local
+        host: order.croc-shop-order.svc.cluster.local
         port:
           number: 3004
   - match:
@@ -64,6 +64,6 @@ spec:
         prefix: /
     route:
     - destination:
-        host: frontend.crock-shop-frontend.svc.cluster.local
+        host: frontend.croc-shop-frontend.svc.cluster.local
         port:
           number: 80

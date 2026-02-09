@@ -45,26 +45,26 @@ status:
 	@echo "Checking deployment status across all namespaces..."
 	@echo ""
 	@echo "=== Namespaces ==="
-	@kubectl get namespaces -l app=crock-shop
+	@kubectl get namespaces -l app=croc-shop
 	@echo ""
 	@echo "=== Pods ==="
-	@kubectl get pods --all-namespaces -l app=crock-shop
+	@kubectl get pods --all-namespaces -l app=croc-shop
 	@echo ""
 	@echo "=== Services ==="
-	@kubectl get svc --all-namespaces -l app=crock-shop
+	@kubectl get svc --all-namespaces -l app=croc-shop
 	@echo ""
 	@echo "=== HPAs ==="
-	@kubectl get hpa -n crock-shop-product-catalog
-	@kubectl get hpa -n crock-shop-user
-	@kubectl get hpa -n crock-shop-cart
-	@kubectl get hpa -n crock-shop-order
+	@kubectl get hpa -n croc-shop-product-catalog
+	@kubectl get hpa -n croc-shop-user
+	@kubectl get hpa -n croc-shop-cart
+	@kubectl get hpa -n croc-shop-order
 
 logs:
 	@echo "Tailing logs from all services..."
-	@kubectl logs -n crock-shop-product-catalog -l app=product-catalog --tail=50
-	@kubectl logs -n crock-shop-user -l app=user --tail=50
-	@kubectl logs -n crock-shop-cart -l app=cart --tail=50
-	@kubectl logs -n crock-shop-order -l app=order --tail=50
+	@kubectl logs -n croc-shop-product-catalog -l app=product-catalog --tail=50
+	@kubectl logs -n croc-shop-user -l app=user --tail=50
+	@kubectl logs -n croc-shop-cart -l app=cart --tail=50
+	@kubectl logs -n croc-shop-order -l app=order --tail=50
 
 test:
 	@echo "Running tests..."

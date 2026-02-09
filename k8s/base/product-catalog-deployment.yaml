@@ -2,19 +2,19 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: product-catalog-config
-  namespace: crock-shop-product-catalog
+  namespace: croc-shop-product-catalog
 data:
   PORT: "3001"
-  DB_HOST: postgres.crock-shop-data.svc.cluster.local
+  DB_HOST: postgres.croc-shop-data.svc.cluster.local
   DB_PORT: "5432"
-  DB_NAME: crockshop
+  DB_NAME: crocshop
   DB_USER: postgres
 ---
 apiVersion: v1
 kind: Secret
 metadata:
   name: postgres-secret
-  namespace: crock-shop-product-catalog
+  namespace: croc-shop-product-catalog
 type: Opaque
 stringData:
   POSTGRES_PASSWORD: postgres
@@ -23,7 +23,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: product-catalog
-  namespace: crock-shop-product-catalog
+  namespace: croc-shop-product-catalog
   labels:
     app: product-catalog
     version: v1
@@ -44,7 +44,7 @@ spec:
     spec:
       containers:
       - name: product-catalog
-        image: cjdaigle2/crock-shop-product-catalog
+        image: cjdaigle2/croc-shop-product-catalog
         imagePullPolicy: Always
         ports:
         - containerPort: 3001
@@ -82,7 +82,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: product-catalog
-  namespace: crock-shop-product-catalog
+  namespace: croc-shop-product-catalog
   labels:
     app: product-catalog
 spec:
@@ -99,7 +99,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: product-catalog-hpa
-  namespace: crock-shop-product-catalog
+  namespace: croc-shop-product-catalog
 spec:
   scaleTargetRef:
     apiVersion: apps/v1

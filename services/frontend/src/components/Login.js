@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const USER_API = process.env.REACT_APP_USER_API || 'http://localhost:3002';
+const USER_API = process.env.REACT_APP_USER_API || '';
 
 function Login({ setUser }) {
   const [isLogin, setIsLogin] = useState(true);

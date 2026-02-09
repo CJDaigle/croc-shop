@@ -2,9 +2,9 @@ apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
   name: product-catalog-circuit-breaker
-  namespace: crock-shop-product-catalog
+  namespace: croc-shop-product-catalog
 spec:
-  host: product-catalog.crock-shop-product-catalog.svc.cluster.local
+  host: product-catalog.croc-shop-product-catalog.svc.cluster.local
   trafficPolicy:
     connectionPool:
       tcp:

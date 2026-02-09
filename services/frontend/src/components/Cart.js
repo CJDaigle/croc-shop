@@ -3,8 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Trash2 } from 'lucide-react';
 
-const CART_API = process.env.REACT_APP_CART_API || 'http://localhost:3003';
-const ORDER_API = process.env.REACT_APP_ORDER_API || 'http://localhost:3004';
+const CART_API = process.env.REACT_APP_CART_API || '';
+const ORDER_API = process.env.REACT_APP_ORDER_API || '';
 
 function Cart({ user, setCartCount }) {
   const [cart, setCart] = useState({ items: [], total: 0 });

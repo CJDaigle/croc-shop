@@ -22,65 +22,65 @@ Crocs Shop uses a **dedicated namespace per service** approach, which is a best 
         ┌─────────────────┼─────────────────┐
         │                 │                 │
 ┌───────▼────────┐ ┌──────▼──────┐ ┌───────▼────────┐
-│ crock-shop-    │ │ crock-shop- │ │ crock-shop-    │
+│ croc-shop-    │ │ croc-shop- │ │ croc-shop-    │
 │   frontend     │ │   product-  │ │     user       │
 │                │ │   catalog   │ │                │
 └────────┬───────┘ └──────┬──────┘ └───────┬────────┘
          │                │                 │
          │         ┌──────▼──────┐          │
-         │         │ crock-shop- │          │
+         │         │ croc-shop- │          │
          └────────▶│    data     │◀─────────┘
                    │ (Postgres + │
                    │   Redis)    │
                    └─────────────┘
 
 ┌───────────────┐  ┌────────────────┐
-│ crock-shop-   │  │ crock-shop-    │
+│ croc-shop-   │  │ croc-shop-    │
 │    cart       │  │    order       │
 └───────┬───────┘  └────────────────┘
         │
-        └──────────▶ crock-shop-data
+        └──────────▶ croc-shop-data
 
 ┌─────────────────────────────────────┐
-│    crock-shop-monitoring            │
+│    croc-shop-monitoring            │
 │  (Prometheus scrapes all namespaces)│
 └─────────────────────────────────────┘
 ```
 
 ## Namespace Breakdown
 
-### 1. `crock-shop-frontend`
+### 1. `croc-shop-frontend`
 **Purpose**: User-facing web application  
 **Resources**: Frontend deployment, service  
 **Communication**: Calls all backend services via FQDN  
 **Istio Features**: Gateway entry point, client-side load balancing
 
-### 2. `crock-shop-product-catalog`
+### 2. `croc-shop-product-catalog`
 **Purpose**: Product inventory management  
 **Resources**: Product catalog deployment, service, HPA, ConfigMap  
 **Communication**: 
 - Receives requests from frontend
-- Connects to PostgreSQL in `crock-shop-data`
+- Connects to PostgreSQL in `croc-shop-data`
 **Istio Features**: 
 - LEAST_REQUEST load balancing
 - Circuit breaker configuration
 - Retry policies
 
-### 3. `crock-shop-user`
+### 3. `croc-shop-user`
 **Purpose**: Authentication and user management  
 **Resources**: User deployment, service, HPA, Secret (JWT)  
 **Communication**: Receives requests from frontend  
 **Istio Features**: ROUND_ROBIN load balancing
 
-### 4. `crock-shop-cart`
+### 4. `croc-shop-cart`
 **Purpose**: Shopping cart management  
 **Resources**: Cart deployment, service, HPA, ConfigMap  
 **Communication**:
 - Receives requests from frontend
-- Connects to Redis in `crock-shop-data`
+- Connects to Redis in `croc-shop-data`
 **Istio Features**: Consistent hash load balancing by user-id
 
-### 5. `crock-shop-order`
+### 5. `croc-shop-order`
 **Purpose**: Order processing  
 **Resources**: Order deployment, service, HPA  
 **Communication**: Receives requests from frontend  
@@ -88,7 +88,7 @@ Crocs Shop uses a **dedicated namespace per service** approach, which is a best 
 - LEAST_REQUEST load balancing
 - Retry policies
 
-### 6. `crock-shop-data`
+### 6. `croc-shop-data`
 **Purpose**: Data layer isolation  
 **Resources**: PostgreSQL, Redis deployments and services  
 **Communication**: Only accepts connections from authorized namespaces  
@@ -96,10 +96,10 @@ Crocs Shop uses a **dedicated namespace per service** approach, which is a best 
 - Network policies restrict access
 - Authorization policies enforce namespace-level ACLs
 
-### 7. `crock-shop-monitoring`
+### 7. `croc-shop-monitoring`
 **Purpose**: Observability stack  
 **Resources**: Prometheus, Grafana  
-**Communication**: Scrapes metrics from all crock-shop namespaces  
+**Communication**: Scrapes metrics from all croc-shop namespaces  
 **Features**: Cross-namespace service discovery for monitoring
 
 ## Cross-Namespace Communication
@@ -112,9 +112,9 @@ Services communicate across namespaces using **Fully Qualified Domain Names (FQD
 ```
 
 Examples:
-- Frontend → Product Catalog: `product-catalog.crock-shop-product-catalog.svc.cluster.local:3001`
-- Cart → Redis: `redis.crock-shop-data.svc.cluster.local:6379`
-- Product Catalog → PostgreSQL: `postgres.crock-shop-data.svc.cluster.local:5432`
+- Frontend → Product Catalog: `product-catalog.croc-shop-product-catalog.svc.cluster.local:3001`
+- Cart → Redis: `redis.croc-shop-data.svc.cluster.local:6379`
+- Product Catalog → PostgreSQL: `postgres.croc-shop-data.svc.cluster.local:5432`
 
 ### Istio ServiceEntries
 ServiceEntries explicitly define cross-namespace service dependencies:
@@ -124,10 +124,10 @@ apiVersion: networking.istio.io/v1beta1
 kind: ServiceEntry
 metadata:
   name: product-catalog-entry
-  namespace: crock-shop-frontend
+  namespace: croc-shop-frontend
 spec:
   hosts:
-  - product-catalog.crock-shop-product-catalog.svc.cluster.local
+  - product-catalog.croc-shop-product-catalog.svc.cluster.local
   location: MESH_INTERNAL
   resolution: DNS
 ```
@@ -145,13 +145,13 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: product-catalog-policy
-  namespace: crock-shop-product-catalog
+  namespace: croc-shop-product-catalog
 spec:
   ingress:
   - from:
     - namespaceSelector:
         matchLabels:
-          name: crock-shop-frontend
+          name: croc-shop-frontend
 ```
 
 ### Authorization Policies
@@ -162,13 +162,13 @@ apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
   name: frontend-to-services
-  namespace: crock-shop-product-catalog
+  namespace: croc-shop-product-catalog
 spec:
   action: ALLOW
   rules:
   - from:
     - source:
-        namespaces: ["crock-shop-frontend", "istio-system"]
+        namespaces: ["croc-shop-frontend", "istio-system"]
 ```
 
 ## Service Mesh Features Demonstrated
@@ -271,17 +271,17 @@ kubectl apply -f k8s/monitoring/grafana.yaml
 
 ### Check Namespace Status
 ```bash
-kubectl get namespaces -l app=crock-shop
+kubectl get namespaces -l app=croc-shop
 ```
 
 ### View All Pods Across Namespaces
 ```bash
-kubectl get pods --all-namespaces -l app=crock-shop
+kubectl get pods --all-namespaces -l app=croc-shop
 ```
 
 ### Check Istio Sidecar Injection
 ```bash
-kubectl get pods -n crock-shop-frontend -o jsonpath='{.items[*].spec.containers[*].name}'
+kubectl get pods -n croc-shop-frontend -o jsonpath='{.items[*].spec.containers[*].name}'
 # Should show: frontend istio-proxy
 ```
 
@@ -303,10 +303,10 @@ kubectl get networkpolicies --all-namespaces
 ### Test Cross-Namespace Communication
 ```bash
 # Exec into frontend pod
-kubectl exec -it -n crock-shop-frontend <pod-name> -c frontend -- sh
+kubectl exec -it -n croc-shop-frontend <pod-name> -c frontend -- sh
 
 # Test connection to product catalog
-curl http://product-catalog.crock-shop-product-catalog.svc.cluster.local:3001/api/products
+curl http://product-catalog.croc-shop-product-catalog.svc.cluster.local:3001/api/products
 ```
 
 ## Benefits of Multi-Namespace Architecture
@@ -384,7 +384,7 @@ kubectl get pod -n <namespace> -o yaml | grep prometheus.io
 
 2. **Verify Prometheus scrape config**:
 ```bash
-kubectl get configmap prometheus-config -n crock-shop-monitoring -o yaml
+kubectl get configmap prometheus-config -n croc-shop-monitoring -o yaml
 ```
 
 ## Best Practices

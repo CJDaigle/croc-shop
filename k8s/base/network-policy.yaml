@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: product-catalog-policy
-  namespace: crock-shop-product-catalog
+  namespace: croc-shop-product-catalog
 spec:
   podSelector:
     matchLabels:
@@ -14,7 +14,7 @@ spec:
   - from:
     - namespaceSelector:
         matchLabels:
-          name: crock-shop-frontend
+          name: croc-shop-frontend
     - namespaceSelector:
         matchLabels:
           name: istio-system
@@ -25,7 +25,7 @@ spec:
   - to:
     - namespaceSelector:
         matchLabels:
-          name: crock-shop-data
+          name: croc-shop-data
       podSelector:
         matchLabels:
           app: postgres
@@ -44,7 +44,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: cart-policy
-  namespace: crock-shop-cart
+  namespace: croc-shop-cart
 spec:
   podSelector:
     matchLabels:
@@ -56,7 +56,7 @@ spec:
   - from:
     - namespaceSelector:
         matchLabels:
-          name: crock-shop-frontend
+          name: croc-shop-frontend
     - namespaceSelector:
         matchLabels:
           name: istio-system
@@ -67,7 +67,7 @@ spec:
   - to:
     - namespaceSelector:
         matchLabels:
-          name: crock-shop-data
+          name: croc-shop-data
       podSelector:
         matchLabels:
           app: redis
@@ -85,8 +85,114 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
+  name: frontend-policy
+  namespace: croc-shop-frontend
+spec:
+  podSelector:
+    matchLabels:
+      app: frontend
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: croc-shop-product-catalog
+      podSelector:
+        matchLabels:
+          app: product-catalog
+    ports:
+    - protocol: TCP
+      port: 3001
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: croc-shop-user
+      podSelector:
+        matchLabels:
+          app: user
+    ports:
+    - protocol: TCP
+      port: 3002
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: croc-shop-cart
+      podSelector:
+        matchLabels:
+          app: cart
+    ports:
+    - protocol: TCP
+      port: 3003
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: croc-shop-order
+      podSelector:
+        matchLabels:
+          app: order
+    ports:
+    - protocol: TCP
+      port: 3004
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: user-policy
+  namespace: croc-shop-user
+spec:
+  podSelector:
+    matchLabels:
+      app: user
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: croc-shop-frontend
+    - namespaceSelector:
+        matchLabels:
+          name: istio-system
+    ports:
+    - protocol: TCP
+      port: 3002
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: order-policy
+  namespace: croc-shop-order
+spec:
+  podSelector:
+    matchLabels:
+      app: order
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: croc-shop-frontend
+    - namespaceSelector:
+        matchLabels:
+          name: istio-system
+    ports:
+    - protocol: TCP
+      port: 3004
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
   name: postgres-policy
-  namespace: crock-shop-data
+  namespace: croc-shop-data
 spec:
   podSelector:
     matchLabels:
@@ -97,7 +203,7 @@ spec:
   - from:
     - namespaceSelector:
         matchLabels:
-          name: crock-shop-product-catalog
+          name: croc-shop-product-catalog
     ports:
     - protocol: TCP
       port: 5432
@@ -106,7 +212,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: redis-policy
-  namespace: crock-shop-data
+  namespace: croc-shop-data
 spec:
   podSelector:
     matchLabels:
@@ -117,7 +223,7 @@ spec:
   - from:
     - namespaceSelector:
         matchLabels:
-          name: crock-shop-cart
+          name: croc-shop-cart
     ports:
     - protocol: TCP
       port: 6379

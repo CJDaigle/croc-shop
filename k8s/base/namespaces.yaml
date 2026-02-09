@@ -1,62 +1,62 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: crock-shop-frontend
+  name: croc-shop-frontend
   labels:
-    name: crock-shop-frontend
+    name: croc-shop-frontend
     istio-injection: enabled
-    app: crock-shop
+    app: croc-shop
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: crock-shop-product-catalog
+  name: croc-shop-product-catalog
   labels:
-    name: crock-shop-product-catalog
+    name: croc-shop-product-catalog
     istio-injection: enabled
-    app: crock-shop
+    app: croc-shop
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: crock-shop-user
+  name: croc-shop-user
   labels:
-    name: crock-shop-user
+    name: croc-shop-user
     istio-injection: enabled
-    app: crock-shop
+    app: croc-shop
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: crock-shop-cart
+  name: croc-shop-cart
   labels:
-    name: crock-shop-cart
+    name: croc-shop-cart
     istio-injection: enabled
-    app: crock-shop
+    app: croc-shop
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: crock-shop-order
+  name: croc-shop-order
   labels:
-    name: crock-shop-order
+    name: croc-shop-order
     istio-injection: enabled
-    app: crock-shop
+    app: croc-shop
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: crock-shop-data
+  name: croc-shop-data
   labels:
-    name: crock-shop-data
+    name: croc-shop-data
     istio-injection: enabled
-    app: crock-shop
+    app: croc-shop
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: crock-shop-monitoring
+  name: croc-shop-monitoring
   labels:
-    name: crock-shop-monitoring
+    name: croc-shop-monitoring
     istio-injection: enabled
-    app: crock-shop
+    app: croc-shop

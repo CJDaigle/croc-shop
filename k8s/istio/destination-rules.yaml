@@ -2,9 +2,9 @@ apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
   name: product-catalog
-  namespace: crock-shop-product-catalog
+  namespace: croc-shop-product-catalog
 spec:
-  host: product-catalog.crock-shop-product-catalog.svc.cluster.local
+  host: product-catalog.croc-shop-product-catalog.svc.cluster.local
   trafficPolicy:
     connectionPool:
       tcp:
@@ -30,9 +30,9 @@ apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
   name: user
-  namespace: crock-shop-user
+  namespace: croc-shop-user
 spec:
-  host: user.crock-shop-user.svc.cluster.local
+  host: user.croc-shop-user.svc.cluster.local
   trafficPolicy:
     loadBalancer:
       simple: ROUND_ROBIN
@@ -45,9 +45,9 @@ apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
   name: cart
-  namespace: crock-shop-cart
+  namespace: croc-shop-cart
 spec:
-  host: cart.crock-shop-cart.svc.cluster.local
+  host: cart.croc-shop-cart.svc.cluster.local
   trafficPolicy:
     loadBalancer:
       consistentHash:
@@ -61,9 +61,9 @@ apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
   name: order
-  namespace: crock-shop-order
+  namespace: croc-shop-order
 spec:
-  host: order.crock-shop-order.svc.cluster.local
+  host: order.croc-shop-order.svc.cluster.local
   trafficPolicy:
     loadBalancer:
       simple: LEAST_REQUEST

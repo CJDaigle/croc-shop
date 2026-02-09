@@ -7,17 +7,17 @@ A realistic cloud-native microservices application demonstrating Kubernetes and 
 This application demonstrates a **multi-namespace service mesh architecture** where each microservice runs in its own Kubernetes namespace, showcasing advanced service mesh capabilities:
 
 ### Microservices (Each in Dedicated Namespace)
-- **Frontend Service** (`crock-shop-frontend`): React-based web UI
-- **Product Catalog Service** (`crock-shop-product-catalog`): Postgres-backed product catalog (Node.js)
-- **Shopping Cart Service** (`crock-shop-cart`): Handles user shopping carts (Python/Flask)
-- **Order Service** (`crock-shop-order`): Processes orders (Go)
-- **User Service** (`crock-shop-user`): User authentication and profiles (Node.js)
+- **Frontend Service** (`croc-shop-frontend`): React-based web UI
+- **Product Catalog Service** (`croc-shop-product-catalog`): Postgres-backed product catalog (Node.js)
+- **Shopping Cart Service** (`croc-shop-cart`): Handles user shopping carts (Python/Flask)
+- **Order Service** (`croc-shop-order`): Processes orders (Go)
+- **User Service** (`croc-shop-user`): User authentication and profiles (Node.js)
 
-### Data Layer (`crock-shop-data`)
+### Data Layer (`croc-shop-data`)
 - **PostgreSQL**: Database for persistent storage
 - **Redis**: Cache layer for sessions and cart data
 
-### Observability (`crock-shop-monitoring`)
+### Observability (`croc-shop-monitoring`)
 - **Prometheus**: Metrics collection across all namespaces
 - **Grafana**: Visualization and dashboards
 
@@ -60,7 +60,7 @@ This application demonstrates a **multi-namespace service mesh architecture** wh
 ## Project Structure
 
 ```
-crock-shop/
+croc-shop/
 ├── services/                    # Microservices source code
 │   ├── frontend/               # React UI
 │   ├── product-catalog/        # Node.js service

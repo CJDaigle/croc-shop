@@ -2,55 +2,55 @@ apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
   name: frontend-to-services
-  namespace: crock-shop-product-catalog
+  namespace: croc-shop-product-catalog
 spec:
   action: ALLOW
   rules:
   - from:
     - source:
-        namespaces: ["crock-shop-frontend", "istio-system"]
+        namespaces: ["croc-shop-frontend", "istio-system"]
 ---
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
   name: frontend-to-user
-  namespace: crock-shop-user
+  namespace: croc-shop-user
 spec:
   action: ALLOW
   rules:
   - from:
     - source:
-        namespaces: ["crock-shop-frontend", "istio-system"]
+        namespaces: ["croc-shop-frontend", "istio-system"]
 ---
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
   name: frontend-to-cart
-  namespace: crock-shop-cart
+  namespace: croc-shop-cart
 spec:
   action: ALLOW
   rules:
   - from:
     - source:
-        namespaces: ["crock-shop-frontend", "istio-system"]
+        namespaces: ["croc-shop-frontend", "istio-system"]
 ---
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
   name: frontend-to-order
-  namespace: crock-shop-order
+  namespace: croc-shop-order
 spec:
   action: ALLOW
   rules:
   - from:
     - source:
-        namespaces: ["crock-shop-frontend", "istio-system"]
+        namespaces: ["croc-shop-frontend", "istio-system"]
 ---
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
   name: product-catalog-to-postgres
-  namespace: crock-shop-data
+  namespace: croc-shop-data
 spec:
   selector:
     matchLabels:
@@ -65,7 +65,7 @@ apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
   name: cart-to-redis
-  namespace: crock-shop-data
+  namespace: croc-shop-data
 spec:
   selector:
     matchLabels:

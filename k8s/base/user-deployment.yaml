@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: user-config
-  namespace: crock-shop-user
+  namespace: croc-shop-user
 data:
   PORT: "3002"
 ---
@@ -10,7 +10,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: user-secret
-  namespace: crock-shop-user
+  namespace: croc-shop-user
 type: Opaque
 stringData:
   JWT_SECRET: change-this-in-production-use-k8s-secrets
@@ -19,7 +19,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: user
-  namespace: crock-shop-user
+  namespace: croc-shop-user
   labels:
     app: user
     version: v1
@@ -40,7 +40,7 @@ spec:
     spec:
       containers:
       - name: user
-        image: cjdaigle2/crock-shop-user:latest
+        image: cjdaigle2/croc-shop-user:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 3002
@@ -78,7 +78,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: user
-  namespace: crock-shop-user
+  namespace: croc-shop-user
   labels:
     app: user
 spec:
@@ -95,7 +95,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: user-hpa
-  namespace: crock-shop-user
+  namespace: croc-shop-user
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
