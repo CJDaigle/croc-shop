@@ -29,11 +29,11 @@ const pool = new Pool({
 });
 
 const products = [
-  { id: 1, name: 'Classic Crock Pot', price: 49.99, description: 'Traditional slow cooker', stock: 50, category: 'cookware' },
-  { id: 2, name: 'Instant Pot Duo', price: 89.99, description: 'Multi-function pressure cooker', stock: 30, category: 'cookware' },
-  { id: 3, name: 'Ceramic Dutch Oven', price: 129.99, description: 'Premium enamel cast iron', stock: 20, category: 'cookware' },
-  { id: 4, name: 'Slow Cooker Liner', price: 9.99, description: 'Disposable cooking bags', stock: 100, category: 'accessories' },
-  { id: 5, name: 'Recipe Book Bundle', price: 24.99, description: 'Collection of slow cooker recipes', stock: 75, category: 'books' }
+  { id: 1, name: 'Classic Clog', price: 49.99, description: 'The iconic Crocs comfort clog', stock: 50, category: 'footwear' },
+  { id: 2, name: 'Classic Lined Clog', price: 59.99, description: 'Cozy lined comfort for colder days', stock: 30, category: 'footwear' },
+  { id: 3, name: 'LiteRide 360 Clog', price: 69.99, description: 'Softer, lighter, all-day comfort', stock: 20, category: 'footwear' },
+  { id: 4, name: 'Jibbitz Charms Pack', price: 14.99, description: 'Personalize your Crocs with charms', stock: 100, category: 'accessories' },
+  { id: 5, name: 'All-Terrain Clog', price: 64.99, description: 'Rugged outsole for extra traction', stock: 75, category: 'footwear' }
 ];
 
 app.get('/health', (req, res) => {

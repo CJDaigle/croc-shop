@@ -2,7 +2,7 @@
 
 set -e
 
-echo "Building Docker images for Crock Shop..."
+echo "Building Docker images for Crocs Shop..."
 
 # Build product catalog service
 echo "Building product-catalog service..."

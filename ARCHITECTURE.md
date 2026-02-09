@@ -1,8 +1,8 @@
-# Crock Shop Architecture
+# Crocs Shop Architecture
 
 ## Overview
 
-Crock Shop is a cloud-native microservices application designed to demonstrate Kubernetes and service mesh capabilities. The application implements a simple e-commerce platform for selling cookware.
+Crocs Shop is a cloud-native microservices application designed to demonstrate Kubernetes and service mesh capabilities. The application implements a simple e-commerce platform for selling footwear.
 
 ## Architecture Diagram
 

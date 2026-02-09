@@ -1,10 +1,10 @@
 # Multi-Namespace Service Mesh Architecture Guide
 
-This document explains the multi-namespace architecture of Crock Shop and how it demonstrates advanced Kubernetes and service mesh capabilities.
+This document explains the multi-namespace architecture of Crocs Shop and how it demonstrates advanced Kubernetes and service mesh capabilities.
 
 ## Architecture Overview
 
-Crock Shop uses a **dedicated namespace per service** approach, which is a best practice for:
+Crocs Shop uses a **dedicated namespace per service** approach, which is a best practice for:
 - **Isolation**: Each service has its own security boundary
 - **Resource Management**: Namespace-level quotas and limits
 - **Access Control**: Fine-grained RBAC and network policies

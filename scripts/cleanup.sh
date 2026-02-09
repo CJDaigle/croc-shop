@@ -2,7 +2,7 @@
 
 set -e
 
-echo "Cleaning up Crock Shop deployment..."
+echo "Cleaning up Crocs Shop deployment..."
 
 # Delete all crock-shop namespaces
 echo "Deleting all crock-shop namespaces and resources..."

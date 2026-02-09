@@ -1,4 +1,4 @@
-# Crock Shop - Cloud-Native E-Commerce Demo
+# Crocs Shop - Cloud-Native E-Commerce Demo
 
 A realistic cloud-native microservices application demonstrating Kubernetes and service mesh capabilities.
 

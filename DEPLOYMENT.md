@@ -1,6 +1,6 @@
 # Deployment Guide
 
-This guide covers building Docker images, pushing them to Docker Hub, and deploying the Crock Shop application to a Kubernetes cluster with Istio service mesh.
+This guide covers building Docker images, pushing them to Docker Hub, and deploying the Crocs Shop application to a Kubernetes cluster with Istio service mesh.
 
 ## Prerequisites
 

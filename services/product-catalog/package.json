@@ -1,7 +1,7 @@
 {
   "name": "product-catalog-service",
   "version": "1.0.0",
-  "description": "Product catalog microservice for Crock Shop",
+  "description": "Product catalog microservice for Crocs Shop",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

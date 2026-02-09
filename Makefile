@@ -1,7 +1,7 @@
 .PHONY: help build deploy deploy-istio deploy-monitoring clean test
 
 help:
-	@echo "Crock Shop - Cloud Native Application"
+	@echo "Crocs Shop - Cloud Native Application"
 	@echo ""
 	@echo "Available targets:"
 	@echo "  build              - Build all Docker images"

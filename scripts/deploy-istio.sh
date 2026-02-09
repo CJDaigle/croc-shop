@@ -2,7 +2,7 @@
 
 set -e
 
-echo "Deploying Crock Shop with Istio (Multi-Namespace Service Mesh)..."
+echo "Deploying Crocs Shop with Istio (Multi-Namespace Service Mesh)..."
 
 # Check if Istio is installed
 if ! command -v istioctl &> /dev/null; then

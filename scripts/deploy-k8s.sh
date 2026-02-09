@@ -2,7 +2,7 @@
 
 set -e
 
-echo "Deploying Crock Shop to Kubernetes (Multi-Namespace Architecture)..."
+echo "Deploying Crocs Shop to Kubernetes (Multi-Namespace Architecture)..."
 
 # Create namespaces
 echo "Creating namespaces..."
