@@ -83,6 +83,7 @@ services:
       DB_USER: postgres
       DB_PASSWORD: postgres
       JWT_SECRET: dev-secret-change-in-production
+      PRODUCT_CATALOG_URL: http://product-catalog:3001
     depends_on:
       postgres:
         condition: service_healthy
@@ -91,11 +92,8 @@ services:
     build: ./services/frontend
     ports:
       - "3000:80"
-    environment:
-      REACT_APP_API_BASE: http://localhost:3001
-      REACT_APP_CART_API: http://localhost:3003
-      REACT_APP_ORDER_API: http://localhost:3004
-      REACT_APP_USER_API: http://localhost:3002
+    volumes:
+      - ./services/frontend/nginx.dev.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - product-catalog
       - user

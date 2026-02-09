@@ -213,6 +213,38 @@ app.post('/api/products', async (req, res) => {
   }
 });
 
+app.patch('/api/products/:id/stock', async (req, res) => {
+  const end = httpRequestDuration.startTimer();
+  try {
+    const productId = parseInt(req.params.id);
+    const { decrement } = req.body;
+
+    if (Number.isNaN(productId) || !Number.isInteger(decrement) || decrement < 1) {
+      res.status(400).json({ error: 'Invalid product ID or decrement value' });
+      end({ method: 'PATCH', route: '/api/products/:id/stock', status_code: 400 });
+      return;
+    }
+
+    const result = await pool.query(
+      'UPDATE products SET stock = stock - $1 WHERE id = $2 AND stock >= $1 RETURNING id, stock',
+      [decrement, productId]
+    );
+
+    if (result.rows.length === 0) {
+      res.status(409).json({ error: 'Insufficient stock or product not found' });
+      end({ method: 'PATCH', route: '/api/products/:id/stock', status_code: 409 });
+      return;
+    }
+
+    res.json(result.rows[0]);
+    end({ method: 'PATCH', route: '/api/products/:id/stock', status_code: 200 });
+  } catch (error) {
+    console.error('Error updating stock:', error);
+    res.status(500).json({ error: 'Internal server error' });
+    end({ method: 'PATCH', route: '/api/products/:id/stock', status_code: 500 });
+  }
+});
+
 (async () => {
   try {
     await ensureSchema();

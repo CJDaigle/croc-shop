@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
@@ -22,6 +23,7 @@ import (
 
 var db *sql.DB
 var jwtSecret []byte
+var productCatalogURL string
 
 type contextKey string
 
@@ -182,7 +184,10 @@ func scanOrder(row interface {
 	if err != nil {
 		return nil, err
 	}
-	json.Unmarshal(itemsJSON, &o.Items)
+	if err := json.Unmarshal(itemsJSON, &o.Items); err != nil {
+		log.Printf("Warning: failed to unmarshal order %d items: %v", o.ID, err)
+		o.Items = []Item{}
+	}
 	if paidAt.Valid {
 		o.PaidAt = &paidAt.String
 	}
@@ -261,6 +266,12 @@ func createOrderHandler(w http.ResponseWriter, r *http.Request) {
 
 	req.UserID = authUserID
 
+	var computedTotal float64
+	for _, item := range req.Items {
+		computedTotal += item.Price * float64(item.Quantity)
+	}
+	req.Total = computedTotal
+
 	itemsJSON, _ := json.Marshal(req.Items)
 
 	status := "paid"
@@ -281,10 +292,35 @@ func createOrderHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	go decrementStock(req.Items)
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(order)
 	httpRequestsTotal.WithLabelValues("POST", "/api/orders", "201").Inc()
+}
+
+func decrementStock(items []Item) {
+	client := &http.Client{Timeout: 5 * time.Second}
+	for _, item := range items {
+		body, _ := json.Marshal(map[string]int{"decrement": item.Quantity})
+		url := fmt.Sprintf("%s/api/products/%d/stock", productCatalogURL, item.ProductID)
+		req, err := http.NewRequest("PATCH", url, bytes.NewReader(body))
+		if err != nil {
+			log.Printf("Error creating stock decrement request for product %d: %v", item.ProductID, err)
+			continue
+		}
+		req.Header.Set("Content-Type", "application/json")
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Printf("Error decrementing stock for product %d: %v", item.ProductID, err)
+			continue
+		}
+		resp.Body.Close()
+		if resp.StatusCode != http.StatusOK {
+			log.Printf("Stock decrement failed for product %d: status %d", item.ProductID, resp.StatusCode)
+		}
+	}
 }
 
 func getOrderHandler(w http.ResponseWriter, r *http.Request) {
@@ -337,6 +373,13 @@ func updateOrderStatusHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	validStatuses := map[string]bool{"pending": true, "paid": true, "shipped": true, "delivered": true}
+	if !validStatuses[req.Status] {
+		httpRequestsTotal.WithLabelValues("PATCH", "/api/orders/:id/status", "400").Inc()
+		http.Error(w, "Invalid status. Must be one of: pending, paid, shipped, delivered", http.StatusBadRequest)
+		return
+	}
+
 	var extra string
 	if req.Status == "shipped" {
 		extra = ", shipped_at = NOW()"
@@ -366,6 +409,11 @@ func main() {
 		secret = "your-secret-key-change-in-production"
 	}
 	jwtSecret = []byte(secret)
+
+	productCatalogURL = os.Getenv("PRODUCT_CATALOG_URL")
+	if productCatalogURL == "" {
+		productCatalogURL = "http://product-catalog:3001"
+	}
 
 	dbHost := os.Getenv("DB_HOST")
 	if dbHost == "" {

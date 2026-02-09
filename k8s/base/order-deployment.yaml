@@ -9,6 +9,7 @@ data:
   DB_PORT: "5432"
   DB_NAME: crocshop
   DB_USER: postgres
+  PRODUCT_CATALOG_URL: http://product-catalog.croc-shop-product-catalog.svc.cluster.local:3001
 ---
 apiVersion: v1
 kind: Secret
