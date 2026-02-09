@@ -13,7 +13,6 @@ fi
 
 # Create namespaces with Istio injection
 echo "Creating namespaces with Istio injection enabled..."
-kubectl apply -f k8s/base/namespace.yaml
 kubectl apply -f k8s/base/namespaces.yaml
 
 # Deploy base resources

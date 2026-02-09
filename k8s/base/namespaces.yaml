@@ -1,6 +1,14 @@
 apiVersion: v1
 kind: Namespace
 metadata:
+  name: croc-shop
+  labels:
+    name: croc-shop
+    istio-injection: enabled
+---
+apiVersion: v1
+kind: Namespace
+metadata:
   name: croc-shop-frontend
   labels:
     name: croc-shop-frontend

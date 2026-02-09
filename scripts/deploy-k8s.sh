@@ -6,7 +6,6 @@ echo "Deploying Crocs Shop to Kubernetes (Multi-Namespace Architecture)..."
 
 # Create namespaces
 echo "Creating namespaces..."
-kubectl apply -f k8s/base/namespace.yaml
 kubectl apply -f k8s/base/namespaces.yaml
 
 # Deploy databases
