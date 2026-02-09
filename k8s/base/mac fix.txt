@@ -1,0 +1,56 @@
+docker buildx build --platform linux/amd64 -t $DOCKER_USERNAME/croc-shop-product-catalog:latest ./services/product-catalog --push -t $DOCKER_USERNAME/croc-shop-product-catalog:latest
+
+docker buildx build --platform linux/amd64 -t $DOCKER_USERNAME/croc-shop-user:latest ./services/user --push -t $DOCKER_USERNAME/croc-shop-user:latest
+
+docker buildx build --platform linux/amd64 -t $DOCKER_USERNAME/croc-shop-cart:latest ./services/cart --push -t $DOCKER_USERNAME/croc-shop-cart:latest
+
+docker buildx build --platform linux/amd64 -t $DOCKER_USERNAME/croc-shop-order:latest ./services/order --push -t $DOCKER_USERNAME/croc-shop-order:latest
+
+docker buildx build --platform linux/amd64 -t $DOCKER_USERNAME/croc-shop-frontend:latest ./services/frontend --push -t $DOCKER_USERNAME/croc-shop-frontend:latest
+
+
+
+
+How to insert products
+Products are created via the Product Catalog service endpoint:
+
+POST /api/products
+Important behavior
+Right now, services/product-catalog/server.js stores products in an in-memory array (const products = [...]).
+So:
+
+A POST will work immediately.
+But products will not persist across pod restarts/rollouts (even though the service also connects to Postgres for /ready).
+Call the API (from your AWS cluster)
+Option A: Port-forward the product-catalog service (quickest)
+bash
+kubectl --kubeconfig=/Users/cdaigle/Documents/GitHub/crock-shop/.kube/config \
+  port-forward -n crock-shop-product-catalog svc/product-catalog 3001:3001
+Then create a product:
+
+bash
+curl -X POST http://localhost:3001/api/products \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "name": "Sous Vide Crock Insert",
+    "price": 19.99,
+    "description": "Insert for slow cooking + sous vide",
+    "stock": 25,
+    "category": "accessories"
+  }'
+Verify:
+
+bash
+curl http://localhost:3001/api/products | jq
+Option B: From inside the cluster (no local port-forward)
+Exec into any pod with curl/wget (often the frontend pod) and call the service DNS:
+
+bash
+kubectl --kubeconfig=/Users/cdaigle/Documents/GitHub/croc-shop/.kube/config \
+  exec -it -n crock-shop-frontend deploy/frontend -- sh -lc \
+  'curl -X POST http://product-catalog.crock-shop-product-catalog.svc.cluster.local:3001/api/products \
+    -H "Content-Type: application/json" \
+    -d "{\"name\":\"New Product\",\"price\":12.34,\"description\":\"...\",\"stock\":10,\"category\":\"cookware\"}"'
+Status
+Answer: Use POST /api/products on the product-catalog service with JSON {name, price, description, stock, category}.
+If you want these products to persist in Postgres, tell me and I’ll point out what needs to change in server.js (it currently doesn’t insert into the DB).

@@ -29,36 +29,36 @@ const pool = new Pool({
 });
 
 const seedProducts = [
-  { id: 1, name: 'Classic Clog', price: 49.99, description: 'The iconic Crocs comfort clog', stock: 50, category: 'footwear', image: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&h=300&fit=crop' },
-  { id: 2, name: 'Classic Lined Clog', price: 59.99, description: 'Cozy lined comfort for colder days', stock: 30, category: 'footwear', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop' },
-  { id: 3, name: 'LiteRide 360 Clog', price: 69.99, description: 'Softer, lighter, all-day comfort', stock: 20, category: 'footwear', image: 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=400&h=300&fit=crop' },
-  { id: 4, name: 'Jibbitz Charms Pack', price: 14.99, description: 'Personalize your Crocs with charms', stock: 100, category: 'accessories', image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400&h=300&fit=crop' },
-  { id: 5, name: 'All-Terrain Clog', price: 64.99, description: 'Rugged outsole for extra traction', stock: 75, category: 'footwear', image: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&h=300&fit=crop' },
-  { id: 6, name: 'Baya Clog', price: 44.99, description: 'Lightweight clog with classic ventilation', stock: 60, category: 'footwear', image: 'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=400&h=300&fit=crop' },
-  { id: 7, name: 'Crocband Clog', price: 49.99, description: 'Sporty band style with cushioned comfort', stock: 55, category: 'footwear', image: 'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400&h=300&fit=crop' },
-  { id: 8, name: 'Classic Platform Clog', price: 54.99, description: 'A little extra height with the same comfort', stock: 40, category: 'footwear', image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=300&fit=crop' },
-  { id: 9, name: 'Classic Slide', price: 29.99, description: 'Easy slip-on slide for everyday wear', stock: 70, category: 'footwear', image: 'https://images.unsplash.com/photo-1603808033192-082d6919d3e1?w=400&h=300&fit=crop' },
-  { id: 10, name: 'Classic Sandal', price: 34.99, description: 'Two-strap sandal with soft footbed', stock: 65, category: 'footwear', image: 'https://images.unsplash.com/photo-1562273138-f9c06c4b5fdb?w=400&h=300&fit=crop' },
-  { id: 11, name: 'Echo Clog', price: 79.99, description: 'Bold design with all-day cushioning', stock: 25, category: 'footwear', image: 'https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=400&h=300&fit=crop' },
-  { id: 12, name: 'Mellow Recovery Slide', price: 39.99, description: 'Recovery-focused softness and support', stock: 35, category: 'footwear', image: 'https://images.unsplash.com/photo-1584735175315-9d5df23860e6?w=400&h=300&fit=crop' },
-  { id: 13, name: 'LiteRide Slide', price: 44.99, description: 'Plush foam footbed for summer comfort', stock: 45, category: 'footwear', image: 'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=400&h=300&fit=crop' },
-  { id: 14, name: 'Classic Fur Sure Clog', price: 64.99, description: 'Fuzzy-lined comfort with classic shape', stock: 28, category: 'footwear', image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=400&h=300&fit=crop' },
-  { id: 15, name: 'Classic Cozzzy Sandal', price: 49.99, description: 'Soft strap sandal for lounging and errands', stock: 38, category: 'footwear', image: 'https://images.unsplash.com/photo-1605733160314-4fc7dac4bb16?w=400&h=300&fit=crop' },
-  { id: 16, name: 'Classic Boot', price: 89.99, description: 'Weather-ready boot with Crocs comfort', stock: 15, category: 'footwear', image: 'https://images.unsplash.com/photo-1608256246200-53e635b5b65f?w=400&h=300&fit=crop' },
-  { id: 17, name: 'Rain Boot', price: 74.99, description: 'Lightweight rain boot for wet days', stock: 18, category: 'footwear', image: 'https://images.unsplash.com/photo-1604671801908-6f0c6a092c05?w=400&h=300&fit=crop' },
-  { id: 18, name: 'Jibbitz Letter Charms', price: 9.99, description: 'Spell it out with letter charms', stock: 120, category: 'accessories', image: 'https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=400&h=300&fit=crop' },
-  { id: 19, name: 'Jibbitz Glow Charms', price: 12.99, description: 'Glow-in-the-dark charms for night fun', stock: 90, category: 'accessories', image: 'https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=400&h=300&fit=crop' },
-  { id: 20, name: 'Jibbitz Sports Charms', price: 11.99, description: 'Sports-themed charms for fans', stock: 80, category: 'accessories', image: 'https://images.unsplash.com/photo-1587563871167-1ee9c731aefb?w=400&h=300&fit=crop' },
-  { id: 21, name: 'Classic Socks', price: 16.99, description: 'Soft crew socks that pair perfectly with clogs', stock: 75, category: 'apparel', image: 'https://images.unsplash.com/photo-1586350977771-b3b0abd50c82?w=400&h=300&fit=crop' },
-  { id: 22, name: 'Cozy Slipper', price: 54.99, description: 'Indoor slipper with plush lining', stock: 22, category: 'footwear', image: 'https://images.unsplash.com/photo-1631984564919-1f6b2313a71c?w=400&h=300&fit=crop' },
-  { id: 23, name: 'Travel Tote', price: 24.99, description: 'Simple tote bag for daily essentials', stock: 50, category: 'accessories', image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=300&fit=crop' },
-  { id: 24, name: 'Waterproof Shoe Spray', price: 13.99, description: 'Helps repel water and stains', stock: 85, category: 'care', image: 'https://images.unsplash.com/photo-1626947346165-4c2288dadc2a?w=400&h=300&fit=crop' },
-  { id: 25, name: 'Cleaning Kit', price: 19.99, description: 'Brush and cleaner for easy maintenance', stock: 65, category: 'care', image: 'https://images.unsplash.com/photo-1585828922344-85c9daa264b0?w=400&h=300&fit=crop' },
-  { id: 26, name: 'Fuzzy Lined Slide', price: 42.99, description: 'Warm slide with soft fuzzy lining', stock: 27, category: 'footwear', image: 'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=400&h=300&fit=crop' },
-  { id: 27, name: 'Kids Classic Clog', price: 34.99, description: 'Kid-sized classic comfort and durability', stock: 90, category: 'footwear', image: 'https://images.unsplash.com/photo-1514989940723-e8e51635b782?w=400&h=300&fit=crop' },
-  { id: 28, name: 'Kids Jibbitz Variety Pack', price: 15.99, description: 'A fun variety pack for kids', stock: 110, category: 'accessories', image: 'https://images.unsplash.com/photo-1596522354195-e84ae3c98731?w=400&h=300&fit=crop' },
-  { id: 29, name: 'All-Day Comfort Insole', price: 21.99, description: 'Extra cushioning for long days', stock: 40, category: 'accessories', image: 'https://images.unsplash.com/photo-1595341888016-a392ef81b7de?w=400&h=300&fit=crop' },
-  { id: 30, name: 'Classic Baseball Cap', price: 22.99, description: 'Everyday cap with simple embroidered logo', stock: 48, category: 'apparel', image: 'https://images.unsplash.com/photo-1588850561407-ed78c334e67a?w=400&h=300&fit=crop' }
+  { id: 1, name: 'Classic Clog', price: 49.99, description: 'The iconic Crocs comfort clog', stock: 50, category: 'footwear', image: '/images/products/1.jpg' },
+  { id: 2, name: 'Classic Lined Clog', price: 59.99, description: 'Cozy lined comfort for colder days', stock: 30, category: 'footwear', image: '/images/products/2.jpg' },
+  { id: 3, name: 'LiteRide 360 Clog', price: 69.99, description: 'Softer, lighter, all-day comfort', stock: 20, category: 'footwear', image: '/images/products/3.jpg' },
+  { id: 4, name: 'Jibbitz Charms Pack', price: 14.99, description: 'Personalize your Crocs with charms', stock: 100, category: 'accessories', image: '/images/products/4.jpg' },
+  { id: 5, name: 'All-Terrain Clog', price: 64.99, description: 'Rugged outsole for extra traction', stock: 75, category: 'footwear', image: '/images/products/5.jpg' },
+  { id: 6, name: 'Baya Clog', price: 44.99, description: 'Lightweight clog with classic ventilation', stock: 60, category: 'footwear', image: '/images/products/6.jpg' },
+  { id: 7, name: 'Crocband Clog', price: 49.99, description: 'Sporty band style with cushioned comfort', stock: 55, category: 'footwear', image: '/images/products/7.jpg' },
+  { id: 8, name: 'Classic Platform Clog', price: 54.99, description: 'A little extra height with the same comfort', stock: 40, category: 'footwear', image: '/images/products/8.jpg' },
+  { id: 9, name: 'Classic Slide', price: 29.99, description: 'Easy slip-on slide for everyday wear', stock: 70, category: 'footwear', image: '/images/products/9.jpg' },
+  { id: 10, name: 'Classic Sandal', price: 34.99, description: 'Two-strap sandal with soft footbed', stock: 65, category: 'footwear', image: '/images/products/10.jpg' },
+  { id: 11, name: 'Echo Clog', price: 79.99, description: 'Bold design with all-day cushioning', stock: 25, category: 'footwear', image: '/images/products/11.jpg' },
+  { id: 12, name: 'Mellow Recovery Slide', price: 39.99, description: 'Recovery-focused softness and support', stock: 35, category: 'footwear', image: '/images/products/12.jpg' },
+  { id: 13, name: 'LiteRide Slide', price: 44.99, description: 'Plush foam footbed for summer comfort', stock: 45, category: 'footwear', image: '/images/products/13.jpg' },
+  { id: 14, name: 'Classic Fur Sure Clog', price: 64.99, description: 'Fuzzy-lined comfort with classic shape', stock: 28, category: 'footwear', image: '/images/products/14.jpg' },
+  { id: 15, name: 'Classic Cozzzy Sandal', price: 49.99, description: 'Soft strap sandal for lounging and errands', stock: 38, category: 'footwear', image: '/images/products/15.jpg' },
+  { id: 16, name: 'Classic Boot', price: 89.99, description: 'Weather-ready boot with Crocs comfort', stock: 15, category: 'footwear', image: '/images/products/16.jpg' },
+  { id: 17, name: 'Rain Boot', price: 74.99, description: 'Lightweight rain boot for wet days', stock: 18, category: 'footwear', image: '/images/products/17.jpg' },
+  { id: 18, name: 'Jibbitz Letter Charms', price: 9.99, description: 'Spell it out with letter charms', stock: 120, category: 'accessories', image: '/images/products/18.jpg' },
+  { id: 19, name: 'Jibbitz Glow Charms', price: 12.99, description: 'Glow-in-the-dark charms for night fun', stock: 90, category: 'accessories', image: '/images/products/19.jpg' },
+  { id: 20, name: 'Jibbitz Sports Charms', price: 11.99, description: 'Sports-themed charms for fans', stock: 80, category: 'accessories', image: '/images/products/20.jpg' },
+  { id: 21, name: 'Classic Socks', price: 16.99, description: 'Soft crew socks that pair perfectly with clogs', stock: 75, category: 'apparel', image: '/images/products/21.jpg' },
+  { id: 22, name: 'Cozy Slipper', price: 54.99, description: 'Indoor slipper with plush lining', stock: 22, category: 'footwear', image: '/images/products/22.jpg' },
+  { id: 23, name: 'Travel Tote', price: 24.99, description: 'Simple tote bag for daily essentials', stock: 50, category: 'accessories', image: '/images/products/23.jpg' },
+  { id: 24, name: 'Waterproof Shoe Spray', price: 13.99, description: 'Helps repel water and stains', stock: 85, category: 'care', image: '/images/products/24.jpg' },
+  { id: 25, name: 'Cleaning Kit', price: 19.99, description: 'Brush and cleaner for easy maintenance', stock: 65, category: 'care', image: '/images/products/25.jpg' },
+  { id: 26, name: 'Fuzzy Lined Slide', price: 42.99, description: 'Warm slide with soft fuzzy lining', stock: 27, category: 'footwear', image: '/images/products/26.jpg' },
+  { id: 27, name: 'Kids Classic Clog', price: 34.99, description: 'Kid-sized classic comfort and durability', stock: 90, category: 'footwear', image: '/images/products/27.jpg' },
+  { id: 28, name: 'Kids Jibbitz Variety Pack', price: 15.99, description: 'A fun variety pack for kids', stock: 110, category: 'accessories', image: '/images/products/28.jpg' },
+  { id: 29, name: 'All-Day Comfort Insole', price: 21.99, description: 'Extra cushioning for long days', stock: 40, category: 'accessories', image: '/images/products/29.jpg' },
+  { id: 30, name: 'Classic Baseball Cap', price: 22.99, description: 'Everyday cap with simple embroidered logo', stock: 48, category: 'apparel', image: '/images/products/30.jpg' }
 ];
 
 async function ensureSchema() {
@@ -73,6 +73,18 @@ async function ensureSchema() {
       image TEXT
     );
   `);
+  await pool.query(`
+    ALTER TABLE products ADD COLUMN IF NOT EXISTS image TEXT;
+  `);
+}
+
+async function backfillImages() {
+  for (const p of seedProducts) {
+    await pool.query(
+      'UPDATE products SET image = $1 WHERE id = $2 AND (image IS NULL OR image NOT LIKE $3)',
+      [p.image, p.id, '/images/products/%']
+    );
+  }
 }
 
 async function seedIfEmpty() {
@@ -126,7 +138,7 @@ app.get('/api/products', async (req, res) => {
   try {
     const { category } = req.query;
     const params = [];
-    let sql = 'SELECT id, name, price::float8 AS price, description, stock, category FROM products';
+    let sql = 'SELECT id, name, price::float8 AS price, description, stock, category, image FROM products';
 
     if (category) {
       params.push(category);
@@ -157,7 +169,7 @@ app.get('/api/products/:id', async (req, res) => {
     }
 
     const result = await pool.query(
-      'SELECT id, name, price::float8 AS price, description, stock, category FROM products WHERE id = $1',
+      'SELECT id, name, price::float8 AS price, description, stock, category, image FROM products WHERE id = $1',
       [productId]
     );
 
@@ -205,6 +217,7 @@ app.post('/api/products', async (req, res) => {
   try {
     await ensureSchema();
     await seedIfEmpty();
+    await backfillImages();
     app.listen(PORT, () => {
       console.log(`Product Catalog Service running on port ${PORT}`);
     });
