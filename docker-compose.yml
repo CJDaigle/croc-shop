@@ -49,6 +49,14 @@ services:
     environment:
       PORT: 3002
       JWT_SECRET: dev-secret-change-in-production
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: crocshop
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   cart:
     build: ./services/cart
@@ -68,6 +76,14 @@ services:
       - "3004:3004"
     environment:
       PORT: 3004
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: crocshop
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   frontend:
     build: ./services/frontend

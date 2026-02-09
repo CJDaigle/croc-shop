@@ -204,6 +204,12 @@ spec:
     - namespaceSelector:
         matchLabels:
           name: croc-shop-product-catalog
+    - namespaceSelector:
+        matchLabels:
+          name: croc-shop-user
+    - namespaceSelector:
+        matchLabels:
+          name: croc-shop-order
     ports:
     - protocol: TCP
       port: 5432

@@ -5,6 +5,7 @@ import ProductList from './components/ProductList';
 import Cart from './components/Cart';
 import Login from './components/Login';
 import Orders from './components/Orders';
+import Profile from './components/Profile';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -41,6 +42,10 @@ function App() {
                 </Link>
                 {user && (
                   <>
+                    <Link to="/profile" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                      <User className="w-4 h-4 mr-1" />
+                      Profile
+                    </Link>
                     <Link to="/orders" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium flex items-center">
                       <Package className="w-4 h-4 mr-1" />
                       Orders
@@ -78,6 +83,7 @@ function App() {
             <Route path="/cart" element={<Cart user={user} setCartCount={setCartCount} />} />
             <Route path="/login" element={<Login setUser={setUser} />} />
             <Route path="/orders" element={<Orders user={user} />} />
+            <Route path="/profile" element={<Profile user={user} />} />
           </Routes>
         </main>
       </div>

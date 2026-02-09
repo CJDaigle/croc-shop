@@ -76,6 +76,36 @@ spec:
 apiVersion: networking.istio.io/v1beta1
 kind: ServiceEntry
 metadata:
+  name: postgres-entry
+  namespace: croc-shop-user
+spec:
+  hosts:
+  - postgres.croc-shop-data.svc.cluster.local
+  ports:
+  - number: 5432
+    name: postgres
+    protocol: TCP
+  location: MESH_INTERNAL
+  resolution: DNS
+---
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: postgres-entry
+  namespace: croc-shop-order
+spec:
+  hosts:
+  - postgres.croc-shop-data.svc.cluster.local
+  ports:
+  - number: 5432
+    name: postgres
+    protocol: TCP
+  location: MESH_INTERNAL
+  resolution: DNS
+---
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
   name: redis-entry
   namespace: croc-shop-cart
 spec:

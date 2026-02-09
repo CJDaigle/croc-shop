@@ -1,28 +1,38 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/cors"
 )
 
+var db *sql.DB
+
 type Order struct {
-	ID        int       `json:"id"`
-	UserID    int       `json:"userId"`
-	Items     []Item    `json:"items"`
-	Total     float64   `json:"total"`
-	Status    string    `json:"status"`
-	CreatedAt time.Time `json:"createdAt"`
+	ID              int       `json:"id"`
+	UserID          int       `json:"userId"`
+	Items           []Item    `json:"items"`
+	Total           float64   `json:"total"`
+	Status          string    `json:"status"`
+	ShippingAddress string    `json:"shippingAddress"`
+	ShippingCity    string    `json:"shippingCity"`
+	ShippingState   string    `json:"shippingState"`
+	ShippingZip     string    `json:"shippingZip"`
+	PaymentMethod   string    `json:"paymentMethod"`
+	PaidAt          *string   `json:"paidAt"`
+	ShippedAt       *string   `json:"shippedAt"`
+	CreatedAt       time.Time `json:"createdAt"`
 }
 
 type Item struct {
@@ -33,16 +43,17 @@ type Item struct {
 }
 
 type CreateOrderRequest struct {
-	UserID int     `json:"userId"`
-	Items  []Item  `json:"items"`
-	Total  float64 `json:"total"`
+	UserID          int     `json:"userId"`
+	Items           []Item  `json:"items"`
+	Total           float64 `json:"total"`
+	ShippingAddress string  `json:"shippingAddress"`
+	ShippingCity    string  `json:"shippingCity"`
+	ShippingState   string  `json:"shippingState"`
+	ShippingZip     string  `json:"shippingZip"`
+	PaymentMethod   string  `json:"paymentMethod"`
 }
 
 var (
-	orders      = make(map[int]*Order)
-	ordersMutex sync.RWMutex
-	nextOrderID = 1
-
 	httpRequestsTotal = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "http_requests_total",
@@ -65,6 +76,68 @@ func init() {
 	prometheus.MustRegister(httpRequestDuration)
 }
 
+func ensureSchema() error {
+	_, err := db.Exec(`
+		CREATE TABLE IF NOT EXISTS orders (
+			id SERIAL PRIMARY KEY,
+			user_id INTEGER NOT NULL,
+			items JSONB NOT NULL DEFAULT '[]',
+			total NUMERIC(10,2) NOT NULL DEFAULT 0,
+			status TEXT NOT NULL DEFAULT 'pending',
+			shipping_address TEXT,
+			shipping_city TEXT,
+			shipping_state TEXT,
+			shipping_zip TEXT,
+			payment_method TEXT,
+			paid_at TIMESTAMPTZ,
+			shipped_at TIMESTAMPTZ,
+			created_at TIMESTAMPTZ DEFAULT NOW()
+		);
+	`)
+	if err != nil {
+		return err
+	}
+	cols := []struct{ name, typ string }{
+		{"shipping_address", "TEXT"},
+		{"shipping_city", "TEXT"},
+		{"shipping_state", "TEXT"},
+		{"shipping_zip", "TEXT"},
+		{"payment_method", "TEXT"},
+		{"paid_at", "TIMESTAMPTZ"},
+		{"shipped_at", "TIMESTAMPTZ"},
+	}
+	for _, c := range cols {
+		db.Exec(fmt.Sprintf("ALTER TABLE orders ADD COLUMN IF NOT EXISTS %s %s;", c.name, c.typ))
+	}
+	return nil
+}
+
+func scanOrder(row interface {
+	Scan(dest ...interface{}) error
+}) (*Order, error) {
+	var o Order
+	var itemsJSON []byte
+	var paidAt, shippedAt sql.NullString
+	err := row.Scan(&o.ID, &o.UserID, &itemsJSON, &o.Total, &o.Status,
+		&o.ShippingAddress, &o.ShippingCity, &o.ShippingState, &o.ShippingZip,
+		&o.PaymentMethod, &paidAt, &shippedAt, &o.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
+	json.Unmarshal(itemsJSON, &o.Items)
+	if paidAt.Valid {
+		o.PaidAt = &paidAt.String
+	}
+	if shippedAt.Valid {
+		o.ShippedAt = &shippedAt.String
+	}
+	return &o, nil
+}
+
+const orderCols = `id, user_id, items, total::float8, status, 
+	COALESCE(shipping_address,''), COALESCE(shipping_city,''), COALESCE(shipping_state,''), COALESCE(shipping_zip,''),
+	COALESCE(payment_method,''), paid_at, shipped_at, created_at`
+
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{
@@ -75,6 +148,11 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 
 func readyHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	if err := db.Ping(); err != nil {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		json.NewEncoder(w).Encode(map[string]string{"status": "not ready", "error": err.Error()})
+		return
+	}
 	json.NewEncoder(w).Encode(map[string]string{"status": "ready"})
 }
 
@@ -82,29 +160,37 @@ func getOrdersHandler(w http.ResponseWriter, r *http.Request) {
 	timer := prometheus.NewTimer(httpRequestDuration.WithLabelValues("GET", "/api/orders"))
 	defer timer.ObserveDuration()
 
-	ordersMutex.RLock()
-	defer ordersMutex.RUnlock()
-
 	userIDStr := r.URL.Query().Get("userId")
-	var orderList []*Order
+	var rows *sql.Rows
+	var err error
 
 	if userIDStr != "" {
-		userID, err := strconv.Atoi(userIDStr)
-		if err != nil {
+		userID, convErr := strconv.Atoi(userIDStr)
+		if convErr != nil {
 			httpRequestsTotal.WithLabelValues("GET", "/api/orders", "400").Inc()
 			http.Error(w, "Invalid user ID", http.StatusBadRequest)
 			return
 		}
-
-		for _, order := range orders {
-			if order.UserID == userID {
-				orderList = append(orderList, order)
-			}
-		}
+		rows, err = db.Query(fmt.Sprintf("SELECT %s FROM orders WHERE user_id = $1 ORDER BY created_at DESC", orderCols), userID)
 	} else {
-		for _, order := range orders {
-			orderList = append(orderList, order)
+		rows, err = db.Query(fmt.Sprintf("SELECT %s FROM orders ORDER BY created_at DESC", orderCols))
+	}
+
+	if err != nil {
+		httpRequestsTotal.WithLabelValues("GET", "/api/orders", "500").Inc()
+		http.Error(w, "Database error", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	orderList := make([]*Order, 0)
+	for rows.Next() {
+		o, err := scanOrder(rows)
+		if err != nil {
+			log.Printf("Error scanning order: %v", err)
+			continue
 		}
+		orderList = append(orderList, o)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -123,18 +209,25 @@ func createOrderHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ordersMutex.Lock()
-	order := &Order{
-		ID:        nextOrderID,
-		UserID:    req.UserID,
-		Items:     req.Items,
-		Total:     req.Total,
-		Status:    "pending",
-		CreatedAt: time.Now(),
+	itemsJSON, _ := json.Marshal(req.Items)
+
+	status := "paid"
+	row := db.QueryRow(
+		fmt.Sprintf(`INSERT INTO orders (user_id, items, total, status, shipping_address, shipping_city, shipping_state, shipping_zip, payment_method, paid_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+		RETURNING %s`, orderCols),
+		req.UserID, itemsJSON, req.Total, status,
+		req.ShippingAddress, req.ShippingCity, req.ShippingState, req.ShippingZip,
+		req.PaymentMethod,
+	)
+
+	order, err := scanOrder(row)
+	if err != nil {
+		log.Printf("Error creating order: %v", err)
+		httpRequestsTotal.WithLabelValues("POST", "/api/orders", "500").Inc()
+		http.Error(w, "Failed to create order", http.StatusInternalServerError)
+		return
 	}
-	orders[nextOrderID] = order
-	nextOrderID++
-	ordersMutex.Unlock()
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -154,11 +247,9 @@ func getOrderHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ordersMutex.RLock()
-	order, exists := orders[orderID]
-	ordersMutex.RUnlock()
-
-	if !exists {
+	row := db.QueryRow(fmt.Sprintf("SELECT %s FROM orders WHERE id = $1", orderCols), orderID)
+	order, err := scanOrder(row)
+	if err != nil {
 		httpRequestsTotal.WithLabelValues("GET", "/api/orders/:id", "404").Inc()
 		http.Error(w, "Order not found", http.StatusNotFound)
 		return
@@ -190,16 +281,23 @@ func updateOrderStatusHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ordersMutex.Lock()
-	order, exists := orders[orderID]
-	if !exists {
-		ordersMutex.Unlock()
+	var extra string
+	if req.Status == "shipped" {
+		extra = ", shipped_at = NOW()"
+	} else if req.Status == "paid" {
+		extra = ", paid_at = NOW()"
+	}
+
+	row := db.QueryRow(
+		fmt.Sprintf("UPDATE orders SET status = $1%s WHERE id = $2 RETURNING %s", extra, orderCols),
+		req.Status, orderID,
+	)
+	order, err := scanOrder(row)
+	if err != nil {
 		httpRequestsTotal.WithLabelValues("PATCH", "/api/orders/:id/status", "404").Inc()
 		http.Error(w, "Order not found", http.StatusNotFound)
 		return
 	}
-	order.Status = req.Status
-	ordersMutex.Unlock()
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(order)
@@ -207,6 +305,45 @@ func updateOrderStatusHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	dbHost := os.Getenv("DB_HOST")
+	if dbHost == "" {
+		dbHost = "postgres"
+	}
+	dbPort := os.Getenv("DB_PORT")
+	if dbPort == "" {
+		dbPort = "5432"
+	}
+	dbName := os.Getenv("DB_NAME")
+	if dbName == "" {
+		dbName = "crocshop"
+	}
+	dbUser := os.Getenv("DB_USER")
+	if dbUser == "" {
+		dbUser = "postgres"
+	}
+	dbPassword := os.Getenv("DB_PASSWORD")
+	if dbPassword == "" {
+		dbPassword = "postgres"
+	}
+
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		dbHost, dbPort, dbUser, dbPassword, dbName)
+
+	var err error
+	db, err = sql.Open("postgres", connStr)
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+	defer db.Close()
+
+	if err := db.Ping(); err != nil {
+		log.Fatalf("Failed to ping database: %v", err)
+	}
+
+	if err := ensureSchema(); err != nil {
+		log.Fatalf("Failed to ensure schema: %v", err)
+	}
+
 	r := mux.NewRouter()
 
 	r.HandleFunc("/health", healthHandler).Methods("GET")

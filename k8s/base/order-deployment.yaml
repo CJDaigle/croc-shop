@@ -5,6 +5,19 @@ metadata:
   namespace: croc-shop-order
 data:
   PORT: "3004"
+  DB_HOST: postgres.croc-shop-data.svc.cluster.local
+  DB_PORT: "5432"
+  DB_NAME: crocshop
+  DB_USER: postgres
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+  namespace: croc-shop-order
+type: Opaque
+stringData:
+  DB_PASSWORD: postgres
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -39,6 +52,12 @@ spec:
         envFrom:
         - configMapRef:
             name: order-config
+        env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: DB_PASSWORD
         livenessProbe:
           httpGet:
             path: /health

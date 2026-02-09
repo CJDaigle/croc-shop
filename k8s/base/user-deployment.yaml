@@ -5,6 +5,10 @@ metadata:
   namespace: croc-shop-user
 data:
   PORT: "3002"
+  DB_HOST: postgres.croc-shop-data.svc.cluster.local
+  DB_PORT: "5432"
+  DB_NAME: crocshop
+  DB_USER: postgres
 ---
 apiVersion: v1
 kind: Secret
@@ -14,6 +18,7 @@ metadata:
 type: Opaque
 stringData:
   JWT_SECRET: change-this-in-production-use-k8s-secrets
+  DB_PASSWORD: postgres
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -54,6 +59,11 @@ spec:
             secretKeyRef:
               name: user-secret
               key: JWT_SECRET
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: user-secret
+              key: DB_PASSWORD
         livenessProbe:
           httpGet:
             path: /health
