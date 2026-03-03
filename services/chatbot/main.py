@@ -145,6 +145,10 @@ async def chat_stream(
                                 hdr = event.headers.get(":event-type")
                                 if hdr is None:
                                     hdr = event.headers.get("event-type")
+                                if hdr is None:
+                                    hdr = event.headers.get(b":event-type")
+                                if hdr is None:
+                                    hdr = event.headers.get(b"event-type")
                                 if hdr is not None:
                                     event_type = hdr.value
                                     if isinstance(event_type, (bytes, bytearray)):
