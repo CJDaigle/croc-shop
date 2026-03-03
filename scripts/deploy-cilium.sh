@@ -75,7 +75,9 @@ echo "  ✓ Network policies applied (enforced by Cilium)"
 # Deploy Gateway API resources
 echo ""
 echo "[6/7] Deploying Gateway API resources..."
-kubectl apply -f k8s/gateway/
+kubectl apply -f k8s/gateway/gateway.yaml
+kubectl apply -f k8s/gateway/httproute.yaml
+kubectl apply -f k8s/gateway/reference-grants.yaml
 echo "  ✓ Gateway, HTTPRoutes, and ReferenceGrants applied"
 
 # Deploy monitoring
@@ -102,7 +104,7 @@ echo "  ✓ croc-shop-data"
 echo "  ✓ croc-shop-monitoring"
 echo ""
 echo "Gateway API:"
-kubectl get gateway croc-shop-gateway 2>/dev/null || echo "  (gateway not yet programmed)"
+kubectl get gateway main-gateway 2>/dev/null || echo "  (gateway not yet programmed)"
 echo ""
 echo "HTTPRoutes:"
 kubectl get httproutes 2>/dev/null || echo "  (no httproutes found)"

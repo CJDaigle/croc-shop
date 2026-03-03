@@ -255,7 +255,9 @@ The script will:
    kubectl apply -f k8s/base/network-policy.yaml
 
    # Gateway API resources (Gateway, HTTPRoutes, ReferenceGrants)
-   kubectl apply -f k8s/gateway/
+   kubectl apply -f k8s/gateway/gateway.yaml
+   kubectl apply -f k8s/gateway/httproute.yaml
+   kubectl apply -f k8s/gateway/reference-grants.yaml
    ```
 
 5. **Deploy monitoring stack**
