@@ -1,6 +1,24 @@
 # Deployment Guide
 
-This guide covers building Docker images, pushing them to Docker Hub, and deploying the Crocs Shop application to a Kubernetes cluster with Istio service mesh.
+This guide covers building Docker images, pushing them to Docker Hub, and deploying the Crocs Shop application to a Kubernetes cluster running Cilium as the CNI and service mesh.
+
+## Cluster Infrastructure
+
+| Component | Value |
+|-----------|-------|
+| **Platform** | RKE2 on AWS EC2 (Rancher managed) |
+| **Cluster name** | `cilium-ai-defense` |
+| **Kubernetes** | v1.31.12+rke2r1 |
+| **CNI** | Cilium v1.18.6 (Helm) |
+| **Nodes** | 10 (3 control-plane, 5 workers, 2 gateway) |
+| **Ingress** | Cilium Gateway API (replaces nginx-ingress) |
+| **Observability** | Hubble (relay + UI), Prometheus, Grafana |
+| **Storage** | Longhorn |
+| **TLS** | cert-manager with Let's Encrypt |
+| **Domain** | `apo-llm-test.com` (Route 53) |
+| **ClusterMesh** | Enabled |
+
+See [docs/infrastructure/](docs/infrastructure/) for cluster provisioning details.
 
 ## Prerequisites
 
@@ -10,11 +28,11 @@ This guide covers building Docker images, pushing them to Docker Hub, and deploy
     ```bash
     docker login
     ```
-- **Kubernetes Cluster**: 
-  - Local: minikube, kind, Docker Desktop
-  - Cloud: GKE, EKS, AKS, or any managed Kubernetes
-- **kubectl CLI**: Configured to access your cluster
-- **Istio**: For service mesh features (recommended)
+- **Kubernetes Cluster**: RKE2 provisioned via Rancher (see `docs/infrastructure/cluster.RKE2.yaml`)
+- **kubectl CLI**: Configured with the cluster kubeconfig
+- **Helm**: For installing Cilium and cert-manager
+- **Cilium CLI**: For status checks and connectivity tests
+  - Install: https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default/
 - **Git**: To clone the repository
 
 ## Step 1: Setup Docker Hub
@@ -111,33 +129,61 @@ find k8s/base -name "*-deployment.yaml" -type f -exec sed -i '' "s|imagePullPoli
 sed -i "s|pattern|replacement|g" file
 ```
 
-## Step 4: Install Istio (Service Mesh)
+## Step 4: Install Cilium (CNI + Service Mesh)
 
-1. **Download and install Istio**
+> **Note:** The RKE2 cluster is provisioned with `cni: none` and `rke2-ingress-nginx` disabled.
+> Cilium provides all networking, and Gateway API replaces the nginx ingress controller.
+> See `docs/infrastructure/configure-cilium-in-aws.md` for full setup details.
+
+1. **Install Gateway API CRDs** (must be done before Cilium)
    ```bash
-   # Download Istio
-   curl -L https://istio.io/downloadIstio | sh -
-   
-   # Move to Istio directory
-   cd istio-*
-   
-   # Add istioctl to PATH
-   export PATH=$PWD/bin:$PATH
-   
-   # Return to project directory
-   cd -
+   kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.1/standard-install.yaml
    ```
 
-2. **Install Istio on your cluster**
+2. **Install Cilium via Helm**
    ```bash
-   # Install with demo profile (includes observability tools)
-   istioctl install --set profile=demo -y
-   
-   # Verify installation
-   kubectl get pods -n istio-system
+   helm repo add cilium https://helm.cilium.io/
+   helm repo update
+
+   helm install cilium cilium/cilium \
+     --namespace kube-system \
+     -f docs/infrastructure/cilium-values.yaml
    ```
 
-   Wait until all Istio pods are running.
+   Or with explicit flags:
+   ```bash
+   helm install cilium cilium/cilium \
+     --namespace kube-system \
+     --set cluster.name=cluster-1 \
+     --set cluster.id=1 \
+     --set hubble.enabled=true \
+     --set hubble.relay.enabled=true \
+     --set hubble.ui.enabled=true \
+     --set hubble.metrics.enabled="{dns,drop,tcp,flow,icmp,http}" \
+     --set gatewayAPI.enabled=true \
+     --set clustermesh.useAPIServer=true
+   ```
+
+3. **Enable Gateway API features** (apply overrides on top of base values)
+   ```bash
+   helm upgrade cilium cilium/cilium \
+     --namespace kube-system \
+     --version 1.18.6 \
+     -f docs/infrastructure/cilium-values.yaml \
+     -f docs/infrastructure/cilium-overrides.yaml
+   ```
+
+4. **Verify the installation**
+   ```bash
+   cilium status --wait
+   kubectl get gatewayclasses
+   # Should show: cilium   io.cilium/gateway-controller   True
+   ```
+
+5. **Install cert-manager** (for TLS via Let's Encrypt)
+   ```bash
+   kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.0/cert-manager.yaml
+   ```
 
 ## Step 5: Deploy to Kubernetes Cluster
 
@@ -145,23 +191,22 @@ sed -i "s|pattern|replacement|g" file
 
 ```bash
 # Make scripts executable
-chmod +x scripts/deploy-istio.sh
+chmod +x scripts/deploy-cilium.sh
 chmod +x scripts/deploy-monitoring.sh
 
-# Deploy application with Istio service mesh
-./scripts/deploy-istio.sh
+# Deploy application with Cilium service mesh
+./scripts/deploy-cilium.sh
 
 # Deploy monitoring stack
 ./scripts/deploy-monitoring.sh
 ```
 
 The script will:
-- Create all 7 namespaces with Istio injection enabled
+- Create all 7 namespaces
 - Deploy PostgreSQL and Redis to `croc-shop-data` namespace
 - Deploy all microservices to their respective namespaces
-- Configure Istio Gateway, VirtualServices, and DestinationRules
-- Set up ServiceEntries for cross-namespace communication
-- Apply authorization policies and network policies
+- Apply network policies (enforced by Cilium)
+- Deploy Gateway API resources (Gateway + HTTPRoutes + ReferenceGrants)
 - Deploy Prometheus and Grafana to `croc-shop-monitoring` namespace
 
 ### Option B: Manual Step-by-Step Deployment
@@ -197,24 +242,13 @@ The script will:
    kubectl wait --for=condition=ready pod -l app=frontend -n croc-shop-frontend --timeout=300s
    ```
 
-4. **Deploy Istio configurations**
+4. **Deploy network policies and Gateway API routing**
    ```bash
-   # Gateway and VirtualService
-   kubectl apply -f k8s/istio/gateway.yaml
-   
-   # Cross-namespace service discovery
-   kubectl apply -f k8s/istio/service-entries.yaml
-   
-   # Traffic management
-   kubectl apply -f k8s/istio/destination-rules.yaml
-   kubectl apply -f k8s/istio/retry-policy.yaml
-   kubectl apply -f k8s/istio/circuit-breaker.yaml
-   
-   # Security policies
-   kubectl apply -f k8s/istio/authorization-policies.yaml
-   
-   # Network policies
+   # Network policies (enforced by Cilium at the eBPF level)
    kubectl apply -f k8s/base/network-policy.yaml
+
+   # Gateway API resources (Gateway, HTTPRoutes, ReferenceGrants)
+   kubectl apply -f k8s/gateway/
    ```
 
 5. **Deploy monitoring stack**
@@ -229,20 +263,35 @@ The script will:
 
 ## Step 6: Access the Application
 
-### Get Istio Ingress Gateway URL
+### Via Cilium Gateway API (production)
 
-**For cloud clusters with LoadBalancer:**
-```bash
-export INGRESS_HOST=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].port}')
-echo "Application URL: http://$INGRESS_HOST:$INGRESS_PORT"
+Traffic flows through the dedicated gateway nodes via Cilium's Gateway API:
+
+```
+Internet → DNS (croc-shop.apo-llm-test.com) → Gateway Nodes (hostNetwork)
+                                                      │
+                                            Cilium Gateway API (Envoy)
+                                                      │
+                                            HTTPRoute path matching
+                                                      │
+                              ┌──────────┬──────────┬──────────┬──────────┐
+                              ▼          ▼          ▼          ▼          ▼
+                           frontend  product-   user       cart       order
+                                     catalog
 ```
 
-**For local clusters (minikube, kind, Docker Desktop):**
 ```bash
-# Use port-forward to access the gateway
-kubectl port-forward -n istio-system svc/istio-ingressgateway 8080:80
+# Check Gateway status
+kubectl get gateway croc-shop-gateway
+kubectl get httproutes
 
+# Application URL (once DNS is configured)
+# https://croc-shop.apo-llm-test.com
+```
+
+### Via port-forward (development / debugging)
+```bash
+kubectl port-forward -n croc-shop-frontend svc/frontend 8080:80
 # Access at: http://localhost:8080
 ```
 
@@ -261,16 +310,15 @@ kubectl port-forward -n croc-shop-monitoring svc/grafana 3000:3000
 # Default credentials: admin/admin
 ```
 
-**Istio Observability Tools:**
+**Hubble (Cilium Observability):**
 ```bash
-# Kiali (Service Mesh Topology)
-istioctl dashboard kiali
+# Hubble CLI — observe real-time traffic flows
+cilium hubble port-forward &
+hubble observe --namespace croc-shop-frontend
 
-# Jaeger (Distributed Tracing)
-istioctl dashboard jaeger
-
-# Grafana (Istio Metrics)
-istioctl dashboard grafana
+# Hubble UI — visual service map
+kubectl port-forward -n kube-system svc/hubble-ui 12000:80
+# Open: http://localhost:12000
 ```
 
 ## Step 7: Verification
@@ -297,18 +345,20 @@ croc-shop-user               Active   5m
 kubectl get pods --all-namespaces -l app=croc-shop
 ```
 
-All pods should show `2/2` READY (application + Istio sidecar) and `Running` status.
+All pods should show `1/1` READY and `Running` status.
 
 ### Check Services
 ```bash
 kubectl get svc --all-namespaces -l app=croc-shop
 ```
 
-### Verify Istio Sidecar Injection
+### Verify Cilium Status
 ```bash
-# Check a pod has both application and istio-proxy containers
-kubectl get pod -n croc-shop-frontend -l app=frontend -o jsonpath='{.items[0].spec.containers[*].name}'
-# Should output: frontend istio-proxy
+# Check Cilium is healthy across the cluster
+cilium status
+
+# Run a connectivity test
+cilium connectivity test
 ```
 
 ### Test Cross-Namespace Communication
@@ -320,19 +370,17 @@ kubectl exec -it -n croc-shop-frontend $(kubectl get pod -n croc-shop-frontend -
 curl http://product-catalog.croc-shop-product-catalog.svc.cluster.local:3001/api/products
 ```
 
-### Check Istio Configuration
+### Check Cilium Network Policies
 ```bash
-# View ServiceEntries
-kubectl get serviceentries --all-namespaces
+# View all network policies enforced by Cilium
+kubectl get cnp --all-namespaces
+kubectl get networkpolicies --all-namespaces
 
-# View Authorization Policies
-kubectl get authorizationpolicies --all-namespaces
+# Check Cilium endpoint status
+kubectl -n kube-system exec ds/cilium -- cilium endpoint list
 
-# View DestinationRules
-kubectl get destinationrules --all-namespaces
-
-# View VirtualServices
-kubectl get virtualservices --all-namespaces
+# Observe traffic flows with Hubble
+hubble observe --namespace croc-shop-frontend --follow
 ```
 
 ### Test API Endpoints via Port-Forward
@@ -395,9 +443,9 @@ kubectl logs -n croc-shop-cart -l app=cart --tail=100 -f
 kubectl logs -n croc-shop-order -l app=order --tail=100 -f
 ```
 
-**Istio sidecar logs:**
+**Cilium agent logs:**
 ```bash
-kubectl logs -n croc-shop-product-catalog <pod-name> -c istio-proxy --tail=100
+kubectl -n kube-system logs -l k8s-app=cilium --tail=100 -f
 ```
 
 ### Debug Pod Issues
@@ -465,50 +513,51 @@ nc -zv postgres.croc-shop-data.svc.cluster.local 5432
 
 **Solution:**
 ```bash
-# Check ServiceEntries are created
-kubectl get serviceentries --all-namespaces
-
-# Check Authorization Policies
-kubectl get authorizationpolicies --all-namespaces
-
-# Check Network Policies
+# Check network policies
 kubectl get networkpolicies --all-namespaces
+kubectl get cnp --all-namespaces
+
+# Use Hubble to inspect dropped traffic
+hubble observe --namespace croc-shop-frontend --verdict DROPPED
 
 # Verify namespace labels
 kubectl get namespace croc-shop-frontend --show-labels
+
+# Check Cilium endpoint health
+kubectl -n kube-system exec ds/cilium -- cilium endpoint list
 ```
 
-#### 4. Istio Sidecar Not Injected
-**Problem:** Pods only show 1/1 containers instead of 2/2
+#### 4. Cilium Not Running Properly
+**Problem:** Network connectivity issues or policy not enforcing
 
 **Solution:**
 ```bash
-# Check namespace has istio-injection label
-kubectl get namespace croc-shop-frontend -o yaml | grep istio-injection
+# Check Cilium status
+cilium status
 
-# Add label if missing
-kubectl label namespace croc-shop-frontend istio-injection=enabled
+# Check Cilium pods are running
+kubectl get pods -n kube-system -l k8s-app=cilium
 
-# Restart pods to inject sidecar
-kubectl rollout restart deployment -n croc-shop-frontend
+# Run Cilium connectivity test
+cilium connectivity test
+
+# Restart Cilium if needed
+kubectl -n kube-system rollout restart ds/cilium
 ```
 
-#### 5. Gateway Not Accessible
-**Problem:** Can't access application through Istio gateway
+#### 5. Hubble Not Showing Flows
+**Problem:** Hubble UI or CLI shows no traffic data
 
 **Solution:**
 ```bash
-# Check Istio ingress gateway is running
-kubectl get pods -n istio-system -l app=istio-ingressgateway
+# Hubble is enabled via Helm values (hubble.enabled=true)
+# Check Hubble relay is running
+kubectl get pods -n kube-system -l app.kubernetes.io/name=hubble-relay
 
-# Check gateway configuration
-kubectl get gateway -n istio-system
-
-# Check virtual service
-kubectl get virtualservice -n istio-system
-
-# For local clusters, use port-forward
-kubectl port-forward -n istio-system svc/istio-ingressgateway 8080:80
+# Port-forward and test
+cilium hubble port-forward &
+hubble status
+hubble observe --follow
 ```
 
 ## Cleanup
@@ -529,10 +578,13 @@ kubectl delete namespace croc-shop-data
 kubectl delete namespace croc-shop-monitoring
 ```
 
-### Remove Istio
+### Remove Cilium (if desired)
 ```bash
-istioctl uninstall --purge -y
-kubectl delete namespace istio-system
+# Cilium was installed via Helm, so uninstall via Helm:
+helm uninstall cilium -n kube-system
+
+# Or use the Cilium CLI:
+cilium uninstall
 ```
 
 ## Updating Images
@@ -585,7 +637,7 @@ When you make changes to your code and want to update the deployment:
 - Use PodDisruptionBudgets
 
 ### 5. Persistent Storage
-- Use cloud provider persistent volumes (EBS, GCE PD, Azure Disk)
+- Longhorn provides distributed block storage across the cluster
 - Implement backup strategies for PostgreSQL
 - Use StatefulSets for stateful workloads
 
@@ -594,9 +646,9 @@ When you make changes to your code and want to update the deployment:
 - On startup, the service will automatically initialize the `products` table (if missing) and seed the catalog (if empty).
 
 ### 6. TLS/SSL
-- Install cert-manager for automatic certificate management
-- Configure HTTPS in Istio Gateway
-- Use Let's Encrypt for free certificates
+- cert-manager is installed with `letsencrypt-prod` ClusterIssuer
+- TLS termination at the Cilium Gateway API layer (Envoy on gateway nodes)
+- Certificates auto-provisioned via Let's Encrypt HTTP-01 challenge
 
 ### 7. Monitoring & Alerting
 - Set up Prometheus alerting rules
@@ -617,12 +669,17 @@ When you make changes to your code and want to update the deployment:
 - Enable Pod Security Standards
 - Implement RBAC policies
 - Regular security scanning of container images
-- Keep Kubernetes and Istio updated
+- Keep Kubernetes and Cilium updated
 
 ## Additional Resources
 
+- **Infrastructure Setup**: See `docs/infrastructure/configure-cilium-in-aws.md`
+- **Gateway API Recap**: See `docs/infrastructure/cilium-gateway-recap.md`
+- **Cilium Helm Values**: See `docs/infrastructure/cilium-values.yaml`
+- **Cluster Definition**: See `docs/infrastructure/cluster.RKE2.yaml`
+- **Multi-Namespace Guide**: See `MULTI-NAMESPACE-GUIDE.md`
+- **Architecture Overview**: See `ARCHITECTURE.md`
 - **Kubernetes Documentation**: https://kubernetes.io/docs/
-- **Istio Documentation**: https://istio.io/latest/docs/
-- **Docker Hub**: https://hub.docker.com/
-- **Multi-Namespace Guide**: See `MULTI-NAMESPACE-GUIDE.md` for detailed architecture explanation
-- **Architecture Overview**: See `ARCHITECTURE.md` for system design details
+- **Cilium Documentation**: https://docs.cilium.io/en/stable/
+- **Gateway API Docs**: https://gateway-api.sigs.k8s.io/
+- **Hubble Documentation**: https://docs.cilium.io/en/stable/observability/hubble/

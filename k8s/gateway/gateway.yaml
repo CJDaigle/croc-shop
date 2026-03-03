@@ -1,0 +1,30 @@
+# Cilium Gateway API - Main Gateway for croc-shop
+# Runs on dedicated gateway nodes (role=gateway) via hostNetwork
+# Requires: Gateway API CRDs installed, Cilium gatewayAPI.enabled=true
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: croc-shop-gateway
+  namespace: default
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  gatewayClassName: cilium
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: https
+      protocol: HTTPS
+      port: 443
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: croc-shop-tls
+            namespace: default
+      allowedRoutes:
+        namespaces:
+          from: All

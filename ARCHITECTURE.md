@@ -4,12 +4,23 @@
 
 Crocs Shop is a cloud-native microservices application designed to demonstrate Kubernetes and service mesh capabilities. The application implements a simple e-commerce platform for selling footwear.
 
+### Platform
+- **Cluster**: RKE2 on AWS EC2 (Rancher managed), `cilium-ai-defense`
+- **Kubernetes**: v1.31.12+rke2r1
+- **CNI + Service Mesh**: Cilium v1.18.6 (Helm)
+- **Ingress**: Cilium Gateway API with dedicated gateway nodes
+- **Storage**: Longhorn
+- **TLS**: cert-manager + Let's Encrypt
+- **Domain**: `apo-llm-test.com` (Route 53)
+- **Nodes**: 10 (3 control-plane, 5 workers, 2 gateway)
+
 ## Architecture Diagram
 
 ```
                                     ┌─────────────────┐
-                                    │  Istio Gateway  │
-                                    │   (Ingress)     │
+                                    │ Cilium Gateway  │
+                                    │  API (Envoy)    │
+                                    │  Gateway Nodes  │
                                     └────────┬────────┘
                                              │
                     ┌────────────────────────┼────────────────────────┐
@@ -40,7 +51,7 @@ Crocs Shop is a cloud-native microservices application designed to demonstrate K
                     │   Observability Stack           │
                     ├─────────────────────────────────┤
                     │  Prometheus  │  Grafana  │      │
-                    │  Jaeger      │  Kiali    │      │
+                    │  Hubble      │           │      │
                     └─────────────────────────────────┘
 ```
 
@@ -172,43 +183,39 @@ Crocs Shop is a cloud-native microservices application designed to demonstrate K
 - Allow only necessary traffic
 - Database access control
 
-## Istio Service Mesh
+## Cilium Service Mesh
 
-### Gateway
-- External traffic entry point
-- HTTP/HTTPS routing
-- TLS termination ready
+### CNI (Container Network Interface)
+- eBPF-based networking for high performance
+- VXLAN tunnel mode (pod CIDR 172.16.0.0/16)
+- Transparent encryption (WireGuard or IPsec)
+- Identity-based security at the kernel level
 
-### VirtualServices
-- Request routing rules
-- Path-based routing
-- Traffic splitting (A/B testing ready)
+### Gateway API
+- Cilium GatewayClass (`io.cilium/gateway-controller`)
+- Gateway resource with HTTP/HTTPS listeners
+- HTTPRoute resources for path-based routing to backend services
+- ReferenceGrants for cross-namespace backend access
+- Runs on dedicated gateway nodes (`role=gateway`, hostNetwork mode)
+- TLS termination via cert-manager (Let's Encrypt)
 
-### DestinationRules
-- Load balancing strategies:
-  - Product Catalog: LEAST_REQUEST
-  - User: ROUND_ROBIN
-  - Cart: Consistent hashing by user-id
-  - Order: LEAST_REQUEST
-- Circuit breaking configuration
-- Connection pool settings
+### Network Policies
+- L3/L4 policies via standard Kubernetes NetworkPolicy
+- Enforced by Cilium at the eBPF level
+- DNS-aware policies for FQDN-based rules
+- Namespace-level isolation with cross-namespace allow rules
 
-### Retry Policies
-- Automatic retry on failures
-- 3 retry attempts
-- 2s per-try timeout
-- Retry on: 5xx, reset, connect-failure
+### Load Balancing
+- eBPF-based service load balancing
+- `nodePort.enabled: true` (required for Gateway API in Cilium 1.18)
+- ClusterMesh enabled for multi-cluster support
 
-### Circuit Breaker
-- Consecutive errors threshold: 5
-- Base ejection time: 30s
-- Max ejection percentage: 50%
-- Min health percentage: 40%
-
-### Rate Limiting
-- 100 requests per minute per pod
-- Token bucket algorithm
-- Configurable via EnvoyFilter
+### Observability (Hubble)
+- Real-time network flow visibility
+- Service dependency mapping via Hubble UI
+- DNS query monitoring
+- HTTP/gRPC-level flow inspection
+- Metrics: dns, drop, tcp, flow, icmp, http
 
 ## Observability
 
@@ -225,17 +232,11 @@ Crocs Shop is a cloud-native microservices application designed to demonstrate K
 - Infrastructure monitoring
 - Custom alerting rules ready
 
-### Distributed Tracing (Jaeger via Istio)
-- End-to-end request tracing
-- Service dependency mapping
-- Latency analysis
-- Error tracking
-
-### Service Mesh Visualization (Kiali)
-- Service topology
-- Traffic flow visualization
-- Configuration validation
-- Health monitoring
+### Network Observability (Hubble)
+- Real-time traffic flow monitoring across namespaces
+- Service dependency mapping via Hubble UI
+- DNS query visibility
+- Packet drop and policy verdict inspection
 
 ## Security
 
@@ -255,9 +256,9 @@ Crocs Shop is a cloud-native microservices application designed to demonstrate K
 - Secure password hashing (bcrypt)
 
 ### Service-to-Service Communication
-- mTLS via Istio (when enabled)
-- Service account-based authentication
-- Authorization policies ready
+- Transparent encryption via Cilium (WireGuard)
+- Identity-based enforcement at the eBPF level
+- CiliumNetworkPolicy for fine-grained access control
 
 ## Scalability
 
@@ -308,6 +309,6 @@ Crocs Shop is a cloud-native microservices application designed to demonstrate K
 - **React**: Modern UI framework, component-based
 - **PostgreSQL**: ACID compliance, relational data
 - **Redis**: Fast in-memory storage, perfect for caching
-- **Istio**: Advanced traffic management, observability
+- **Cilium**: eBPF-based CNI, service mesh, and observability (Hubble)
 - **Prometheus**: Industry-standard metrics collection
 - **Grafana**: Powerful visualization and alerting

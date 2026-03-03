@@ -1,10 +1,10 @@
 # Crocs Shop - Cloud-Native E-Commerce Demo
 
-A realistic cloud-native microservices application demonstrating Kubernetes and service mesh capabilities.
+A realistic cloud-native microservices application demonstrating Kubernetes and Cilium service mesh capabilities, running on RKE2 (AWS EC2, Rancher managed) with Cilium Gateway API.
 
 ## Architecture
 
-This application demonstrates a **multi-namespace service mesh architecture** where each microservice runs in its own Kubernetes namespace, showcasing advanced service mesh capabilities:
+This application demonstrates a **multi-namespace service mesh architecture** where each microservice runs in its own Kubernetes namespace on a 10-node RKE2 cluster with Cilium v1.18.6 as the CNI and service mesh:
 
 ### Microservices (Each in Dedicated Namespace)
 - **Frontend Service** (`croc-shop-frontend`): React-based web UI
@@ -23,13 +23,18 @@ This application demonstrates a **multi-namespace service mesh architecture** wh
 
 ## Technology Stack
 
+- **Platform**: RKE2 on AWS EC2 (Rancher managed)
 - **Frontend**: React, TailwindCSS
 - **Backend Services**: Node.js, Python/Flask, Go
 - **Databases**: PostgreSQL, Redis
 - **Container Runtime**: Docker
-- **Orchestration**: Kubernetes
-- **Service Mesh**: Istio
-- **Observability**: Prometheus, Grafana, Jaeger
+- **Orchestration**: Kubernetes v1.31.12+rke2r1
+- **CNI + Service Mesh**: Cilium v1.18.6 (Helm)
+- **Ingress**: Cilium Gateway API (dedicated gateway nodes, hostNetwork)
+- **TLS**: cert-manager + Let's Encrypt
+- **Storage**: Longhorn
+- **Observability**: Prometheus, Grafana, Hubble
+- **Domain**: `apo-llm-test.com` (Route 53)
 
 ## Kubernetes Features Demonstrated
 
@@ -42,20 +47,18 @@ This application demonstrates a **multi-namespace service mesh architecture** wh
 - **Horizontal Pod Autoscaling**: CPU/memory-based scaling
 - **Network Policies**: Cross-namespace communication control
 
-### Service Mesh (Istio)
-- **Cross-Namespace Service Discovery**: ServiceEntries for mesh-wide communication
-- **mTLS Encryption**: Automatic mutual TLS between namespaces
-- **Traffic Management**: DestinationRules with load balancing strategies
-- **Circuit Breaking**: Fault tolerance and resilience
-- **Retry Policies**: Automatic retry on failures
-- **Authorization Policies**: Namespace-level access control
-- **Gateway & VirtualService**: Unified ingress routing
+### Service Mesh (Cilium)
+- **eBPF-Based Networking**: High-performance CNI with VXLAN tunnel mode
+- **Gateway API**: Cilium GatewayClass with HTTPRoute-based path routing
+- **Dedicated Gateway Nodes**: 2 nodes labeled `role=gateway` with hostNetwork Envoy
+- **Network Policies**: Standard K8s NetworkPolicy enforced by Cilium at eBPF level
+- **ClusterMesh**: Enabled for multi-cluster connectivity
+- **Hubble Metrics**: dns, drop, tcp, flow, icmp, http
 
 ### Observability
 - **Prometheus**: Multi-namespace metrics collection
 - **Grafana**: Cross-namespace dashboards
-- **Jaeger**: Distributed tracing across namespaces
-- **Kiali**: Service mesh topology visualization
+- **Hubble**: Real-time network flow visibility and service dependency mapping
 
 ## Project Structure
 
@@ -71,16 +74,22 @@ croc-shop/
 │   ├── base/
 │   │   ├── namespaces.yaml    # 7 dedicated namespaces
 │   │   ├── *-deployment.yaml  # Per-namespace deployments
-│   │   └── network-policy.yaml # Cross-namespace policies
-│   ├── istio/
-│   │   ├── gateway.yaml       # Istio ingress gateway
-│   │   ├── service-entries.yaml # Cross-namespace discovery
-│   │   ├── destination-rules.yaml # Traffic policies
-│   │   ├── authorization-policies.yaml # Access control
-│   │   └── retry-policy.yaml  # Resilience patterns
+│   │   └── network-policy.yaml # Cross-namespace policies (Cilium-enforced)
+│   ├── gateway/
+│   │   ├── gateway.yaml       # Cilium Gateway API (HTTP/HTTPS listeners)
+│   │   ├── httproute.yaml     # Path-based routing to backend services
+│   │   └── reference-grants.yaml # Cross-namespace backend access
+│   ├── istio/                 # Legacy Istio configs (kept for reference)
 │   └── monitoring/
 │       ├── prometheus.yaml    # Multi-namespace scraping
 │       └── grafana.yaml       # Observability dashboards
+├── docs/
+│   └── infrastructure/        # Cluster provisioning & Cilium setup
+│       ├── configure-cilium-in-aws.md
+│       ├── cilium-gateway-recap.md
+│       ├── cilium-overrides.yaml
+│       ├── cilium-values.yaml
+│       └── cluster.RKE2.yaml
 ├── scripts/                    # Deployment automation
 └── docker-compose.yml         # Local development
 ```

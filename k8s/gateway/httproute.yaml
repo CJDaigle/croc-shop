@@ -1,0 +1,62 @@
+# HTTPRoute for croc-shop frontend and API services
+# Routes traffic from the Cilium Gateway to backend services by path
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: croc-shop-route
+  namespace: default
+spec:
+  parentRefs:
+    - name: croc-shop-gateway
+      namespace: default
+  hostnames:
+    - "croc-shop.apo-llm-test.com"
+  rules:
+    # Frontend (default route)
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: frontend
+          namespace: croc-shop-frontend
+          port: 80
+    # Product Catalog API
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/products
+      backendRefs:
+        - name: product-catalog
+          namespace: croc-shop-product-catalog
+          port: 3001
+    # User / Auth API
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/auth
+        - path:
+            type: PathPrefix
+            value: /api/users
+      backendRefs:
+        - name: user
+          namespace: croc-shop-user
+          port: 3002
+    # Cart API
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/cart
+      backendRefs:
+        - name: cart
+          namespace: croc-shop-cart
+          port: 3003
+    # Order API
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/orders
+      backendRefs:
+        - name: order
+          namespace: croc-shop-order
+          port: 3004

@@ -1,6 +1,6 @@
 # Multi-Namespace Service Mesh Architecture Guide
 
-This document explains the multi-namespace architecture of Crocs Shop and how it demonstrates advanced Kubernetes and service mesh capabilities.
+This document explains the multi-namespace architecture of Crocs Shop and how it demonstrates advanced Kubernetes and Cilium service mesh capabilities.
 
 ## Architecture Overview
 
@@ -8,15 +8,19 @@ Crocs Shop uses a **dedicated namespace per service** approach, which is a best 
 - **Isolation**: Each service has its own security boundary
 - **Resource Management**: Namespace-level quotas and limits
 - **Access Control**: Fine-grained RBAC and network policies
-- **Service Mesh**: Demonstrates cross-namespace mTLS and traffic management
+- **Service Mesh**: Demonstrates cross-namespace traffic management via Cilium Gateway API
 
 ## Namespace Structure
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                     istio-system                            │
-│              (Istio Control Plane)                          │
-│         Gateway + VirtualService                            │
+│  Gateway Nodes (role=gateway, hostNetwork)                    │
+│  Cilium Gateway API (Envoy) → HTTPRoute path matching        │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                     kube-system                              │
+│              (Cilium CNI + Service Mesh)                     │
+│         Cilium Agent + Hubble + ClusterMesh                  │
 └─────────────────────────────────────────────────────────────┘
                           │
         ┌─────────────────┼─────────────────┐
@@ -53,7 +57,7 @@ Crocs Shop uses a **dedicated namespace per service** approach, which is a best 
 **Purpose**: User-facing web application  
 **Resources**: Frontend deployment, service  
 **Communication**: Calls all backend services via FQDN  
-**Istio Features**: Gateway entry point, client-side load balancing
+**Cilium Features**: Ingress entry point, eBPF-based load balancing
 
 ### 2. `croc-shop-product-catalog`
 **Purpose**: Product inventory management  
@@ -61,16 +65,16 @@ Crocs Shop uses a **dedicated namespace per service** approach, which is a best 
 **Communication**: 
 - Receives requests from frontend
 - Connects to PostgreSQL in `croc-shop-data`
-**Istio Features**: 
-- LEAST_REQUEST load balancing
-- Circuit breaker configuration
-- Retry policies
+**Cilium Features**: 
+- eBPF-based load balancing
+- Network policy enforcement
+- Hubble flow visibility
 
 ### 3. `croc-shop-user`
 **Purpose**: Authentication and user management  
 **Resources**: User deployment, service, HPA, Secret (JWT)  
 **Communication**: Receives requests from frontend  
-**Istio Features**: ROUND_ROBIN load balancing
+**Cilium Features**: eBPF-based load balancing
 
 ### 4. `croc-shop-cart`
 **Purpose**: Shopping cart management  
@@ -78,15 +82,15 @@ Crocs Shop uses a **dedicated namespace per service** approach, which is a best 
 **Communication**:
 - Receives requests from frontend
 - Connects to Redis in `croc-shop-data`
-**Istio Features**: Consistent hash load balancing by user-id
+**Cilium Features**: eBPF-based load balancing, identity-aware policy enforcement
 
 ### 5. `croc-shop-order`
 **Purpose**: Order processing  
 **Resources**: Order deployment, service, HPA  
 **Communication**: Receives requests from frontend  
-**Istio Features**: 
-- LEAST_REQUEST load balancing
-- Retry policies
+**Cilium Features**: 
+- eBPF-based load balancing
+- Network policy enforcement
 
 ### 6. `croc-shop-data`
 **Purpose**: Data layer isolation  
@@ -116,26 +120,13 @@ Examples:
 - Cart → Redis: `redis.croc-shop-data.svc.cluster.local:6379`
 - Product Catalog → PostgreSQL: `postgres.croc-shop-data.svc.cluster.local:5432`
 
-### Istio ServiceEntries
-ServiceEntries explicitly define cross-namespace service dependencies:
+### Cilium Cross-Namespace Communication
+Cilium uses standard Kubernetes DNS for cross-namespace service discovery. No additional ServiceEntry resources are needed — Cilium's eBPF datapath handles routing natively.
 
-```yaml
-apiVersion: networking.istio.io/v1beta1
-kind: ServiceEntry
-metadata:
-  name: product-catalog-entry
-  namespace: croc-shop-frontend
-spec:
-  hosts:
-  - product-catalog.croc-shop-product-catalog.svc.cluster.local
-  location: MESH_INTERNAL
-  resolution: DNS
-```
-
-This enables:
-- Service mesh visibility across namespaces
-- mTLS encryption between namespaces
-- Traffic metrics and tracing
+Cilium provides:
+- Automatic cross-namespace service resolution via DNS
+- Transparent encryption between namespaces (WireGuard)
+- Full traffic visibility via Hubble
 
 ### Network Policies
 Kubernetes NetworkPolicies control which namespaces can communicate:
@@ -154,68 +145,67 @@ spec:
           name: croc-shop-frontend
 ```
 
-### Authorization Policies
-Istio AuthorizationPolicies add service mesh-level access control:
+### Cilium Network Policies
+CiliumNetworkPolicy CRDs can be used for L7-aware access control beyond standard NetworkPolicies:
 
 ```yaml
-apiVersion: security.istio.io/v1beta1
-kind: AuthorizationPolicy
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
 metadata:
-  name: frontend-to-services
+  name: frontend-to-product-catalog
   namespace: croc-shop-product-catalog
 spec:
-  action: ALLOW
-  rules:
-  - from:
-    - source:
-        namespaces: ["croc-shop-frontend", "istio-system"]
+  endpointSelector:
+    matchLabels:
+      app: product-catalog
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        k8s:io.kubernetes.pod.namespace: croc-shop-frontend
+    toPorts:
+    - ports:
+      - port: "3001"
+        protocol: TCP
 ```
 
 ## Service Mesh Features Demonstrated
 
-### 1. Mutual TLS (mTLS)
-All cross-namespace communication is automatically encrypted with mTLS when Istio injection is enabled.
+### 1. Transparent Encryption
+All cross-namespace communication can be encrypted using Cilium's WireGuard integration.
 
-**Verify mTLS**:
+**Verify encryption**:
 ```bash
-istioctl authn tls-check <pod-name>.<namespace>
+cilium encrypt status
 ```
 
-### 2. Traffic Management
+### 2. Gateway API Routing
+External traffic enters via dedicated gateway nodes running Cilium's Envoy-based Gateway API. HTTPRoutes provide path-based routing to backend services across namespaces, with ReferenceGrants controlling cross-namespace access.
 
-**Load Balancing Strategies**:
-- Product Catalog: LEAST_REQUEST (best for variable request times)
-- User Service: ROUND_ROBIN (simple distribution)
-- Cart Service: Consistent Hash by user-id (session affinity)
-- Order Service: LEAST_REQUEST (optimal for processing)
-
-### 3. Resilience Patterns
-
-**Circuit Breaking**:
-```yaml
-outlierDetection:
-  consecutiveGatewayErrors: 5
-  interval: 30s
-  baseEjectionTime: 30s
+```bash
+kubectl get gateway croc-shop-gateway
+kubectl get httproutes
+kubectl get referencegrants --all-namespaces
 ```
 
-**Retry Policies**:
-```yaml
-retries:
-  attempts: 3
-  perTryTimeout: 2s
-  retryOn: 5xx,reset,connect-failure
+### 3. Load Balancing
+Cilium provides eBPF-based load balancing with `nodePort.enabled: true` (required for Gateway API in Cilium 1.18).
+
+### 4. Network Policy Enforcement
+Cilium enforces standard Kubernetes NetworkPolicies at the eBPF level and supports extended CiliumNetworkPolicy CRDs for L7 rules (HTTP path/method matching, DNS-aware policies).
+
+### 5. Observability
+
+**Hubble CLI** — real-time flow inspection:
+```bash
+hubble observe --namespace croc-shop-frontend
+hubble observe --verdict DROPPED
 ```
 
-### 4. Observability
-
-**Distributed Tracing**:
-- Traces span across all namespaces
-- View in Jaeger: `istioctl dashboard jaeger`
-
-**Service Graph**:
-- Visualize cross-namespace communication
-- View in Kiali: `istioctl dashboard kiali`
+**Hubble UI** — visual service dependency map:
+```bash
+kubectl port-forward -n kube-system svc/hubble-ui 12000:80
+# Open: http://localhost:12000
+```
 
 **Metrics**:
 - Prometheus scrapes all namespaces
@@ -228,7 +218,7 @@ retries:
 kubectl apply -f k8s/base/namespaces.yaml
 ```
 
-All namespaces are labeled with `istio-injection: enabled` for automatic sidecar injection.
+Cilium runs as a DaemonSet in `kube-system` — no per-namespace injection labels are needed.
 
 ### 2. Deploy Services
 ```bash
@@ -244,24 +234,19 @@ kubectl apply -f k8s/base/order-deployment.yaml
 kubectl apply -f k8s/base/frontend-deployment.yaml
 ```
 
-### 3. Configure Service Mesh
+### 3. Apply Network Policies
 ```bash
-# Gateway and routing
-kubectl apply -f k8s/istio/gateway.yaml
-
-# Cross-namespace discovery
-kubectl apply -f k8s/istio/service-entries.yaml
-
-# Traffic policies
-kubectl apply -f k8s/istio/destination-rules.yaml
-kubectl apply -f k8s/istio/retry-policy.yaml
-kubectl apply -f k8s/istio/circuit-breaker.yaml
-
-# Security policies
-kubectl apply -f k8s/istio/authorization-policies.yaml
+# Standard Kubernetes NetworkPolicies (enforced by Cilium)
+kubectl apply -f k8s/base/network-policy.yaml
 ```
 
-### 4. Deploy Monitoring
+### 4. Deploy Gateway API Resources
+```bash
+# Gateway, HTTPRoutes, and ReferenceGrants for cross-namespace routing
+kubectl apply -f k8s/gateway/
+```
+
+### 5. Deploy Monitoring
 ```bash
 kubectl apply -f k8s/monitoring/prometheus.yaml
 kubectl apply -f k8s/monitoring/grafana.yaml
@@ -279,20 +264,16 @@ kubectl get namespaces -l app=croc-shop
 kubectl get pods --all-namespaces -l app=croc-shop
 ```
 
-### Check Istio Sidecar Injection
+### Verify Cilium Status
 ```bash
-kubectl get pods -n croc-shop-frontend -o jsonpath='{.items[*].spec.containers[*].name}'
-# Should show: frontend istio-proxy
+cilium status
+cilium connectivity test
 ```
 
-### View ServiceEntries
+### Check Cilium Network Policies
 ```bash
-kubectl get serviceentries --all-namespaces
-```
-
-### Check Authorization Policies
-```bash
-kubectl get authorizationpolicies --all-namespaces
+kubectl get cnp --all-namespaces
+kubectl get networkpolicies --all-namespaces
 ```
 
 ### View Network Policies
@@ -315,7 +296,7 @@ curl http://product-catalog.croc-shop-product-catalog.svc.cluster.local:3001/api
 - Namespace-level RBAC
 - Network isolation by default
 - Explicit cross-namespace policies
-- mTLS between all services
+- Transparent encryption via WireGuard (if enabled)
 
 ### 2. **Resource Management**
 - Per-namespace resource quotas
@@ -328,7 +309,7 @@ curl http://product-catalog.croc-shop-product-catalog.svc.cluster.local:3001/api
 - Namespace-level access control
 
 ### 4. **Service Mesh Capabilities**
-- Demonstrates advanced Istio features
+- Demonstrates advanced Cilium service mesh features
 - Cross-namespace traffic management
 - Namespace-aware observability
 - Fine-grained authorization
@@ -346,33 +327,23 @@ curl http://product-catalog.croc-shop-product-catalog.svc.cluster.local:3001/api
 1. **Check NetworkPolicy**:
 ```bash
 kubectl describe networkpolicy -n <namespace>
+kubectl get cnp -n <namespace>
 ```
 
-2. **Check AuthorizationPolicy**:
+2. **Inspect dropped traffic with Hubble**:
 ```bash
-kubectl get authorizationpolicy -n <target-namespace>
+hubble observe --namespace <namespace> --verdict DROPPED
 ```
 
-3. **Verify ServiceEntry**:
+3. **Verify Cilium endpoint health**:
 ```bash
-kubectl get serviceentry -n <source-namespace>
+kubectl -n kube-system exec ds/cilium -- cilium endpoint list
 ```
 
-4. **Check mTLS**:
+4. **Check Cilium status**:
 ```bash
-istioctl authn tls-check <pod>.<namespace> <service>.<target-namespace>.svc.cluster.local
-```
-
-### Istio Sidecar Not Injected
-
-1. **Check namespace label**:
-```bash
-kubectl get namespace <namespace> --show-labels
-```
-
-2. **Restart pods** after labeling namespace:
-```bash
-kubectl rollout restart deployment -n <namespace>
+cilium status
+cilium connectivity test
 ```
 
 ### Metrics Not Appearing in Prometheus
@@ -390,10 +361,10 @@ kubectl get configmap prometheus-config -n croc-shop-monitoring -o yaml
 ## Best Practices
 
 1. **Always use FQDN** for cross-namespace service calls
-2. **Define ServiceEntries** for all cross-namespace dependencies
-3. **Implement NetworkPolicies** to restrict traffic
-4. **Use AuthorizationPolicies** for service mesh-level security
-5. **Monitor cross-namespace traffic** in Kiali
+2. **Implement NetworkPolicies** to restrict traffic
+3. **Use CiliumNetworkPolicy** for L7-aware security when needed
+4. **Use Hubble** to inspect dropped flows when debugging connectivity
+5. **Monitor cross-namespace traffic** via Hubble UI
 6. **Set resource quotas** per namespace
 7. **Use consistent labeling** across namespaces
 8. **Document service dependencies** between namespaces
@@ -401,7 +372,7 @@ kubectl get configmap prometheus-config -n croc-shop-monitoring -o yaml
 ## Conclusion
 
 This multi-namespace architecture demonstrates enterprise-grade Kubernetes and service mesh patterns. It showcases:
-- Advanced Istio capabilities
+- Advanced Cilium service mesh capabilities
 - Cross-namespace security and communication
 - Production-ready observability
 - Scalable microservices architecture

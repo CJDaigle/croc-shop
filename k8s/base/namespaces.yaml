@@ -4,7 +4,6 @@ metadata:
   name: croc-shop
   labels:
     name: croc-shop
-    istio-injection: enabled
 ---
 apiVersion: v1
 kind: Namespace
@@ -12,7 +11,6 @@ metadata:
   name: croc-shop-frontend
   labels:
     name: croc-shop-frontend
-    istio-injection: enabled
     app: croc-shop
 ---
 apiVersion: v1
@@ -21,7 +19,6 @@ metadata:
   name: croc-shop-product-catalog
   labels:
     name: croc-shop-product-catalog
-    istio-injection: enabled
     app: croc-shop
 ---
 apiVersion: v1
@@ -30,7 +27,6 @@ metadata:
   name: croc-shop-user
   labels:
     name: croc-shop-user
-    istio-injection: enabled
     app: croc-shop
 ---
 apiVersion: v1
@@ -39,7 +35,6 @@ metadata:
   name: croc-shop-cart
   labels:
     name: croc-shop-cart
-    istio-injection: enabled
     app: croc-shop
 ---
 apiVersion: v1
@@ -48,7 +43,6 @@ metadata:
   name: croc-shop-order
   labels:
     name: croc-shop-order
-    istio-injection: enabled
     app: croc-shop
 ---
 apiVersion: v1
@@ -57,7 +51,6 @@ metadata:
   name: croc-shop-data
   labels:
     name: croc-shop-data
-    istio-injection: enabled
     app: croc-shop
 ---
 apiVersion: v1
@@ -66,5 +59,4 @@ metadata:
   name: croc-shop-monitoring
   labels:
     name: croc-shop-monitoring
-    istio-injection: enabled
     app: croc-shop

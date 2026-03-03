@@ -15,9 +15,6 @@ spec:
     - namespaceSelector:
         matchLabels:
           name: croc-shop-frontend
-    - namespaceSelector:
-        matchLabels:
-          name: istio-system
     ports:
     - protocol: TCP
       port: 3001
@@ -57,9 +54,6 @@ spec:
     - namespaceSelector:
         matchLabels:
           name: croc-shop-frontend
-    - namespaceSelector:
-        matchLabels:
-          name: istio-system
     ports:
     - protocol: TCP
       port: 3003
@@ -158,9 +152,6 @@ spec:
     - namespaceSelector:
         matchLabels:
           name: croc-shop-frontend
-    - namespaceSelector:
-        matchLabels:
-          name: istio-system
     ports:
     - protocol: TCP
       port: 3002
@@ -181,9 +172,6 @@ spec:
     - namespaceSelector:
         matchLabels:
           name: croc-shop-frontend
-    - namespaceSelector:
-        matchLabels:
-          name: istio-system
     ports:
     - protocol: TCP
       port: 3004

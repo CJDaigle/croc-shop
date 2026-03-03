@@ -1,0 +1,4303 @@
+
+========================================
+NAMESPACE: croc-shop-frontend
+========================================
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    creationTimestamp: "2026-02-11T01:33:52Z"
+    generateName: frontend-599ff4fc98-
+    labels:
+      app: frontend
+      pod-template-hash: 599ff4fc98
+      version: v1
+    name: frontend-599ff4fc98-d6f77
+    namespace: croc-shop-frontend
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: frontend-599ff4fc98
+      uid: 697c427d-5eda-4ff0-bd8f-6b367dffe5bd
+    resourceVersion: "10408265"
+    uid: f00dcfc9-5956-40fb-8106-ab2017de200e
+  spec:
+    containers:
+    - image: cjdaigle2/croc-shop-frontend:latest
+      imagePullPolicy: Always
+      livenessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /
+          port: 80
+          scheme: HTTP
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: frontend
+      ports:
+      - containerPort: 80
+        name: http
+        protocol: TCP
+      readinessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /
+          port: 80
+          scheme: HTTP
+        initialDelaySeconds: 5
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: 100m
+          memory: 128Mi
+        requests:
+          cpu: 50m
+          memory: 64Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-c88cl
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: ip-10-0-1-248
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-c88cl
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:57Z"
+      status: "True"
+      type: PodReadyToStartContainers
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:52Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-28T06:03:12Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-28T06:03:12Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:52Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: containerd://b18a04fe0565015ee33a5f3399a206e021cbfd0b2139dbfa395a1cdda00dad18
+      image: docker.io/cjdaigle2/croc-shop-frontend:latest
+      imageID: docker.io/cjdaigle2/croc-shop-frontend@sha256:4d38b0fcd0c4333c8a978c7d6fa345c086275108cad492f567642be5142ffaff
+      lastState: {}
+      name: frontend
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2026-02-11T01:33:56Z"
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-c88cl
+        readOnly: true
+        recursiveReadOnly: Disabled
+    hostIP: 10.0.1.248
+    hostIPs:
+    - ip: 10.0.1.248
+    phase: Running
+    podIP: 172.16.6.129
+    podIPs:
+    - ip: 172.16.6.129
+    qosClass: Burstable
+    startTime: "2026-02-11T01:33:52Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    creationTimestamp: "2026-02-11T01:33:52Z"
+    generateName: frontend-599ff4fc98-
+    labels:
+      app: frontend
+      pod-template-hash: 599ff4fc98
+      version: v1
+    name: frontend-599ff4fc98-p8bmc
+    namespace: croc-shop-frontend
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: frontend-599ff4fc98
+      uid: 697c427d-5eda-4ff0-bd8f-6b367dffe5bd
+    resourceVersion: "10409730"
+    uid: accb4665-1ac6-46e4-8793-d3d841505cea
+  spec:
+    containers:
+    - image: cjdaigle2/croc-shop-frontend:latest
+      imagePullPolicy: Always
+      livenessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /
+          port: 80
+          scheme: HTTP
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: frontend
+      ports:
+      - containerPort: 80
+        name: http
+        protocol: TCP
+      readinessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /
+          port: 80
+          scheme: HTTP
+        initialDelaySeconds: 5
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: 100m
+          memory: 128Mi
+        requests:
+          cpu: 50m
+          memory: 64Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-c7gx5
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: ip-10-0-1-39
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-c7gx5
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:57Z"
+      status: "True"
+      type: PodReadyToStartContainers
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:52Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-28T06:04:59Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-28T06:04:59Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:52Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: containerd://038fe2e39c8ad69444ffa1bd4c522789445dfbb9255cdbf905e769ed2fe39c8f
+      image: docker.io/cjdaigle2/croc-shop-frontend:latest
+      imageID: docker.io/cjdaigle2/croc-shop-frontend@sha256:4d38b0fcd0c4333c8a978c7d6fa345c086275108cad492f567642be5142ffaff
+      lastState: {}
+      name: frontend
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2026-02-11T01:33:56Z"
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-c7gx5
+        readOnly: true
+        recursiveReadOnly: Disabled
+    hostIP: 10.0.1.39
+    hostIPs:
+    - ip: 10.0.1.39
+    phase: Running
+    podIP: 172.16.5.123
+    podIPs:
+    - ip: 172.16.5.123
+    qosClass: Burstable
+    startTime: "2026-02-11T01:33:52Z"
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      field.cattle.io/publicEndpoints: "null"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app":"frontend"},"name":"frontend","namespace":"croc-shop-frontend"},"spec":{"ports":[{"name":"http","port":80,"protocol":"TCP","targetPort":80}],"selector":{"app":"frontend"},"type":"ClusterIP"}}
+    creationTimestamp: "2026-02-11T01:33:52Z"
+    labels:
+      app: frontend
+    name: frontend
+    namespace: croc-shop-frontend
+    resourceVersion: "1040930"
+    uid: 3ccf35b5-2ee6-4795-8f1c-6f7f05ef1eec
+  spec:
+    clusterIP: 10.43.188.87
+    clusterIPs:
+    - 10.43.188.87
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 80
+    selector:
+      app: frontend
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      field.cattle.io/publicEndpoints: "null"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"frontend","version":"v1"},"name":"frontend","namespace":"croc-shop-frontend"},"spec":{"replicas":2,"selector":{"matchLabels":{"app":"frontend"}},"template":{"metadata":{"labels":{"app":"frontend","version":"v1"}},"spec":{"containers":[{"image":"cjdaigle2/croc-shop-frontend:latest","imagePullPolicy":"Always","livenessProbe":{"httpGet":{"path":"/","port":80},"initialDelaySeconds":30,"periodSeconds":10},"name":"frontend","ports":[{"containerPort":80,"name":"http"}],"readinessProbe":{"httpGet":{"path":"/","port":80},"initialDelaySeconds":5,"periodSeconds":5},"resources":{"limits":{"cpu":"100m","memory":"128Mi"},"requests":{"cpu":"50m","memory":"64Mi"}}}]}}}}
+    creationTimestamp: "2026-02-11T01:33:52Z"
+    generation: 3
+    labels:
+      app: frontend
+      version: v1
+    name: frontend
+    namespace: croc-shop-frontend
+    resourceVersion: "10409739"
+    uid: 002750f4-9e94-4267-8e06-6b2c0d231c36
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 2
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: frontend
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: frontend
+          version: v1
+      spec:
+        containers:
+        - image: cjdaigle2/croc-shop-frontend:latest
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 80
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: frontend
+          ports:
+          - containerPort: 80
+            name: http
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 80
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 2
+    conditions:
+    - lastTransitionTime: "2026-02-11T01:33:52Z"
+      lastUpdateTime: "2026-02-11T01:34:03Z"
+      message: ReplicaSet "frontend-599ff4fc98" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2026-02-28T06:04:59Z"
+      lastUpdateTime: "2026-02-28T06:04:59Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 3
+    readyReplicas: 2
+    replicas: 2
+    updatedReplicas: 2
+- apiVersion: apps/v1
+  kind: ReplicaSet
+  metadata:
+    annotations:
+      deployment.kubernetes.io/desired-replicas: "2"
+      deployment.kubernetes.io/max-replicas: "3"
+      deployment.kubernetes.io/revision: "1"
+      field.cattle.io/publicEndpoints: "null"
+    creationTimestamp: "2026-02-11T01:33:52Z"
+    generation: 1
+    labels:
+      app: frontend
+      pod-template-hash: 599ff4fc98
+      version: v1
+    name: frontend-599ff4fc98
+    namespace: croc-shop-frontend
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Deployment
+      name: frontend
+      uid: 002750f4-9e94-4267-8e06-6b2c0d231c36
+    resourceVersion: "10409736"
+    uid: 697c427d-5eda-4ff0-bd8f-6b367dffe5bd
+  spec:
+    replicas: 2
+    selector:
+      matchLabels:
+        app: frontend
+        pod-template-hash: 599ff4fc98
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: frontend
+          pod-template-hash: 599ff4fc98
+          version: v1
+      spec:
+        containers:
+        - image: cjdaigle2/croc-shop-frontend:latest
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 80
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: frontend
+          ports:
+          - containerPort: 80
+            name: http
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 80
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 2
+    fullyLabeledReplicas: 2
+    observedGeneration: 1
+    readyReplicas: 2
+    replicas: 2
+- apiVersion: v1
+  data:
+    ca.crt: |
+      -----BEGIN CERTIFICATE-----
+      MIIBeTCCAR+gAwIBAgIBADAKBggqhkjOPQQDAjAkMSIwIAYDVQQDDBlya2UyLXNl
+      cnZlci1jYUAxNzcwNzYwMzQzMB4XDTI2MDIxMDIxNTIyM1oXDTM2MDIwODIxNTIy
+      M1owJDEiMCAGA1UEAwwZcmtlMi1zZXJ2ZXItY2FAMTc3MDc2MDM0MzBZMBMGByqG
+      SM49AgEGCCqGSM49AwEHA0IABNynXGWgnMCm/8XWtoktWy+zcOf56REvhBVzRXQb
+      eXcK49zwqEuXGZLeflbM4jVrubOnnmvYFy+3US/H5F2aN0WjQjBAMA4GA1UdDwEB
+      /wQEAwICpDAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBQhVRuN34zJOuReCs13
+      KbNjOgWV5DAKBggqhkjOPQQDAgNIADBFAiEAs4/oIr3AS7LTliAH5mer8eiYu+cy
+      ifgjnXW8bdIHchwCIAHDb5MOAWUSn5DZVoKyv8rU9g/xnvDdyGRziCayXTqM
+      -----END CERTIFICATE-----
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubernetes.io/description: Contains a CA bundle that can be used to verify the
+        kube-apiserver when using internal endpoints such as the internal service
+        IP or kubernetes.default.svc. No other usage is guaranteed across distributions
+        of Kubernetes clusters.
+    creationTimestamp: "2026-02-11T01:31:59Z"
+    name: kube-root-ca.crt
+    namespace: croc-shop-frontend
+    resourceVersion: "84163"
+    uid: af6238b6-beb6-4b33-8f84-1d943e3a9664
+kind: List
+metadata:
+  resourceVersion: ""
+
+========================================
+NAMESPACE: croc-shop-product-catalog
+========================================
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      prometheus.io/path: /metrics
+      prometheus.io/port: "3001"
+      prometheus.io/scrape: "true"
+    creationTimestamp: "2026-02-11T01:33:41Z"
+    generateName: product-catalog-7699c8b777-
+    labels:
+      app: product-catalog
+      pod-template-hash: 7699c8b777
+      version: v1
+    name: product-catalog-7699c8b777-58xlm
+    namespace: croc-shop-product-catalog
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: product-catalog-7699c8b777
+      uid: df11cd04-f29f-4b5d-b7bc-c9394b101d3b
+    resourceVersion: "10415971"
+    uid: 549c10e8-afef-4a4e-9784-09bbc8d58e86
+  spec:
+    containers:
+    - env:
+      - name: DB_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            key: POSTGRES_PASSWORD
+            name: postgres-secret
+      envFrom:
+      - configMapRef:
+          name: product-catalog-config
+      image: cjdaigle2/croc-shop-product-catalog
+      imagePullPolicy: Always
+      livenessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /health
+          port: 3001
+          scheme: HTTP
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: product-catalog
+      ports:
+      - containerPort: 3001
+        name: http
+        protocol: TCP
+      readinessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /ready
+          port: 3001
+          scheme: HTTP
+        initialDelaySeconds: 5
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: 200m
+          memory: 256Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-nc9j7
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: ip-10-0-1-23
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-nc9j7
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:47Z"
+      status: "True"
+      type: PodReadyToStartContainers
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:41Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-28T06:18:34Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-28T06:18:34Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:41Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: containerd://483c44cb95584c69912cee6929e4e336872e77975b7c98e4cc920b36ee5df1c5
+      image: docker.io/cjdaigle2/croc-shop-product-catalog:latest
+      imageID: docker.io/cjdaigle2/croc-shop-product-catalog@sha256:7c24012eae45033beca7337c5bf986fb81b3ea2691eff4001ce702cd2b5d3953
+      lastState: {}
+      name: product-catalog
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2026-02-11T01:33:46Z"
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-nc9j7
+        readOnly: true
+        recursiveReadOnly: Disabled
+    hostIP: 10.0.1.23
+    hostIPs:
+    - ip: 10.0.1.23
+    phase: Running
+    podIP: 172.16.8.73
+    podIPs:
+    - ip: 172.16.8.73
+    qosClass: Burstable
+    startTime: "2026-02-11T01:33:41Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      prometheus.io/path: /metrics
+      prometheus.io/port: "3001"
+      prometheus.io/scrape: "true"
+    creationTimestamp: "2026-02-11T01:33:41Z"
+    generateName: product-catalog-7699c8b777-
+    labels:
+      app: product-catalog
+      pod-template-hash: 7699c8b777
+      version: v1
+    name: product-catalog-7699c8b777-r4rjp
+    namespace: croc-shop-product-catalog
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: product-catalog-7699c8b777
+      uid: df11cd04-f29f-4b5d-b7bc-c9394b101d3b
+    resourceVersion: "10408381"
+    uid: 970f77ed-e81c-4891-bff5-91cfcea578c8
+  spec:
+    containers:
+    - env:
+      - name: DB_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            key: POSTGRES_PASSWORD
+            name: postgres-secret
+      envFrom:
+      - configMapRef:
+          name: product-catalog-config
+      image: cjdaigle2/croc-shop-product-catalog
+      imagePullPolicy: Always
+      livenessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /health
+          port: 3001
+          scheme: HTTP
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: product-catalog
+      ports:
+      - containerPort: 3001
+        name: http
+        protocol: TCP
+      readinessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /ready
+          port: 3001
+          scheme: HTTP
+        initialDelaySeconds: 5
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: 200m
+          memory: 256Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-v88mj
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: ip-10-0-1-248
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-v88mj
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:48Z"
+      status: "True"
+      type: PodReadyToStartContainers
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:41Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-28T06:03:16Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-28T06:03:16Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:41Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: containerd://fa60833b568adee6224a31edcb2208a489f73e88af64603b36cc33fe26136873
+      image: docker.io/cjdaigle2/croc-shop-product-catalog:latest
+      imageID: docker.io/cjdaigle2/croc-shop-product-catalog@sha256:7c24012eae45033beca7337c5bf986fb81b3ea2691eff4001ce702cd2b5d3953
+      lastState: {}
+      name: product-catalog
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2026-02-11T01:33:47Z"
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-v88mj
+        readOnly: true
+        recursiveReadOnly: Disabled
+    hostIP: 10.0.1.248
+    hostIPs:
+    - ip: 10.0.1.248
+    phase: Running
+    podIP: 172.16.6.58
+    podIPs:
+    - ip: 172.16.6.58
+    qosClass: Burstable
+    startTime: "2026-02-11T01:33:41Z"
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app":"product-catalog"},"name":"product-catalog","namespace":"croc-shop-product-catalog"},"spec":{"ports":[{"name":"http","port":3001,"protocol":"TCP","targetPort":3001}],"selector":{"app":"product-catalog"},"type":"ClusterIP"}}
+    creationTimestamp: "2026-02-11T01:33:41Z"
+    labels:
+      app: product-catalog
+    name: product-catalog
+    namespace: croc-shop-product-catalog
+    resourceVersion: "85093"
+    uid: 1dce5ba1-a716-4d68-9ead-91e3567eb63c
+  spec:
+    clusterIP: 10.43.67.46
+    clusterIPs:
+    - 10.43.67.46
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http
+      port: 3001
+      protocol: TCP
+      targetPort: 3001
+    selector:
+      app: product-catalog
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"product-catalog","version":"v1"},"name":"product-catalog","namespace":"croc-shop-product-catalog"},"spec":{"replicas":2,"selector":{"matchLabels":{"app":"product-catalog"}},"template":{"metadata":{"annotations":{"prometheus.io/path":"/metrics","prometheus.io/port":"3001","prometheus.io/scrape":"true"},"labels":{"app":"product-catalog","version":"v1"}},"spec":{"containers":[{"env":[{"name":"DB_PASSWORD","valueFrom":{"secretKeyRef":{"key":"POSTGRES_PASSWORD","name":"postgres-secret"}}}],"envFrom":[{"configMapRef":{"name":"product-catalog-config"}}],"image":"cjdaigle2/croc-shop-product-catalog","imagePullPolicy":"Always","livenessProbe":{"httpGet":{"path":"/health","port":3001},"initialDelaySeconds":30,"periodSeconds":10},"name":"product-catalog","ports":[{"containerPort":3001,"name":"http"}],"readinessProbe":{"httpGet":{"path":"/ready","port":3001},"initialDelaySeconds":5,"periodSeconds":5},"resources":{"limits":{"cpu":"200m","memory":"256Mi"},"requests":{"cpu":"100m","memory":"128Mi"}}}]}}}}
+    creationTimestamp: "2026-02-11T01:33:41Z"
+    generation: 1
+    labels:
+      app: product-catalog
+      version: v1
+    name: product-catalog
+    namespace: croc-shop-product-catalog
+    resourceVersion: "10415975"
+    uid: 9b1ff6dc-1fd1-41bf-ac0d-f99abbd161a8
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 2
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: product-catalog
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          prometheus.io/path: /metrics
+          prometheus.io/port: "3001"
+          prometheus.io/scrape: "true"
+        creationTimestamp: null
+        labels:
+          app: product-catalog
+          version: v1
+      spec:
+        containers:
+        - env:
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: POSTGRES_PASSWORD
+                name: postgres-secret
+          envFrom:
+          - configMapRef:
+              name: product-catalog-config
+          image: cjdaigle2/croc-shop-product-catalog
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 3001
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: product-catalog
+          ports:
+          - containerPort: 3001
+            name: http
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ready
+              port: 3001
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 2
+    conditions:
+    - lastTransitionTime: "2026-02-11T01:33:41Z"
+      lastUpdateTime: "2026-02-11T01:33:52Z"
+      message: ReplicaSet "product-catalog-7699c8b777" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2026-02-28T06:18:34Z"
+      lastUpdateTime: "2026-02-28T06:18:34Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 1
+    readyReplicas: 2
+    replicas: 2
+    updatedReplicas: 2
+- apiVersion: apps/v1
+  kind: ReplicaSet
+  metadata:
+    annotations:
+      deployment.kubernetes.io/desired-replicas: "2"
+      deployment.kubernetes.io/max-replicas: "3"
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2026-02-11T01:33:41Z"
+    generation: 1
+    labels:
+      app: product-catalog
+      pod-template-hash: 7699c8b777
+      version: v1
+    name: product-catalog-7699c8b777
+    namespace: croc-shop-product-catalog
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Deployment
+      name: product-catalog
+      uid: 9b1ff6dc-1fd1-41bf-ac0d-f99abbd161a8
+    resourceVersion: "10415974"
+    uid: df11cd04-f29f-4b5d-b7bc-c9394b101d3b
+  spec:
+    replicas: 2
+    selector:
+      matchLabels:
+        app: product-catalog
+        pod-template-hash: 7699c8b777
+    template:
+      metadata:
+        annotations:
+          prometheus.io/path: /metrics
+          prometheus.io/port: "3001"
+          prometheus.io/scrape: "true"
+        creationTimestamp: null
+        labels:
+          app: product-catalog
+          pod-template-hash: 7699c8b777
+          version: v1
+      spec:
+        containers:
+        - env:
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: POSTGRES_PASSWORD
+                name: postgres-secret
+          envFrom:
+          - configMapRef:
+              name: product-catalog-config
+          image: cjdaigle2/croc-shop-product-catalog
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 3001
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: product-catalog
+          ports:
+          - containerPort: 3001
+            name: http
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ready
+              port: 3001
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 2
+    fullyLabeledReplicas: 2
+    observedGeneration: 1
+    readyReplicas: 2
+    replicas: 2
+- apiVersion: autoscaling/v2
+  kind: HorizontalPodAutoscaler
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"autoscaling/v2","kind":"HorizontalPodAutoscaler","metadata":{"annotations":{},"name":"product-catalog-hpa","namespace":"croc-shop-product-catalog"},"spec":{"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":70,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2,"scaleTargetRef":{"apiVersion":"apps/v1","kind":"Deployment","name":"product-catalog"}}}
+    creationTimestamp: "2026-02-11T01:33:42Z"
+    name: product-catalog-hpa
+    namespace: croc-shop-product-catalog
+    resourceVersion: "12408125"
+    uid: 8ae29a27-7555-400c-8e89-f134d4048d21
+  spec:
+    maxReplicas: 10
+    metrics:
+    - resource:
+        name: cpu
+        target:
+          averageUtilization: 70
+          type: Utilization
+      type: Resource
+    - resource:
+        name: memory
+        target:
+          averageUtilization: 80
+          type: Utilization
+      type: Resource
+    minReplicas: 2
+    scaleTargetRef:
+      apiVersion: apps/v1
+      kind: Deployment
+      name: product-catalog
+  status:
+    conditions:
+    - lastTransitionTime: "2026-02-11T01:33:57Z"
+      message: recommended size matches current size
+      reason: ReadyForNewScale
+      status: "True"
+      type: AbleToScale
+    - lastTransitionTime: "2026-02-17T06:05:27Z"
+      message: the HPA was able to successfully calculate a replica count from cpu
+        resource utilization (percentage of request)
+      reason: ValidMetricFound
+      status: "True"
+      type: ScalingActive
+    - lastTransitionTime: "2026-02-28T06:08:23Z"
+      message: the desired replica count is less than the minimum replica count
+      reason: TooFewReplicas
+      status: "True"
+      type: ScalingLimited
+    currentMetrics:
+    - resource:
+        current:
+          averageUtilization: 9
+          averageValue: 9m
+        name: cpu
+      type: Resource
+    - resource:
+        current:
+          averageUtilization: 27
+          averageValue: "37017600"
+        name: memory
+      type: Resource
+    currentReplicas: 2
+    desiredReplicas: 2
+- apiVersion: v1
+  data:
+    ca.crt: |
+      -----BEGIN CERTIFICATE-----
+      MIIBeTCCAR+gAwIBAgIBADAKBggqhkjOPQQDAjAkMSIwIAYDVQQDDBlya2UyLXNl
+      cnZlci1jYUAxNzcwNzYwMzQzMB4XDTI2MDIxMDIxNTIyM1oXDTM2MDIwODIxNTIy
+      M1owJDEiMCAGA1UEAwwZcmtlMi1zZXJ2ZXItY2FAMTc3MDc2MDM0MzBZMBMGByqG
+      SM49AgEGCCqGSM49AwEHA0IABNynXGWgnMCm/8XWtoktWy+zcOf56REvhBVzRXQb
+      eXcK49zwqEuXGZLeflbM4jVrubOnnmvYFy+3US/H5F2aN0WjQjBAMA4GA1UdDwEB
+      /wQEAwICpDAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBQhVRuN34zJOuReCs13
+      KbNjOgWV5DAKBggqhkjOPQQDAgNIADBFAiEAs4/oIr3AS7LTliAH5mer8eiYu+cy
+      ifgjnXW8bdIHchwCIAHDb5MOAWUSn5DZVoKyv8rU9g/xnvDdyGRziCayXTqM
+      -----END CERTIFICATE-----
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubernetes.io/description: Contains a CA bundle that can be used to verify the
+        kube-apiserver when using internal endpoints such as the internal service
+        IP or kubernetes.default.svc. No other usage is guaranteed across distributions
+        of Kubernetes clusters.
+    creationTimestamp: "2026-02-11T01:31:59Z"
+    name: kube-root-ca.crt
+    namespace: croc-shop-product-catalog
+    resourceVersion: "84172"
+    uid: 45927128-102d-4977-a2e7-8495d136d087
+- apiVersion: v1
+  data:
+    DB_HOST: postgres.croc-shop-data.svc.cluster.local
+    DB_NAME: crocshop
+    DB_PORT: "5432"
+    DB_USER: postgres
+    PORT: "3001"
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","data":{"DB_HOST":"postgres.croc-shop-data.svc.cluster.local","DB_NAME":"crocshop","DB_PORT":"5432","DB_USER":"postgres","PORT":"3001"},"kind":"ConfigMap","metadata":{"annotations":{},"name":"product-catalog-config","namespace":"croc-shop-product-catalog"}}
+    creationTimestamp: "2026-02-11T01:33:41Z"
+    name: product-catalog-config
+    namespace: croc-shop-product-catalog
+    resourceVersion: "85062"
+    uid: f85216da-22ab-4d30-ac89-59958e148e1e
+- apiVersion: v1
+  data:
+    POSTGRES_PASSWORD: cG9zdGdyZXM=
+  kind: Secret
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Secret","metadata":{"annotations":{},"name":"postgres-secret","namespace":"croc-shop-product-catalog"},"stringData":{"POSTGRES_PASSWORD":"postgres"},"type":"Opaque"}
+    creationTimestamp: "2026-02-11T01:33:41Z"
+    name: postgres-secret
+    namespace: croc-shop-product-catalog
+    resourceVersion: "85064"
+    uid: 57723c21-10cd-4c5a-b4b0-76c95be195ab
+  type: Opaque
+kind: List
+metadata:
+  resourceVersion: ""
+
+========================================
+NAMESPACE: croc-shop-user
+========================================
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      prometheus.io/path: /metrics
+      prometheus.io/port: "3002"
+      prometheus.io/scrape: "true"
+    creationTimestamp: "2026-02-11T01:33:44Z"
+    generateName: user-576f8bc899-
+    labels:
+      app: user
+      pod-template-hash: 576f8bc899
+      version: v1
+    name: user-576f8bc899-bxz98
+    namespace: croc-shop-user
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: user-576f8bc899
+      uid: 58eeecb4-f657-404b-a872-52a614a0c300
+    resourceVersion: "10408396"
+    uid: f1f5b711-8a30-4ef8-b870-cb4b6f28e0f1
+  spec:
+    containers:
+    - env:
+      - name: JWT_SECRET
+        valueFrom:
+          secretKeyRef:
+            key: JWT_SECRET
+            name: user-secret
+      - name: DB_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            key: DB_PASSWORD
+            name: user-secret
+      envFrom:
+      - configMapRef:
+          name: user-config
+      image: cjdaigle2/croc-shop-user:latest
+      imagePullPolicy: Always
+      livenessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /health
+          port: 3002
+          scheme: HTTP
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: user
+      ports:
+      - containerPort: 3002
+        name: http
+        protocol: TCP
+      readinessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /ready
+          port: 3002
+          scheme: HTTP
+        initialDelaySeconds: 5
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: 200m
+          memory: 256Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-l9lbg
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: ip-10-0-1-248
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-l9lbg
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:49Z"
+      status: "True"
+      type: PodReadyToStartContainers
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:44Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-28T06:03:16Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-28T06:03:16Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:44Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: containerd://3df481951e246422e046d780f5590f69e56782c102bff045df3f83831f3fdb1c
+      image: docker.io/cjdaigle2/croc-shop-user:latest
+      imageID: docker.io/cjdaigle2/croc-shop-user@sha256:89689c08e52c12d9d5ed5d90a5a2e534e4978f03ea0b258b545e32fd34aaa58b
+      lastState: {}
+      name: user
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2026-02-11T01:33:48Z"
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-l9lbg
+        readOnly: true
+        recursiveReadOnly: Disabled
+    hostIP: 10.0.1.248
+    hostIPs:
+    - ip: 10.0.1.248
+    phase: Running
+    podIP: 172.16.6.128
+    podIPs:
+    - ip: 172.16.6.128
+    qosClass: Burstable
+    startTime: "2026-02-11T01:33:44Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      prometheus.io/path: /metrics
+      prometheus.io/port: "3002"
+      prometheus.io/scrape: "true"
+    creationTimestamp: "2026-02-11T01:33:44Z"
+    generateName: user-576f8bc899-
+    labels:
+      app: user
+      pod-template-hash: 576f8bc899
+      version: v1
+    name: user-576f8bc899-zh4qz
+    namespace: croc-shop-user
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: user-576f8bc899
+      uid: 58eeecb4-f657-404b-a872-52a614a0c300
+    resourceVersion: "9818305"
+    uid: f659274c-58cf-4d35-bda3-f40fd7619923
+  spec:
+    containers:
+    - env:
+      - name: JWT_SECRET
+        valueFrom:
+          secretKeyRef:
+            key: JWT_SECRET
+            name: user-secret
+      - name: DB_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            key: DB_PASSWORD
+            name: user-secret
+      envFrom:
+      - configMapRef:
+          name: user-config
+      image: cjdaigle2/croc-shop-user:latest
+      imagePullPolicy: Always
+      livenessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /health
+          port: 3002
+          scheme: HTTP
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: user
+      ports:
+      - containerPort: 3002
+        name: http
+        protocol: TCP
+      readinessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /ready
+          port: 3002
+          scheme: HTTP
+        initialDelaySeconds: 5
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: 200m
+          memory: 256Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-756gm
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: ip-10-0-1-103
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-756gm
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:52Z"
+      status: "True"
+      type: PodReadyToStartContainers
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:44Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-27T06:28:08Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-27T06:28:08Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:44Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: containerd://9d28325516e2e93af328f559918642839aa1f8db3e730c6bfc44ed0615886aa6
+      image: docker.io/cjdaigle2/croc-shop-user:latest
+      imageID: docker.io/cjdaigle2/croc-shop-user@sha256:89689c08e52c12d9d5ed5d90a5a2e534e4978f03ea0b258b545e32fd34aaa58b
+      lastState: {}
+      name: user
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2026-02-11T01:33:51Z"
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-756gm
+        readOnly: true
+        recursiveReadOnly: Disabled
+    hostIP: 10.0.1.103
+    hostIPs:
+    - ip: 10.0.1.103
+    phase: Running
+    podIP: 172.16.4.117
+    podIPs:
+    - ip: 172.16.4.117
+    qosClass: Burstable
+    startTime: "2026-02-11T01:33:44Z"
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app":"user"},"name":"user","namespace":"croc-shop-user"},"spec":{"ports":[{"name":"http","port":3002,"protocol":"TCP","targetPort":3002}],"selector":{"app":"user"},"type":"ClusterIP"}}
+    creationTimestamp: "2026-02-11T01:33:44Z"
+    labels:
+      app: user
+    name: user
+    namespace: croc-shop-user
+    resourceVersion: "85138"
+    uid: 2cbcb581-5f6c-490c-89b0-437e75599dd5
+  spec:
+    clusterIP: 10.43.158.48
+    clusterIPs:
+    - 10.43.158.48
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http
+      port: 3002
+      protocol: TCP
+      targetPort: 3002
+    selector:
+      app: user
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"user","version":"v1"},"name":"user","namespace":"croc-shop-user"},"spec":{"replicas":2,"selector":{"matchLabels":{"app":"user"}},"template":{"metadata":{"annotations":{"prometheus.io/path":"/metrics","prometheus.io/port":"3002","prometheus.io/scrape":"true"},"labels":{"app":"user","version":"v1"}},"spec":{"containers":[{"env":[{"name":"JWT_SECRET","valueFrom":{"secretKeyRef":{"key":"JWT_SECRET","name":"user-secret"}}},{"name":"DB_PASSWORD","valueFrom":{"secretKeyRef":{"key":"DB_PASSWORD","name":"user-secret"}}}],"envFrom":[{"configMapRef":{"name":"user-config"}}],"image":"cjdaigle2/croc-shop-user:latest","imagePullPolicy":"Always","livenessProbe":{"httpGet":{"path":"/health","port":3002},"initialDelaySeconds":30,"periodSeconds":10},"name":"user","ports":[{"containerPort":3002,"name":"http"}],"readinessProbe":{"httpGet":{"path":"/ready","port":3002},"initialDelaySeconds":5,"periodSeconds":5},"resources":{"limits":{"cpu":"200m","memory":"256Mi"},"requests":{"cpu":"100m","memory":"128Mi"}}}]}}}}
+    creationTimestamp: "2026-02-11T01:33:44Z"
+    generation: 1
+    labels:
+      app: user
+      version: v1
+    name: user
+    namespace: croc-shop-user
+    resourceVersion: "10408401"
+    uid: 4b31f687-d0b8-49cb-bab4-c5a5b39b1519
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 2
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: user
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          prometheus.io/path: /metrics
+          prometheus.io/port: "3002"
+          prometheus.io/scrape: "true"
+        creationTimestamp: null
+        labels:
+          app: user
+          version: v1
+      spec:
+        containers:
+        - env:
+          - name: JWT_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: JWT_SECRET
+                name: user-secret
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: DB_PASSWORD
+                name: user-secret
+          envFrom:
+          - configMapRef:
+              name: user-config
+          image: cjdaigle2/croc-shop-user:latest
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 3002
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: user
+          ports:
+          - containerPort: 3002
+            name: http
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ready
+              port: 3002
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 2
+    conditions:
+    - lastTransitionTime: "2026-02-11T01:33:44Z"
+      lastUpdateTime: "2026-02-11T01:33:59Z"
+      message: ReplicaSet "user-576f8bc899" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2026-02-28T06:03:16Z"
+      lastUpdateTime: "2026-02-28T06:03:16Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 1
+    readyReplicas: 2
+    replicas: 2
+    updatedReplicas: 2
+- apiVersion: apps/v1
+  kind: ReplicaSet
+  metadata:
+    annotations:
+      deployment.kubernetes.io/desired-replicas: "2"
+      deployment.kubernetes.io/max-replicas: "3"
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2026-02-11T01:33:44Z"
+    generation: 1
+    labels:
+      app: user
+      pod-template-hash: 576f8bc899
+      version: v1
+    name: user-576f8bc899
+    namespace: croc-shop-user
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Deployment
+      name: user
+      uid: 4b31f687-d0b8-49cb-bab4-c5a5b39b1519
+    resourceVersion: "10408400"
+    uid: 58eeecb4-f657-404b-a872-52a614a0c300
+  spec:
+    replicas: 2
+    selector:
+      matchLabels:
+        app: user
+        pod-template-hash: 576f8bc899
+    template:
+      metadata:
+        annotations:
+          prometheus.io/path: /metrics
+          prometheus.io/port: "3002"
+          prometheus.io/scrape: "true"
+        creationTimestamp: null
+        labels:
+          app: user
+          pod-template-hash: 576f8bc899
+          version: v1
+      spec:
+        containers:
+        - env:
+          - name: JWT_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: JWT_SECRET
+                name: user-secret
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: DB_PASSWORD
+                name: user-secret
+          envFrom:
+          - configMapRef:
+              name: user-config
+          image: cjdaigle2/croc-shop-user:latest
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 3002
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: user
+          ports:
+          - containerPort: 3002
+            name: http
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ready
+              port: 3002
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 2
+    fullyLabeledReplicas: 2
+    observedGeneration: 1
+    readyReplicas: 2
+    replicas: 2
+- apiVersion: autoscaling/v2
+  kind: HorizontalPodAutoscaler
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"autoscaling/v2","kind":"HorizontalPodAutoscaler","metadata":{"annotations":{},"name":"user-hpa","namespace":"croc-shop-user"},"spec":{"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":70,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2,"scaleTargetRef":{"apiVersion":"apps/v1","kind":"Deployment","name":"user"}}}
+    creationTimestamp: "2026-02-11T01:33:45Z"
+    name: user-hpa
+    namespace: croc-shop-user
+    resourceVersion: "12407336"
+    uid: 49689865-3b5f-4534-be62-eb661efc2356
+  spec:
+    maxReplicas: 10
+    metrics:
+    - resource:
+        name: cpu
+        target:
+          averageUtilization: 70
+          type: Utilization
+      type: Resource
+    minReplicas: 2
+    scaleTargetRef:
+      apiVersion: apps/v1
+      kind: Deployment
+      name: user
+  status:
+    conditions:
+    - lastTransitionTime: "2026-02-11T01:34:00Z"
+      message: recommended size matches current size
+      reason: ReadyForNewScale
+      status: "True"
+      type: AbleToScale
+    - lastTransitionTime: "2026-02-28T06:02:34Z"
+      message: the HPA was able to successfully calculate a replica count from cpu
+        resource utilization (percentage of request)
+      reason: ValidMetricFound
+      status: "True"
+      type: ScalingActive
+    - lastTransitionTime: "2026-02-28T06:08:20Z"
+      message: the desired replica count is less than the minimum replica count
+      reason: TooFewReplicas
+      status: "True"
+      type: ScalingLimited
+    currentMetrics:
+    - resource:
+        current:
+          averageUtilization: 8
+          averageValue: 8m
+        name: cpu
+      type: Resource
+    currentReplicas: 2
+    desiredReplicas: 2
+- apiVersion: v1
+  data:
+    ca.crt: |
+      -----BEGIN CERTIFICATE-----
+      MIIBeTCCAR+gAwIBAgIBADAKBggqhkjOPQQDAjAkMSIwIAYDVQQDDBlya2UyLXNl
+      cnZlci1jYUAxNzcwNzYwMzQzMB4XDTI2MDIxMDIxNTIyM1oXDTM2MDIwODIxNTIy
+      M1owJDEiMCAGA1UEAwwZcmtlMi1zZXJ2ZXItY2FAMTc3MDc2MDM0MzBZMBMGByqG
+      SM49AgEGCCqGSM49AwEHA0IABNynXGWgnMCm/8XWtoktWy+zcOf56REvhBVzRXQb
+      eXcK49zwqEuXGZLeflbM4jVrubOnnmvYFy+3US/H5F2aN0WjQjBAMA4GA1UdDwEB
+      /wQEAwICpDAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBQhVRuN34zJOuReCs13
+      KbNjOgWV5DAKBggqhkjOPQQDAgNIADBFAiEAs4/oIr3AS7LTliAH5mer8eiYu+cy
+      ifgjnXW8bdIHchwCIAHDb5MOAWUSn5DZVoKyv8rU9g/xnvDdyGRziCayXTqM
+      -----END CERTIFICATE-----
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubernetes.io/description: Contains a CA bundle that can be used to verify the
+        kube-apiserver when using internal endpoints such as the internal service
+        IP or kubernetes.default.svc. No other usage is guaranteed across distributions
+        of Kubernetes clusters.
+    creationTimestamp: "2026-02-11T01:31:59Z"
+    name: kube-root-ca.crt
+    namespace: croc-shop-user
+    resourceVersion: "84180"
+    uid: 909b16a8-8ed0-4f18-bb01-0c92872eb78a
+- apiVersion: v1
+  data:
+    DB_HOST: postgres.croc-shop-data.svc.cluster.local
+    DB_NAME: crocshop
+    DB_PORT: "5432"
+    DB_USER: postgres
+    PORT: "3002"
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","data":{"DB_HOST":"postgres.croc-shop-data.svc.cluster.local","DB_NAME":"crocshop","DB_PORT":"5432","DB_USER":"postgres","PORT":"3002"},"kind":"ConfigMap","metadata":{"annotations":{},"name":"user-config","namespace":"croc-shop-user"}}
+    creationTimestamp: "2026-02-11T01:33:43Z"
+    name: user-config
+    namespace: croc-shop-user
+    resourceVersion: "85113"
+    uid: 24d1e655-f1b6-49a8-8b2d-0e41cf66ae60
+- apiVersion: v1
+  data:
+    DB_PASSWORD: cG9zdGdyZXM=
+    JWT_SECRET: Y2hhbmdlLXRoaXMtaW4tcHJvZHVjdGlvbi11c2UtazhzLXNlY3JldHM=
+  kind: Secret
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Secret","metadata":{"annotations":{},"name":"user-secret","namespace":"croc-shop-user"},"stringData":{"DB_PASSWORD":"postgres","JWT_SECRET":"change-this-in-production-use-k8s-secrets"},"type":"Opaque"}
+    creationTimestamp: "2026-02-11T01:33:44Z"
+    name: user-secret
+    namespace: croc-shop-user
+    resourceVersion: "85116"
+    uid: 018e89e9-9f13-4aac-934c-0caae192fb31
+  type: Opaque
+kind: List
+metadata:
+  resourceVersion: ""
+
+========================================
+NAMESPACE: croc-shop-cart
+========================================
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      prometheus.io/path: /metrics
+      prometheus.io/port: "3003"
+      prometheus.io/scrape: "true"
+    creationTimestamp: "2026-02-11T01:33:47Z"
+    generateName: cart-77d748f6f4-
+    labels:
+      app: cart
+      pod-template-hash: 77d748f6f4
+      version: v1
+    name: cart-77d748f6f4-22mnc
+    namespace: croc-shop-cart
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: cart-77d748f6f4
+      uid: dfd8e7fd-de6d-43bf-9587-c66448291bf8
+    resourceVersion: "10415827"
+    uid: b55b9bf5-7d61-4435-8d9d-667d836056a4
+  spec:
+    containers:
+    - env:
+      - name: JWT_SECRET
+        valueFrom:
+          secretKeyRef:
+            key: JWT_SECRET
+            name: cart-secret
+      envFrom:
+      - configMapRef:
+          name: cart-config
+      image: cjdaigle2/croc-shop-cart:latest
+      imagePullPolicy: Always
+      livenessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /health
+          port: 3003
+          scheme: HTTP
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: cart
+      ports:
+      - containerPort: 3003
+        name: http
+        protocol: TCP
+      readinessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /ready
+          port: 3003
+          scheme: HTTP
+        initialDelaySeconds: 5
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: 200m
+          memory: 256Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-dgcfj
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: ip-10-0-1-23
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-dgcfj
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:53Z"
+      status: "True"
+      type: PodReadyToStartContainers
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:47Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-28T06:18:30Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-28T06:18:30Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:47Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: containerd://2c168957eb40f565a199e4bd6f4eebe0aa0d7041ec9b30c2409582d3d9faadf0
+      image: docker.io/cjdaigle2/croc-shop-cart:latest
+      imageID: docker.io/cjdaigle2/croc-shop-cart@sha256:a5a8b0eff0a5b3af985b0adf10d3bdd2f572b9645b6b4704c9479297c518ad47
+      lastState: {}
+      name: cart
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2026-02-11T01:33:53Z"
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-dgcfj
+        readOnly: true
+        recursiveReadOnly: Disabled
+    hostIP: 10.0.1.23
+    hostIPs:
+    - ip: 10.0.1.23
+    phase: Running
+    podIP: 172.16.8.246
+    podIPs:
+    - ip: 172.16.8.246
+    qosClass: Burstable
+    startTime: "2026-02-11T01:33:47Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      prometheus.io/path: /metrics
+      prometheus.io/port: "3003"
+      prometheus.io/scrape: "true"
+    creationTimestamp: "2026-02-11T01:33:47Z"
+    generateName: cart-77d748f6f4-
+    labels:
+      app: cart
+      pod-template-hash: 77d748f6f4
+      version: v1
+    name: cart-77d748f6f4-kjwsg
+    namespace: croc-shop-cart
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: cart-77d748f6f4
+      uid: dfd8e7fd-de6d-43bf-9587-c66448291bf8
+    resourceVersion: "9818280"
+    uid: 2c40b8b4-f550-441f-b2b4-242d51e65780
+  spec:
+    containers:
+    - env:
+      - name: JWT_SECRET
+        valueFrom:
+          secretKeyRef:
+            key: JWT_SECRET
+            name: cart-secret
+      envFrom:
+      - configMapRef:
+          name: cart-config
+      image: cjdaigle2/croc-shop-cart:latest
+      imagePullPolicy: Always
+      livenessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /health
+          port: 3003
+          scheme: HTTP
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: cart
+      ports:
+      - containerPort: 3003
+        name: http
+        protocol: TCP
+      readinessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /ready
+          port: 3003
+          scheme: HTTP
+        initialDelaySeconds: 5
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: 200m
+          memory: 256Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-6tmwr
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: ip-10-0-1-103
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-6tmwr
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:55Z"
+      status: "True"
+      type: PodReadyToStartContainers
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:47Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-27T06:28:06Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-27T06:28:06Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:47Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: containerd://40cb5b4858c730b5da8ba93a1856f80143daa8ebd12aa3f1c7227a0f59ac162d
+      image: docker.io/cjdaigle2/croc-shop-cart:latest
+      imageID: docker.io/cjdaigle2/croc-shop-cart@sha256:a5a8b0eff0a5b3af985b0adf10d3bdd2f572b9645b6b4704c9479297c518ad47
+      lastState: {}
+      name: cart
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2026-02-11T01:33:55Z"
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-6tmwr
+        readOnly: true
+        recursiveReadOnly: Disabled
+    hostIP: 10.0.1.103
+    hostIPs:
+    - ip: 10.0.1.103
+    phase: Running
+    podIP: 172.16.4.9
+    podIPs:
+    - ip: 172.16.4.9
+    qosClass: Burstable
+    startTime: "2026-02-11T01:33:47Z"
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app":"cart"},"name":"cart","namespace":"croc-shop-cart"},"spec":{"ports":[{"name":"http","port":3003,"protocol":"TCP","targetPort":3003}],"selector":{"app":"cart"},"type":"ClusterIP"}}
+    creationTimestamp: "2026-02-11T01:33:47Z"
+    labels:
+      app: cart
+    name: cart
+    namespace: croc-shop-cart
+    resourceVersion: "85194"
+    uid: cfc8136f-a0d5-4966-897e-2409082320ad
+  spec:
+    clusterIP: 10.43.18.2
+    clusterIPs:
+    - 10.43.18.2
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http
+      port: 3003
+      protocol: TCP
+      targetPort: 3003
+    selector:
+      app: cart
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"cart","version":"v1"},"name":"cart","namespace":"croc-shop-cart"},"spec":{"replicas":2,"selector":{"matchLabels":{"app":"cart"}},"template":{"metadata":{"annotations":{"prometheus.io/path":"/metrics","prometheus.io/port":"3003","prometheus.io/scrape":"true"},"labels":{"app":"cart","version":"v1"}},"spec":{"containers":[{"env":[{"name":"JWT_SECRET","valueFrom":{"secretKeyRef":{"key":"JWT_SECRET","name":"cart-secret"}}}],"envFrom":[{"configMapRef":{"name":"cart-config"}}],"image":"cjdaigle2/croc-shop-cart:latest","imagePullPolicy":"Always","livenessProbe":{"httpGet":{"path":"/health","port":3003},"initialDelaySeconds":30,"periodSeconds":10},"name":"cart","ports":[{"containerPort":3003,"name":"http"}],"readinessProbe":{"httpGet":{"path":"/ready","port":3003},"initialDelaySeconds":5,"periodSeconds":5},"resources":{"limits":{"cpu":"200m","memory":"256Mi"},"requests":{"cpu":"100m","memory":"128Mi"}}}]}}}}
+    creationTimestamp: "2026-02-11T01:33:47Z"
+    generation: 1
+    labels:
+      app: cart
+      version: v1
+    name: cart
+    namespace: croc-shop-cart
+    resourceVersion: "10415846"
+    uid: 048fabd2-e86f-4700-811f-a069f121e5f8
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 2
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: cart
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          prometheus.io/path: /metrics
+          prometheus.io/port: "3003"
+          prometheus.io/scrape: "true"
+        creationTimestamp: null
+        labels:
+          app: cart
+          version: v1
+      spec:
+        containers:
+        - env:
+          - name: JWT_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: JWT_SECRET
+                name: cart-secret
+          envFrom:
+          - configMapRef:
+              name: cart-config
+          image: cjdaigle2/croc-shop-cart:latest
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 3003
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: cart
+          ports:
+          - containerPort: 3003
+            name: http
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ready
+              port: 3003
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 2
+    conditions:
+    - lastTransitionTime: "2026-02-11T01:33:47Z"
+      lastUpdateTime: "2026-02-11T01:34:02Z"
+      message: ReplicaSet "cart-77d748f6f4" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2026-02-28T06:18:30Z"
+      lastUpdateTime: "2026-02-28T06:18:30Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 1
+    readyReplicas: 2
+    replicas: 2
+    updatedReplicas: 2
+- apiVersion: apps/v1
+  kind: ReplicaSet
+  metadata:
+    annotations:
+      deployment.kubernetes.io/desired-replicas: "2"
+      deployment.kubernetes.io/max-replicas: "3"
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2026-02-11T01:33:47Z"
+    generation: 1
+    labels:
+      app: cart
+      pod-template-hash: 77d748f6f4
+      version: v1
+    name: cart-77d748f6f4
+    namespace: croc-shop-cart
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Deployment
+      name: cart
+      uid: 048fabd2-e86f-4700-811f-a069f121e5f8
+    resourceVersion: "10415842"
+    uid: dfd8e7fd-de6d-43bf-9587-c66448291bf8
+  spec:
+    replicas: 2
+    selector:
+      matchLabels:
+        app: cart
+        pod-template-hash: 77d748f6f4
+    template:
+      metadata:
+        annotations:
+          prometheus.io/path: /metrics
+          prometheus.io/port: "3003"
+          prometheus.io/scrape: "true"
+        creationTimestamp: null
+        labels:
+          app: cart
+          pod-template-hash: 77d748f6f4
+          version: v1
+      spec:
+        containers:
+        - env:
+          - name: JWT_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: JWT_SECRET
+                name: cart-secret
+          envFrom:
+          - configMapRef:
+              name: cart-config
+          image: cjdaigle2/croc-shop-cart:latest
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 3003
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: cart
+          ports:
+          - containerPort: 3003
+            name: http
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ready
+              port: 3003
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 2
+    fullyLabeledReplicas: 2
+    observedGeneration: 1
+    readyReplicas: 2
+    replicas: 2
+- apiVersion: autoscaling/v2
+  kind: HorizontalPodAutoscaler
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"autoscaling/v2","kind":"HorizontalPodAutoscaler","metadata":{"annotations":{},"name":"cart-hpa","namespace":"croc-shop-cart"},"spec":{"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":70,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2,"scaleTargetRef":{"apiVersion":"apps/v1","kind":"Deployment","name":"cart"}}}
+    creationTimestamp: "2026-02-11T01:33:47Z"
+    name: cart-hpa
+    namespace: croc-shop-cart
+    resourceVersion: "12401624"
+    uid: f4912195-9ab2-4086-8d6c-7c7ca08abe45
+  spec:
+    maxReplicas: 10
+    metrics:
+    - resource:
+        name: cpu
+        target:
+          averageUtilization: 70
+          type: Utilization
+      type: Resource
+    minReplicas: 2
+    scaleTargetRef:
+      apiVersion: apps/v1
+      kind: Deployment
+      name: cart
+  status:
+    conditions:
+    - lastTransitionTime: "2026-02-11T01:34:02Z"
+      message: recommended size matches current size
+      reason: ReadyForNewScale
+      status: "True"
+      type: AbleToScale
+    - lastTransitionTime: "2026-02-28T06:02:34Z"
+      message: the HPA was able to successfully calculate a replica count from cpu
+        resource utilization (percentage of request)
+      reason: ValidMetricFound
+      status: "True"
+      type: ScalingActive
+    - lastTransitionTime: "2026-02-27T06:33:28Z"
+      message: the desired replica count is less than the minimum replica count
+      reason: TooFewReplicas
+      status: "True"
+      type: ScalingLimited
+    currentMetrics:
+    - resource:
+        current:
+          averageUtilization: 1
+          averageValue: 1m
+        name: cpu
+      type: Resource
+    currentReplicas: 2
+    desiredReplicas: 2
+- apiVersion: v1
+  data:
+    PORT: "3003"
+    REDIS_HOST: redis.croc-shop-data.svc.cluster.local
+    REDIS_PORT: "6379"
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","data":{"PORT":"3003","REDIS_HOST":"redis.croc-shop-data.svc.cluster.local","REDIS_PORT":"6379"},"kind":"ConfigMap","metadata":{"annotations":{},"name":"cart-config","namespace":"croc-shop-cart"}}
+    creationTimestamp: "2026-02-11T01:33:46Z"
+    name: cart-config
+    namespace: croc-shop-cart
+    resourceVersion: "85162"
+    uid: 05aafa01-c1dc-4947-8643-5fbd16885c6a
+- apiVersion: v1
+  data:
+    ca.crt: |
+      -----BEGIN CERTIFICATE-----
+      MIIBeTCCAR+gAwIBAgIBADAKBggqhkjOPQQDAjAkMSIwIAYDVQQDDBlya2UyLXNl
+      cnZlci1jYUAxNzcwNzYwMzQzMB4XDTI2MDIxMDIxNTIyM1oXDTM2MDIwODIxNTIy
+      M1owJDEiMCAGA1UEAwwZcmtlMi1zZXJ2ZXItY2FAMTc3MDc2MDM0MzBZMBMGByqG
+      SM49AgEGCCqGSM49AwEHA0IABNynXGWgnMCm/8XWtoktWy+zcOf56REvhBVzRXQb
+      eXcK49zwqEuXGZLeflbM4jVrubOnnmvYFy+3US/H5F2aN0WjQjBAMA4GA1UdDwEB
+      /wQEAwICpDAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBQhVRuN34zJOuReCs13
+      KbNjOgWV5DAKBggqhkjOPQQDAgNIADBFAiEAs4/oIr3AS7LTliAH5mer8eiYu+cy
+      ifgjnXW8bdIHchwCIAHDb5MOAWUSn5DZVoKyv8rU9g/xnvDdyGRziCayXTqM
+      -----END CERTIFICATE-----
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubernetes.io/description: Contains a CA bundle that can be used to verify the
+        kube-apiserver when using internal endpoints such as the internal service
+        IP or kubernetes.default.svc. No other usage is guaranteed across distributions
+        of Kubernetes clusters.
+    creationTimestamp: "2026-02-11T01:31:59Z"
+    name: kube-root-ca.crt
+    namespace: croc-shop-cart
+    resourceVersion: "84187"
+    uid: 507b88d2-921b-4146-a9ac-6ba5c5758503
+- apiVersion: v1
+  data:
+    JWT_SECRET: Y2hhbmdlLXRoaXMtaW4tcHJvZHVjdGlvbi11c2UtazhzLXNlY3JldHM=
+  kind: Secret
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Secret","metadata":{"annotations":{},"name":"cart-secret","namespace":"croc-shop-cart"},"stringData":{"JWT_SECRET":"change-this-in-production-use-k8s-secrets"},"type":"Opaque"}
+    creationTimestamp: "2026-02-11T01:33:46Z"
+    name: cart-secret
+    namespace: croc-shop-cart
+    resourceVersion: "85166"
+    uid: 10cc2f8d-1524-4471-b342-bd4aa8f07c1e
+  type: Opaque
+kind: List
+metadata:
+  resourceVersion: ""
+
+========================================
+NAMESPACE: croc-shop-order
+========================================
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      prometheus.io/path: /metrics
+      prometheus.io/port: "3004"
+      prometheus.io/scrape: "true"
+    creationTimestamp: "2026-02-11T01:33:50Z"
+    generateName: order-7f895d6c5-
+    labels:
+      app: order
+      pod-template-hash: 7f895d6c5
+      version: v1
+    name: order-7f895d6c5-bj8hf
+    namespace: croc-shop-order
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: order-7f895d6c5
+      uid: 1cf5c0ed-75f9-4061-aa6a-5ddd62b8819b
+    resourceVersion: "10409717"
+    uid: fb99c3d6-2deb-403f-ab4f-2c4a21db9956
+  spec:
+    containers:
+    - env:
+      - name: DB_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            key: DB_PASSWORD
+            name: postgres-secret
+      - name: JWT_SECRET
+        valueFrom:
+          secretKeyRef:
+            key: JWT_SECRET
+            name: postgres-secret
+      envFrom:
+      - configMapRef:
+          name: order-config
+      image: cjdaigle2/croc-shop-order:latest
+      imagePullPolicy: Always
+      livenessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /health
+          port: 3004
+          scheme: HTTP
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: order
+      ports:
+      - containerPort: 3004
+        name: http
+        protocol: TCP
+      readinessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /ready
+          port: 3004
+          scheme: HTTP
+        initialDelaySeconds: 5
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: 200m
+          memory: 256Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-6x46j
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: ip-10-0-1-39
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-6x46j
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:53Z"
+      status: "True"
+      type: PodReadyToStartContainers
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:50Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-28T06:04:59Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-28T06:04:59Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:50Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: containerd://6f10db5ef5bbb0b5438efc7b929af0bfba5d3ffad3d878c81c43eec540e80928
+      image: docker.io/cjdaigle2/croc-shop-order:latest
+      imageID: docker.io/cjdaigle2/croc-shop-order@sha256:797f09a189d8d605282e1022bb260244c2064ba4fdd63c940570e65493a909a3
+      lastState: {}
+      name: order
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2026-02-11T01:33:53Z"
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-6x46j
+        readOnly: true
+        recursiveReadOnly: Disabled
+    hostIP: 10.0.1.39
+    hostIPs:
+    - ip: 10.0.1.39
+    phase: Running
+    podIP: 172.16.5.239
+    podIPs:
+    - ip: 172.16.5.239
+    qosClass: Burstable
+    startTime: "2026-02-11T01:33:50Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      prometheus.io/path: /metrics
+      prometheus.io/port: "3004"
+      prometheus.io/scrape: "true"
+    creationTimestamp: "2026-02-11T01:33:50Z"
+    generateName: order-7f895d6c5-
+    labels:
+      app: order
+      pod-template-hash: 7f895d6c5
+      version: v1
+    name: order-7f895d6c5-z7ll9
+    namespace: croc-shop-order
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: order-7f895d6c5
+      uid: 1cf5c0ed-75f9-4061-aa6a-5ddd62b8819b
+    resourceVersion: "9818260"
+    uid: 64a9ca39-c3c3-40f3-a007-6b88d3bd6947
+  spec:
+    containers:
+    - env:
+      - name: DB_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            key: DB_PASSWORD
+            name: postgres-secret
+      - name: JWT_SECRET
+        valueFrom:
+          secretKeyRef:
+            key: JWT_SECRET
+            name: postgres-secret
+      envFrom:
+      - configMapRef:
+          name: order-config
+      image: cjdaigle2/croc-shop-order:latest
+      imagePullPolicy: Always
+      livenessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /health
+          port: 3004
+          scheme: HTTP
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: order
+      ports:
+      - containerPort: 3004
+        name: http
+        protocol: TCP
+      readinessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /ready
+          port: 3004
+          scheme: HTTP
+        initialDelaySeconds: 5
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: 200m
+          memory: 256Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-tmttn
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: ip-10-0-1-103
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-tmttn
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:54Z"
+      status: "True"
+      type: PodReadyToStartContainers
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:50Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-27T06:28:06Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-27T06:28:06Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:33:50Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: containerd://d148c9c13252d82fa1df493b6b62b02a239e8acbfc3ce496a625645d3869e8e2
+      image: docker.io/cjdaigle2/croc-shop-order:latest
+      imageID: docker.io/cjdaigle2/croc-shop-order@sha256:797f09a189d8d605282e1022bb260244c2064ba4fdd63c940570e65493a909a3
+      lastState: {}
+      name: order
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2026-02-11T01:33:53Z"
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-tmttn
+        readOnly: true
+        recursiveReadOnly: Disabled
+    hostIP: 10.0.1.103
+    hostIPs:
+    - ip: 10.0.1.103
+    phase: Running
+    podIP: 172.16.4.119
+    podIPs:
+    - ip: 172.16.4.119
+    qosClass: Burstable
+    startTime: "2026-02-11T01:33:50Z"
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app":"order"},"name":"order","namespace":"croc-shop-order"},"spec":{"ports":[{"name":"http","port":3004,"protocol":"TCP","targetPort":3004}],"selector":{"app":"order"},"type":"ClusterIP"}}
+    creationTimestamp: "2026-02-11T01:33:50Z"
+    labels:
+      app: order
+    name: order
+    namespace: croc-shop-order
+    resourceVersion: "85261"
+    uid: 150dc806-eab6-4463-a95c-69074f89b596
+  spec:
+    clusterIP: 10.43.233.185
+    clusterIPs:
+    - 10.43.233.185
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http
+      port: 3004
+      protocol: TCP
+      targetPort: 3004
+    selector:
+      app: order
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"order","version":"v1"},"name":"order","namespace":"croc-shop-order"},"spec":{"replicas":2,"selector":{"matchLabels":{"app":"order"}},"template":{"metadata":{"annotations":{"prometheus.io/path":"/metrics","prometheus.io/port":"3004","prometheus.io/scrape":"true"},"labels":{"app":"order","version":"v1"}},"spec":{"containers":[{"env":[{"name":"DB_PASSWORD","valueFrom":{"secretKeyRef":{"key":"DB_PASSWORD","name":"postgres-secret"}}},{"name":"JWT_SECRET","valueFrom":{"secretKeyRef":{"key":"JWT_SECRET","name":"postgres-secret"}}}],"envFrom":[{"configMapRef":{"name":"order-config"}}],"image":"cjdaigle2/croc-shop-order:latest","imagePullPolicy":"Always","livenessProbe":{"httpGet":{"path":"/health","port":3004},"initialDelaySeconds":30,"periodSeconds":10},"name":"order","ports":[{"containerPort":3004,"name":"http"}],"readinessProbe":{"httpGet":{"path":"/ready","port":3004},"initialDelaySeconds":5,"periodSeconds":5},"resources":{"limits":{"cpu":"200m","memory":"256Mi"},"requests":{"cpu":"100m","memory":"128Mi"}}}]}}}}
+    creationTimestamp: "2026-02-11T01:33:50Z"
+    generation: 1
+    labels:
+      app: order
+      version: v1
+    name: order
+    namespace: croc-shop-order
+    resourceVersion: "10409725"
+    uid: d25f508d-35f6-4ad5-ad64-c3e3359f49fe
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 2
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: order
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          prometheus.io/path: /metrics
+          prometheus.io/port: "3004"
+          prometheus.io/scrape: "true"
+        creationTimestamp: null
+        labels:
+          app: order
+          version: v1
+      spec:
+        containers:
+        - env:
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: DB_PASSWORD
+                name: postgres-secret
+          - name: JWT_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: JWT_SECRET
+                name: postgres-secret
+          envFrom:
+          - configMapRef:
+              name: order-config
+          image: cjdaigle2/croc-shop-order:latest
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 3004
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: order
+          ports:
+          - containerPort: 3004
+            name: http
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ready
+              port: 3004
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 2
+    conditions:
+    - lastTransitionTime: "2026-02-11T01:33:50Z"
+      lastUpdateTime: "2026-02-11T01:34:00Z"
+      message: ReplicaSet "order-7f895d6c5" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2026-02-28T06:04:59Z"
+      lastUpdateTime: "2026-02-28T06:04:59Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 1
+    readyReplicas: 2
+    replicas: 2
+    updatedReplicas: 2
+- apiVersion: apps/v1
+  kind: ReplicaSet
+  metadata:
+    annotations:
+      deployment.kubernetes.io/desired-replicas: "2"
+      deployment.kubernetes.io/max-replicas: "3"
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2026-02-11T01:33:50Z"
+    generation: 1
+    labels:
+      app: order
+      pod-template-hash: 7f895d6c5
+      version: v1
+    name: order-7f895d6c5
+    namespace: croc-shop-order
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Deployment
+      name: order
+      uid: d25f508d-35f6-4ad5-ad64-c3e3359f49fe
+    resourceVersion: "10409724"
+    uid: 1cf5c0ed-75f9-4061-aa6a-5ddd62b8819b
+  spec:
+    replicas: 2
+    selector:
+      matchLabels:
+        app: order
+        pod-template-hash: 7f895d6c5
+    template:
+      metadata:
+        annotations:
+          prometheus.io/path: /metrics
+          prometheus.io/port: "3004"
+          prometheus.io/scrape: "true"
+        creationTimestamp: null
+        labels:
+          app: order
+          pod-template-hash: 7f895d6c5
+          version: v1
+      spec:
+        containers:
+        - env:
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: DB_PASSWORD
+                name: postgres-secret
+          - name: JWT_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: JWT_SECRET
+                name: postgres-secret
+          envFrom:
+          - configMapRef:
+              name: order-config
+          image: cjdaigle2/croc-shop-order:latest
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 3004
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: order
+          ports:
+          - containerPort: 3004
+            name: http
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ready
+              port: 3004
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 2
+    fullyLabeledReplicas: 2
+    observedGeneration: 1
+    readyReplicas: 2
+    replicas: 2
+- apiVersion: autoscaling/v2
+  kind: HorizontalPodAutoscaler
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"autoscaling/v2","kind":"HorizontalPodAutoscaler","metadata":{"annotations":{},"name":"order-hpa","namespace":"croc-shop-order"},"spec":{"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":70,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2,"scaleTargetRef":{"apiVersion":"apps/v1","kind":"Deployment","name":"order"}}}
+    creationTimestamp: "2026-02-11T01:33:50Z"
+    name: order-hpa
+    namespace: croc-shop-order
+    resourceVersion: "10407197"
+    uid: e20ac7d4-3271-4749-bc73-91f71acab0b1
+  spec:
+    maxReplicas: 10
+    metrics:
+    - resource:
+        name: cpu
+        target:
+          averageUtilization: 70
+          type: Utilization
+      type: Resource
+    minReplicas: 2
+    scaleTargetRef:
+      apiVersion: apps/v1
+      kind: Deployment
+      name: order
+  status:
+    conditions:
+    - lastTransitionTime: "2026-02-11T01:34:06Z"
+      message: recommended size matches current size
+      reason: ReadyForNewScale
+      status: "True"
+      type: AbleToScale
+    - lastTransitionTime: "2026-02-28T06:02:34Z"
+      message: the HPA was able to successfully calculate a replica count from cpu
+        resource utilization (percentage of request)
+      reason: ValidMetricFound
+      status: "True"
+      type: ScalingActive
+    - lastTransitionTime: "2026-02-27T06:33:28Z"
+      message: the desired replica count is less than the minimum replica count
+      reason: TooFewReplicas
+      status: "True"
+      type: ScalingLimited
+    currentMetrics:
+    - resource:
+        current:
+          averageUtilization: 1
+          averageValue: 1m
+        name: cpu
+      type: Resource
+    currentReplicas: 2
+    desiredReplicas: 2
+- apiVersion: v1
+  data:
+    ca.crt: |
+      -----BEGIN CERTIFICATE-----
+      MIIBeTCCAR+gAwIBAgIBADAKBggqhkjOPQQDAjAkMSIwIAYDVQQDDBlya2UyLXNl
+      cnZlci1jYUAxNzcwNzYwMzQzMB4XDTI2MDIxMDIxNTIyM1oXDTM2MDIwODIxNTIy
+      M1owJDEiMCAGA1UEAwwZcmtlMi1zZXJ2ZXItY2FAMTc3MDc2MDM0MzBZMBMGByqG
+      SM49AgEGCCqGSM49AwEHA0IABNynXGWgnMCm/8XWtoktWy+zcOf56REvhBVzRXQb
+      eXcK49zwqEuXGZLeflbM4jVrubOnnmvYFy+3US/H5F2aN0WjQjBAMA4GA1UdDwEB
+      /wQEAwICpDAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBQhVRuN34zJOuReCs13
+      KbNjOgWV5DAKBggqhkjOPQQDAgNIADBFAiEAs4/oIr3AS7LTliAH5mer8eiYu+cy
+      ifgjnXW8bdIHchwCIAHDb5MOAWUSn5DZVoKyv8rU9g/xnvDdyGRziCayXTqM
+      -----END CERTIFICATE-----
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubernetes.io/description: Contains a CA bundle that can be used to verify the
+        kube-apiserver when using internal endpoints such as the internal service
+        IP or kubernetes.default.svc. No other usage is guaranteed across distributions
+        of Kubernetes clusters.
+    creationTimestamp: "2026-02-11T01:31:59Z"
+    name: kube-root-ca.crt
+    namespace: croc-shop-order
+    resourceVersion: "84197"
+    uid: 8123988a-db5c-422a-aee9-7cf5bbf8a015
+- apiVersion: v1
+  data:
+    DB_HOST: postgres.croc-shop-data.svc.cluster.local
+    DB_NAME: crocshop
+    DB_PORT: "5432"
+    DB_USER: postgres
+    PORT: "3004"
+    PRODUCT_CATALOG_URL: http://product-catalog.croc-shop-product-catalog.svc.cluster.local:3001
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","data":{"DB_HOST":"postgres.croc-shop-data.svc.cluster.local","DB_NAME":"crocshop","DB_PORT":"5432","DB_USER":"postgres","PORT":"3004","PRODUCT_CATALOG_URL":"http://product-catalog.croc-shop-product-catalog.svc.cluster.local:3001"},"kind":"ConfigMap","metadata":{"annotations":{},"name":"order-config","namespace":"croc-shop-order"}}
+    creationTimestamp: "2026-02-11T01:33:49Z"
+    name: order-config
+    namespace: croc-shop-order
+    resourceVersion: "85231"
+    uid: 0951e127-3bbf-4292-b433-d04cad5a7b0a
+- apiVersion: v1
+  data:
+    DB_PASSWORD: cG9zdGdyZXM=
+    JWT_SECRET: Y2hhbmdlLXRoaXMtaW4tcHJvZHVjdGlvbi11c2UtazhzLXNlY3JldHM=
+  kind: Secret
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Secret","metadata":{"annotations":{},"name":"postgres-secret","namespace":"croc-shop-order"},"stringData":{"DB_PASSWORD":"postgres","JWT_SECRET":"change-this-in-production-use-k8s-secrets"},"type":"Opaque"}
+    creationTimestamp: "2026-02-11T01:33:50Z"
+    name: postgres-secret
+    namespace: croc-shop-order
+    resourceVersion: "85237"
+    uid: 97576d88-a38d-42fb-a7cf-b66121e0f5f9
+  type: Opaque
+kind: List
+metadata:
+  resourceVersion: ""
+
+========================================
+NAMESPACE: croc-shop-data
+========================================
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    creationTimestamp: "2026-02-11T01:32:18Z"
+    generateName: postgres-588cb7f7bd-
+    labels:
+      app: postgres
+      pod-template-hash: 588cb7f7bd
+    name: postgres-588cb7f7bd-9zxhc
+    namespace: croc-shop-data
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: postgres-588cb7f7bd
+      uid: dca85f0a-400b-4c71-bdf1-56a0bca4bc54
+    resourceVersion: "10415834"
+    uid: 72774c9b-f3a7-4c15-b5a4-d297dac8c8a4
+  spec:
+    containers:
+    - env:
+      - name: PGDATA
+        value: /var/lib/postgresql/data/pgdata
+      envFrom:
+      - configMapRef:
+          name: postgres-config
+      - secretRef:
+          name: postgres-secret
+      image: postgres:15-alpine
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        exec:
+          command:
+          - pg_isready
+          - -U
+          - postgres
+        failureThreshold: 3
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: postgres
+      ports:
+      - containerPort: 5432
+        name: postgres
+        protocol: TCP
+      readinessProbe:
+        exec:
+          command:
+          - pg_isready
+          - -U
+          - postgres
+        failureThreshold: 3
+        initialDelaySeconds: 5
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: 500m
+          memory: 512Mi
+        requests:
+          cpu: 250m
+          memory: 256Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+      startupProbe:
+        exec:
+          command:
+          - pg_isready
+          - -U
+          - postgres
+        failureThreshold: 30
+        periodSeconds: 2
+        successThreshold: 1
+        timeoutSeconds: 1
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/lib/postgresql/data
+        name: postgres-storage
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-62n64
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: ip-10-0-1-82
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext:
+      fsGroup: 999
+      fsGroupChangePolicy: OnRootMismatch
+      runAsGroup: 999
+      runAsNonRoot: true
+      runAsUser: 999
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 60
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: postgres-storage
+      persistentVolumeClaim:
+        claimName: postgres-pvc
+    - name: kube-api-access-62n64
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:32:41Z"
+      status: "True"
+      type: PodReadyToStartContainers
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:32:22Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-28T06:18:30Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-28T06:18:30Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:32:22Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: containerd://555e33ceb2ef80dd627134e6bc57b9863085c7e5927d25a4dd03e307e2ffbd96
+      image: docker.io/library/postgres:15-alpine
+      imageID: docker.io/library/postgres@sha256:1d1095b0503145be79c79239372aefadfacf6b7c33c9245bbf99ce4b6b89c737
+      lastState: {}
+      name: postgres
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2026-02-11T01:32:40Z"
+      volumeMounts:
+      - mountPath: /var/lib/postgresql/data
+        name: postgres-storage
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-62n64
+        readOnly: true
+        recursiveReadOnly: Disabled
+    hostIP: 10.0.1.82
+    hostIPs:
+    - ip: 10.0.1.82
+    phase: Running
+    podIP: 172.16.7.242
+    podIPs:
+    - ip: 172.16.7.242
+    qosClass: Burstable
+    startTime: "2026-02-11T01:32:22Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    creationTimestamp: "2026-02-11T01:32:43Z"
+    generateName: redis-599d6dc8bd-
+    labels:
+      app: redis
+      pod-template-hash: 599d6dc8bd
+    name: redis-599d6dc8bd-6z7tw
+    namespace: croc-shop-data
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: redis-599d6dc8bd
+      uid: e84229b7-12ce-4942-a78e-650fdd66dae4
+    resourceVersion: "10409767"
+    uid: 3abb7e2d-74c8-4018-9401-5b183d259640
+  spec:
+    containers:
+    - image: redis:7-alpine
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        exec:
+          command:
+          - redis-cli
+          - ping
+        failureThreshold: 3
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: redis
+      ports:
+      - containerPort: 6379
+        name: tcp-redis
+        protocol: TCP
+      readinessProbe:
+        exec:
+          command:
+          - redis-cli
+          - ping
+        failureThreshold: 3
+        initialDelaySeconds: 5
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        limits:
+          cpu: 200m
+          memory: 256Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-dmrjv
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: ip-10-0-1-39
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-dmrjv
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:32:46Z"
+      status: "True"
+      type: PodReadyToStartContainers
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:32:43Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-28T06:05:01Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-28T06:05:01Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2026-02-11T01:32:43Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: containerd://dd47a5606200cdb5448124649f891f34655f27fd62b38b3b6ef9e5ea51c17bb5
+      image: docker.io/library/redis:7-alpine
+      imageID: docker.io/library/redis@sha256:02f2cc4882f8bf87c79a220ac958f58c700bdec0dfb9b9ea61b62fb0e8f1bfcf
+      lastState: {}
+      name: redis
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2026-02-11T01:32:46Z"
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-dmrjv
+        readOnly: true
+        recursiveReadOnly: Disabled
+    hostIP: 10.0.1.39
+    hostIPs:
+    - ip: 10.0.1.39
+    phase: Running
+    podIP: 172.16.5.119
+    podIPs:
+    - ip: 172.16.5.119
+    qosClass: Burstable
+    startTime: "2026-02-11T01:32:43Z"
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app":"postgres"},"name":"postgres","namespace":"croc-shop-data"},"spec":{"ports":[{"name":"postgres","port":5432,"protocol":"TCP","targetPort":5432}],"selector":{"app":"postgres"},"type":"ClusterIP"}}
+    creationTimestamp: "2026-02-11T01:32:18Z"
+    labels:
+      app: postgres
+    name: postgres
+    namespace: croc-shop-data
+    resourceVersion: "84390"
+    uid: 68dd0aec-70c6-4c14-a79d-c3124463879f
+  spec:
+    clusterIP: 10.43.181.14
+    clusterIPs:
+    - 10.43.181.14
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: postgres
+      port: 5432
+      protocol: TCP
+      targetPort: 5432
+    selector:
+      app: postgres
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app":"redis"},"name":"redis","namespace":"croc-shop-data"},"spec":{"ports":[{"name":"tcp-redis","port":6379,"protocol":"TCP","targetPort":6379}],"selector":{"app":"redis"},"type":"ClusterIP"}}
+    creationTimestamp: "2026-02-11T01:32:43Z"
+    labels:
+      app: redis
+    name: redis
+    namespace: croc-shop-data
+    resourceVersion: "84641"
+    uid: f5a531a2-8e83-4466-8b7c-dc603840ce78
+  spec:
+    clusterIP: 10.43.46.244
+    clusterIPs:
+    - 10.43.46.244
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: tcp-redis
+      port: 6379
+      protocol: TCP
+      targetPort: 6379
+    selector:
+      app: redis
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"postgres"},"name":"postgres","namespace":"croc-shop-data"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"postgres"}},"strategy":{"type":"Recreate"},"template":{"metadata":{"labels":{"app":"postgres"}},"spec":{"containers":[{"env":[{"name":"PGDATA","value":"/var/lib/postgresql/data/pgdata"}],"envFrom":[{"configMapRef":{"name":"postgres-config"}},{"secretRef":{"name":"postgres-secret"}}],"image":"postgres:15-alpine","livenessProbe":{"exec":{"command":["pg_isready","-U","postgres"]},"initialDelaySeconds":30,"periodSeconds":10},"name":"postgres","ports":[{"containerPort":5432,"name":"postgres"}],"readinessProbe":{"exec":{"command":["pg_isready","-U","postgres"]},"initialDelaySeconds":5,"periodSeconds":5},"resources":{"limits":{"cpu":"500m","memory":"512Mi"},"requests":{"cpu":"250m","memory":"256Mi"}},"securityContext":{"allowPrivilegeEscalation":false},"startupProbe":{"exec":{"command":["pg_isready","-U","postgres"]},"failureThreshold":30,"periodSeconds":2},"volumeMounts":[{"mountPath":"/var/lib/postgresql/data","name":"postgres-storage"}]}],"securityContext":{"fsGroup":999,"fsGroupChangePolicy":"OnRootMismatch","runAsGroup":999,"runAsNonRoot":true,"runAsUser":999},"terminationGracePeriodSeconds":60,"volumes":[{"name":"postgres-storage","persistentVolumeClaim":{"claimName":"postgres-pvc"}}]}}}}
+    creationTimestamp: "2026-02-11T01:32:18Z"
+    generation: 1
+    labels:
+      app: postgres
+    name: postgres
+    namespace: croc-shop-data
+    resourceVersion: "10415847"
+    uid: 1a61d62d-8c16-450a-aac4-aeb2960a25e6
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: postgres
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: postgres
+      spec:
+        containers:
+        - env:
+          - name: PGDATA
+            value: /var/lib/postgresql/data/pgdata
+          envFrom:
+          - configMapRef:
+              name: postgres-config
+          - secretRef:
+              name: postgres-secret
+          image: postgres:15-alpine
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - pg_isready
+              - -U
+              - postgres
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: postgres
+          ports:
+          - containerPort: 5432
+            name: postgres
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - pg_isready
+              - -U
+              - postgres
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 250m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+          startupProbe:
+            exec:
+              command:
+              - pg_isready
+              - -U
+              - postgres
+            failureThreshold: 30
+            periodSeconds: 2
+            successThreshold: 1
+            timeoutSeconds: 1
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/lib/postgresql/data
+            name: postgres-storage
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 999
+          fsGroupChangePolicy: OnRootMismatch
+          runAsGroup: 999
+          runAsNonRoot: true
+          runAsUser: 999
+        terminationGracePeriodSeconds: 60
+        volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2026-02-11T01:32:18Z"
+      lastUpdateTime: "2026-02-11T01:32:48Z"
+      message: ReplicaSet "postgres-588cb7f7bd" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2026-02-28T06:18:30Z"
+      lastUpdateTime: "2026-02-28T06:18:30Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"redis"},"name":"redis","namespace":"croc-shop-data"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"redis"}},"template":{"metadata":{"labels":{"app":"redis"}},"spec":{"containers":[{"image":"redis:7-alpine","livenessProbe":{"exec":{"command":["redis-cli","ping"]},"initialDelaySeconds":30,"periodSeconds":10},"name":"redis","ports":[{"containerPort":6379,"name":"tcp-redis"}],"readinessProbe":{"exec":{"command":["redis-cli","ping"]},"initialDelaySeconds":5,"periodSeconds":5},"resources":{"limits":{"cpu":"200m","memory":"256Mi"},"requests":{"cpu":"100m","memory":"128Mi"}}}]}}}}
+    creationTimestamp: "2026-02-11T01:32:43Z"
+    generation: 1
+    labels:
+      app: redis
+    name: redis
+    namespace: croc-shop-data
+    resourceVersion: "10409772"
+    uid: c626fd28-0b11-4229-82fb-fe496cd83833
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: redis
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: redis
+      spec:
+        containers:
+        - image: redis:7-alpine
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - redis-cli
+              - ping
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: redis
+          ports:
+          - containerPort: 6379
+            name: tcp-redis
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - redis-cli
+              - ping
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2026-02-11T01:32:43Z"
+      lastUpdateTime: "2026-02-11T01:32:53Z"
+      message: ReplicaSet "redis-599d6dc8bd" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2026-02-28T06:05:01Z"
+      lastUpdateTime: "2026-02-28T06:05:01Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: ReplicaSet
+  metadata:
+    annotations:
+      deployment.kubernetes.io/desired-replicas: "1"
+      deployment.kubernetes.io/max-replicas: "1"
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2026-02-11T01:32:18Z"
+    generation: 1
+    labels:
+      app: postgres
+      pod-template-hash: 588cb7f7bd
+    name: postgres-588cb7f7bd
+    namespace: croc-shop-data
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Deployment
+      name: postgres
+      uid: 1a61d62d-8c16-450a-aac4-aeb2960a25e6
+    resourceVersion: "10415844"
+    uid: dca85f0a-400b-4c71-bdf1-56a0bca4bc54
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: postgres
+        pod-template-hash: 588cb7f7bd
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: postgres
+          pod-template-hash: 588cb7f7bd
+      spec:
+        containers:
+        - env:
+          - name: PGDATA
+            value: /var/lib/postgresql/data/pgdata
+          envFrom:
+          - configMapRef:
+              name: postgres-config
+          - secretRef:
+              name: postgres-secret
+          image: postgres:15-alpine
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - pg_isready
+              - -U
+              - postgres
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: postgres
+          ports:
+          - containerPort: 5432
+            name: postgres
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - pg_isready
+              - -U
+              - postgres
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 250m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+          startupProbe:
+            exec:
+              command:
+              - pg_isready
+              - -U
+              - postgres
+            failureThreshold: 30
+            periodSeconds: 2
+            successThreshold: 1
+            timeoutSeconds: 1
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/lib/postgresql/data
+            name: postgres-storage
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 999
+          fsGroupChangePolicy: OnRootMismatch
+          runAsGroup: 999
+          runAsNonRoot: true
+          runAsUser: 999
+        terminationGracePeriodSeconds: 60
+        volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+  status:
+    availableReplicas: 1
+    fullyLabeledReplicas: 1
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+- apiVersion: apps/v1
+  kind: ReplicaSet
+  metadata:
+    annotations:
+      deployment.kubernetes.io/desired-replicas: "1"
+      deployment.kubernetes.io/max-replicas: "2"
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2026-02-11T01:32:43Z"
+    generation: 1
+    labels:
+      app: redis
+      pod-template-hash: 599d6dc8bd
+    name: redis-599d6dc8bd
+    namespace: croc-shop-data
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Deployment
+      name: redis
+      uid: c626fd28-0b11-4229-82fb-fe496cd83833
+    resourceVersion: "10409770"
+    uid: e84229b7-12ce-4942-a78e-650fdd66dae4
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: redis
+        pod-template-hash: 599d6dc8bd
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: redis
+          pod-template-hash: 599d6dc8bd
+      spec:
+        containers:
+        - image: redis:7-alpine
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - redis-cli
+              - ping
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: redis
+          ports:
+          - containerPort: 6379
+            name: tcp-redis
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - redis-cli
+              - ping
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 1
+    fullyLabeledReplicas: 1
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+- apiVersion: v1
+  data:
+    ca.crt: |
+      -----BEGIN CERTIFICATE-----
+      MIIBeTCCAR+gAwIBAgIBADAKBggqhkjOPQQDAjAkMSIwIAYDVQQDDBlya2UyLXNl
+      cnZlci1jYUAxNzcwNzYwMzQzMB4XDTI2MDIxMDIxNTIyM1oXDTM2MDIwODIxNTIy
+      M1owJDEiMCAGA1UEAwwZcmtlMi1zZXJ2ZXItY2FAMTc3MDc2MDM0MzBZMBMGByqG
+      SM49AgEGCCqGSM49AwEHA0IABNynXGWgnMCm/8XWtoktWy+zcOf56REvhBVzRXQb
+      eXcK49zwqEuXGZLeflbM4jVrubOnnmvYFy+3US/H5F2aN0WjQjBAMA4GA1UdDwEB
+      /wQEAwICpDAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBQhVRuN34zJOuReCs13
+      KbNjOgWV5DAKBggqhkjOPQQDAgNIADBFAiEAs4/oIr3AS7LTliAH5mer8eiYu+cy
+      ifgjnXW8bdIHchwCIAHDb5MOAWUSn5DZVoKyv8rU9g/xnvDdyGRziCayXTqM
+      -----END CERTIFICATE-----
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubernetes.io/description: Contains a CA bundle that can be used to verify the
+        kube-apiserver when using internal endpoints such as the internal service
+        IP or kubernetes.default.svc. No other usage is guaranteed across distributions
+        of Kubernetes clusters.
+    creationTimestamp: "2026-02-11T01:32:00Z"
+    name: kube-root-ca.crt
+    namespace: croc-shop-data
+    resourceVersion: "84206"
+    uid: fa132d7c-7eef-4b0d-ae3f-070149f286ca
+- apiVersion: v1
+  data:
+    POSTGRES_DB: crocshop
+    POSTGRES_USER: postgres
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","data":{"POSTGRES_DB":"crocshop","POSTGRES_USER":"postgres"},"kind":"ConfigMap","metadata":{"annotations":{},"name":"postgres-config","namespace":"croc-shop-data"}}
+    creationTimestamp: "2026-02-11T01:32:18Z"
+    name: postgres-config
+    namespace: croc-shop-data
+    resourceVersion: "84350"
+    uid: 22d13d79-fb1e-405b-9088-0ffcdd0ffc6e
+- apiVersion: v1
+  data:
+    POSTGRES_PASSWORD: cG9zdGdyZXM=
+  kind: Secret
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Secret","metadata":{"annotations":{},"name":"postgres-secret","namespace":"croc-shop-data"},"stringData":{"POSTGRES_PASSWORD":"postgres"},"type":"Opaque"}
+    creationTimestamp: "2026-02-11T01:32:18Z"
+    name: postgres-secret
+    namespace: croc-shop-data
+    resourceVersion: "84361"
+    uid: 886dcf2d-8fbe-471f-9968-daf7c4729c6b
+  type: Opaque
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"PersistentVolumeClaim","metadata":{"annotations":{},"name":"postgres-pvc","namespace":"croc-shop-data"},"spec":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"storage":"5Gi"}}}}
+      pv.kubernetes.io/bind-completed: "yes"
+      pv.kubernetes.io/bound-by-controller: "yes"
+      volume.beta.kubernetes.io/storage-provisioner: driver.longhorn.io
+      volume.kubernetes.io/storage-provisioner: driver.longhorn.io
+    creationTimestamp: "2026-02-11T01:32:17Z"
+    finalizers:
+    - kubernetes.io/pvc-protection
+    name: postgres-pvc
+    namespace: croc-shop-data
+    resourceVersion: "84410"
+    uid: 68f2fbe2-a18f-4ba6-b28e-1583fdff4685
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 5Gi
+    storageClassName: longhorn
+    volumeMode: Filesystem
+    volumeName: pvc-68f2fbe2-a18f-4ba6-b28e-1583fdff4685
+  status:
+    accessModes:
+    - ReadWriteOnce
+    capacity:
+      storage: 5Gi
+    phase: Bound
+kind: List
+metadata:
+  resourceVersion: ""
+
+========================================
+NAMESPACE: croc-shop-monitoring
+========================================
+apiVersion: v1
+items:
+- apiVersion: v1
+  data:
+    ca.crt: |
+      -----BEGIN CERTIFICATE-----
+      MIIBeTCCAR+gAwIBAgIBADAKBggqhkjOPQQDAjAkMSIwIAYDVQQDDBlya2UyLXNl
+      cnZlci1jYUAxNzcwNzYwMzQzMB4XDTI2MDIxMDIxNTIyM1oXDTM2MDIwODIxNTIy
+      M1owJDEiMCAGA1UEAwwZcmtlMi1zZXJ2ZXItY2FAMTc3MDc2MDM0MzBZMBMGByqG
+      SM49AgEGCCqGSM49AwEHA0IABNynXGWgnMCm/8XWtoktWy+zcOf56REvhBVzRXQb
+      eXcK49zwqEuXGZLeflbM4jVrubOnnmvYFy+3US/H5F2aN0WjQjBAMA4GA1UdDwEB
+      /wQEAwICpDAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBQhVRuN34zJOuReCs13
+      KbNjOgWV5DAKBggqhkjOPQQDAgNIADBFAiEAs4/oIr3AS7LTliAH5mer8eiYu+cy
+      ifgjnXW8bdIHchwCIAHDb5MOAWUSn5DZVoKyv8rU9g/xnvDdyGRziCayXTqM
+      -----END CERTIFICATE-----
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubernetes.io/description: Contains a CA bundle that can be used to verify the
+        kube-apiserver when using internal endpoints such as the internal service
+        IP or kubernetes.default.svc. No other usage is guaranteed across distributions
+        of Kubernetes clusters.
+    creationTimestamp: "2026-02-11T01:32:00Z"
+    name: kube-root-ca.crt
+    namespace: croc-shop-monitoring
+    resourceVersion: "84213"
+    uid: 0bf5b7f7-c82b-4199-a116-1b68d9ec8073
+kind: List
+metadata:
+  resourceVersion: ""
+
+========================================
+NAMESPACE: croc-shop
+========================================
+apiVersion: v1
+items:
+- apiVersion: v1
+  data:
+    ca.crt: |
+      -----BEGIN CERTIFICATE-----
+      MIIBeTCCAR+gAwIBAgIBADAKBggqhkjOPQQDAjAkMSIwIAYDVQQDDBlya2UyLXNl
+      cnZlci1jYUAxNzcwNzYwMzQzMB4XDTI2MDIxMDIxNTIyM1oXDTM2MDIwODIxNTIy
+      M1owJDEiMCAGA1UEAwwZcmtlMi1zZXJ2ZXItY2FAMTc3MDc2MDM0MzBZMBMGByqG
+      SM49AgEGCCqGSM49AwEHA0IABNynXGWgnMCm/8XWtoktWy+zcOf56REvhBVzRXQb
+      eXcK49zwqEuXGZLeflbM4jVrubOnnmvYFy+3US/H5F2aN0WjQjBAMA4GA1UdDwEB
+      /wQEAwICpDAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBQhVRuN34zJOuReCs13
+      KbNjOgWV5DAKBggqhkjOPQQDAgNIADBFAiEAs4/oIr3AS7LTliAH5mer8eiYu+cy
+      ifgjnXW8bdIHchwCIAHDb5MOAWUSn5DZVoKyv8rU9g/xnvDdyGRziCayXTqM
+      -----END CERTIFICATE-----
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubernetes.io/description: Contains a CA bundle that can be used to verify the
+        kube-apiserver when using internal endpoints such as the internal service
+        IP or kubernetes.default.svc. No other usage is guaranteed across distributions
+        of Kubernetes clusters.
+    creationTimestamp: "2026-02-11T01:31:59Z"
+    name: kube-root-ca.crt
+    namespace: croc-shop
+    resourceVersion: "84154"
+    uid: 231e6fce-baa6-4474-8a27-5030d3319a26
+kind: List
+metadata:
+  resourceVersion: ""

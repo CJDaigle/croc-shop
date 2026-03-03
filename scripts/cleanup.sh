@@ -4,6 +4,17 @@ set -e
 
 echo "Cleaning up Crocs Shop deployment..."
 
+# Delete Gateway API resources first (in default namespace, not deleted with app namespaces)
+echo "Cleaning up Gateway API resources..."
+kubectl delete gateway croc-shop-gateway --ignore-not-found=true
+kubectl delete httproute croc-shop-route --ignore-not-found=true
+
+# Delete ReferenceGrants (in app namespaces, but clean before namespace deletion)
+echo "Cleaning up ReferenceGrants..."
+for ns in croc-shop-frontend croc-shop-product-catalog croc-shop-user croc-shop-cart croc-shop-order; do
+  kubectl delete referencegrants --all -n "$ns" --ignore-not-found=true 2>/dev/null
+done
+
 # Delete all croc-shop namespaces
 echo "Deleting all croc-shop namespaces and resources..."
 kubectl delete namespace croc-shop --ignore-not-found=true
@@ -15,15 +26,11 @@ kubectl delete namespace croc-shop-order --ignore-not-found=true
 kubectl delete namespace croc-shop-data --ignore-not-found=true
 kubectl delete namespace croc-shop-monitoring --ignore-not-found=true
 
-# Delete Istio resources from istio-system namespace
-echo "Cleaning up Istio Gateway and VirtualService..."
-kubectl delete gateway croc-shop-gateway -n istio-system --ignore-not-found=true
-kubectl delete virtualservice croc-shop-vs -n istio-system --ignore-not-found=true
-
 echo ""
 echo "Cleanup complete!"
 echo ""
-echo "All croc-shop namespaces have been deleted:"
+echo "All croc-shop resources have been deleted:"
+echo "  ✓ Gateway API resources (Gateway, HTTPRoute, ReferenceGrants)"
 echo "  ✓ croc-shop-frontend"
 echo "  ✓ croc-shop-product-catalog"
 echo "  ✓ croc-shop-user"
@@ -32,6 +39,5 @@ echo "  ✓ croc-shop-order"
 echo "  ✓ croc-shop-data"
 echo "  ✓ croc-shop-monitoring"
 echo ""
-echo "To also remove Istio (if installed):"
-echo "  istioctl uninstall --purge -y"
-echo "  kubectl delete namespace istio-system"
+echo "To also remove Cilium (if desired):"
+echo "  helm uninstall cilium -n kube-system"
