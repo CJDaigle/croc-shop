@@ -39,6 +39,10 @@ spec:
           value: admin
         - name: GF_SECURITY_ADMIN_USER
           value: admin
+        - name: GF_SERVER_ROOT_URL
+          value: "%(_protocol)s://%(_domain)s/"
+        - name: GF_SERVER_SERVE_FROM_SUB_PATH
+          value: "false"
         volumeMounts:
         - name: datasources
           mountPath: /etc/grafana/provisioning/datasources
@@ -60,11 +64,10 @@ metadata:
   name: grafana
   namespace: croc-shop-monitoring
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
   - port: 3000
     targetPort: 3000
-    nodePort: 30300
     name: web
   selector:
     app: grafana

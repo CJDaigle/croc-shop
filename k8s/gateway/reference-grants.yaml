@@ -14,6 +14,21 @@ spec:
   to:
     - group: ""
       kind: Service
+
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: allow-gateway-to-monitoring
+  namespace: croc-shop-monitoring
+spec:
+  from:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      namespace: default
+  to:
+    - group: ""
+      kind: Service
 ---
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: ReferenceGrant
