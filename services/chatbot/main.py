@@ -158,9 +158,32 @@ async def chat_stream(
 
                             payload = event.payload
 
+                            try:
+                                obj = json.loads(payload.decode(errors="ignore"))
+                            except Exception:
+                                obj = None
+
+                            if isinstance(obj, dict):
+                                stop_reason = obj.get("stopReason")
+                                if isinstance(stop_reason, str) and stop_reason != "":
+                                    yield b"event: done\ndata: ok\n\n"
+                                    return
+
+                                delta = obj.get("delta")
+                                if isinstance(delta, dict):
+                                    text = delta.get("text")
+                                    if isinstance(text, str) and text != "":
+                                        yield f"data: {text}\n\n".encode()
+                                        continue
+
+                                if obj.get("type") == "messageStop":
+                                    yield b"event: done\ndata: ok\n\n"
+                                    return
+
                             if event_type == "contentBlockDelta":
                                 try:
-                                    obj = json.loads(payload.decode(errors="ignore"))
+                                    if obj is None:
+                                        obj = json.loads(payload.decode(errors="ignore"))
                                     delta = obj.get("delta") or {}
                                     text = delta.get("text")
                                     if isinstance(text, str) and text != "":
@@ -168,6 +191,7 @@ async def chat_stream(
                                 except Exception:
                                     continue
                             elif event_type == "messageStop":
+                                yield b"event: done\ndata: ok\n\n"
                                 return
                     except Exception as e:
                         yield f"event: error\ndata: decode_error={str(e)}\n\n".encode()
