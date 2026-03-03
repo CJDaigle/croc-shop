@@ -47,12 +47,22 @@ def _sign_headers(url: str, body: str, region: str) -> dict:
         data=body,
         headers={
             "Content-Type": "application/json",
-            "x-amzn-bedrock-accept-type": "application/json",
         },
     )
 
     SigV4Auth(credentials, "bedrock", region).add_auth(req)
-    return dict(req.headers)
+
+    signed = dict(req.headers)
+    out = {
+        "Content-Type": "application/json",
+        "AWS4-HMAC-SHA256": signed.get("Authorization"),
+        "X-Amz-Date": signed.get("X-Amz-Date"),
+    }
+    token = signed.get("X-Amz-Security-Token")
+    if token:
+        out["X-Amz-Security-Token"] = token
+
+    return {k: v for k, v in out.items() if v is not None}
 
 
 @app.get("/health")
@@ -63,10 +73,14 @@ def health():
 @app.post("/api/chat/stream")
 async def chat_stream(
     request: Request,
-    x_api_token: Optional[str] = Header(default=None, convert_underscores=False),
+    x_api_token: Optional[str] = Header(default=None, alias="X-API-Token"),
 ):
     expected_token = _get_env("CHATBOT_API_TOKEN", "200")
-    if x_api_token != expected_token:
+    token = x_api_token
+    if token is None:
+        token = request.headers.get("x_api_token")
+
+    if token != expected_token:
         raise HTTPException(status_code=401, detail="Unauthorized")
 
     payload = await request.json()
@@ -78,18 +92,19 @@ async def chat_stream(
         "BEDROCK_GATEWAY_URL",
         "https://us.gateway.aidefense.security.cisco.com/fe399c8a-8aa7-41a9-b64e-a6a8a04ab49f/connections/5bf35e34-c75f-40b8-bae0-d0083e39cbcc/model/us.anthropic.claude-sonnet-4-20250514-v1:0/converse-stream",
     )
+    aws_sign_url = _get_env(
+        "BEDROCK_AWS_SIGN_URL",
+        "https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-4-20250514-v1:0/converse-stream",
+    )
     region = _get_env("AWS_REGION", "us-east-1")
 
     body_obj = {
-        "messages": [
-            {
-                "content": [{"text": message}],
-                "role": "user",
-            }
-        ]
+        "content": [{"text": message}],
+        "role": "user",
     }
     body = json.dumps(body_obj)
-    headers = _sign_headers(gateway_url, body, region)
+    headers = _sign_headers(aws_sign_url, body, region)
+    headers["x-amzn-bedrock-accept-type"] = "application/json"
 
     async def gen() -> AsyncGenerator[bytes, None]:
         timeout = httpx.Timeout(connect=10.0, read=None, write=10.0, pool=10.0)

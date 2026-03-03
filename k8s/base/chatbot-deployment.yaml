@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
       - name: chatbot
-        image: croc-shop-chatbot:latest
+        image: cjdaigle2/croc-shop-chatbot:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3005
