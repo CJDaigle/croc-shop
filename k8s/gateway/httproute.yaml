@@ -78,7 +78,7 @@ metadata:
   namespace: default
 spec:
   parentRefs:
-    - name: main-gateway
+    - name: monitoring-gateway
       namespace: default
   hostnames:
     - "prometheus.apo-llm-test.com"
@@ -100,7 +100,7 @@ metadata:
   namespace: default
 spec:
   parentRefs:
-    - name: main-gateway
+    - name: monitoring-gateway
       namespace: default
   hostnames:
     - "grafana.apo-llm-test.com"
