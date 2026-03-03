@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { ShieldCheck } from 'lucide-react';
 
 const CHATBOT_TOKEN = process.env.REACT_APP_CHATBOT_TOKEN || '200';
 
@@ -133,7 +134,13 @@ function ChatbotWidget() {
       {open && (
         <div className="w-80 bg-white rounded-lg shadow-xl border border-gray-200 flex flex-col">
           <div className="flex items-center justify-between px-4 py-3 border-b">
-            <div className="font-semibold text-gray-900">Croc Shop Chat</div>
+            <div>
+              <div className="font-semibold text-gray-900">Croc Shop Chat</div>
+              <div className="mt-1 inline-flex items-center gap-1.5 text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-full px-2 py-0.5">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>Protected by Cisco AI Defense</span>
+              </div>
+            </div>
             <button className="text-gray-500 hover:text-gray-700" onClick={() => setOpen(false)}>
               ✕
             </button>
