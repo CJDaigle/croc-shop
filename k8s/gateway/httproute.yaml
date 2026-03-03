@@ -7,7 +7,7 @@ metadata:
   namespace: default
 spec:
   parentRefs:
-    - name: croc-shop-gateway
+    - name: main-gateway
       namespace: default
   hostnames:
     - "croc-shop.apo-llm-test.com"
@@ -78,7 +78,7 @@ metadata:
   namespace: default
 spec:
   parentRefs:
-    - name: croc-shop-gateway
+    - name: main-gateway
       namespace: default
   hostnames:
     - "prometheus.apo-llm-test.com"
@@ -100,7 +100,7 @@ metadata:
   namespace: default
 spec:
   parentRefs:
-    - name: croc-shop-gateway
+    - name: main-gateway
       namespace: default
   hostnames:
     - "grafana.apo-llm-test.com"
