@@ -102,11 +102,15 @@ docker push $DOCKER_USERNAME/croc-shop-order:latest
 # Frontend Service (React)
 docker build -t $DOCKER_USERNAME/croc-shop-frontend:latest ./services/frontend
 docker push $DOCKER_USERNAME/croc-shop-frontend:latest
+
+# Chatbot Service (Python/FastAPI)
+docker build -t $DOCKER_USERNAME/croc-shop-chatbot:latest ./services/chatbot
+docker push $DOCKER_USERNAME/croc-shop-chatbot:latest
 ```
 
 3. **Verify images on Docker Hub**
    - Visit: https://hub.docker.com/u/yourusername
-   - You should see all 5 images listed
+   - You should see all 6 images listed
 
 ## Step 3: Update Kubernetes Manifests
 
@@ -119,10 +123,13 @@ find k8s/base -name "*-deployment.yaml" -type f -exec sed -i '' "s|image: user:l
 find k8s/base -name "*-deployment.yaml" -type f -exec sed -i '' "s|image: cart:latest|image: $DOCKER_USERNAME/croc-shop-cart:latest|g" {} \;
 find k8s/base -name "*-deployment.yaml" -type f -exec sed -i '' "s|image: order:latest|image: $DOCKER_USERNAME/croc-shop-order:latest|g" {} \;
 find k8s/base -name "*-deployment.yaml" -type f -exec sed -i '' "s|image: frontend:latest|image: $DOCKER_USERNAME/croc-shop-frontend:latest|g" {} \;
+find k8s/base -name "*-deployment.yaml" -type f -exec sed -i '' "s|image: croc-shop-chatbot:latest|image: $DOCKER_USERNAME/croc-shop-chatbot:latest|g" {} \;
 
 # Update imagePullPolicy to Always (to pull from Docker Hub)
 find k8s/base -name "*-deployment.yaml" -type f -exec sed -i '' "s|imagePullPolicy: IfNotPresent|imagePullPolicy: Always|g" {} \;
 ```
+
+For the chatbot service, ensure the Secret in `k8s/base/chatbot-deployment.yaml` has valid values (at minimum `CHATBOT_API_TOKEN`, `AWS_REGION`, `BEDROCK_GATEWAY_URL`, and AWS credentials) before applying manifests.
 
 **Note for Linux users**: Remove the empty quotes after `-i` in the sed commands:
 ```bash
