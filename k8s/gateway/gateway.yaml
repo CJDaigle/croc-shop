@@ -29,6 +29,54 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
+    - name: https-chuck
+      protocol: HTTPS
+      port: 443
+      hostname: chuck.apo-llm-test.com
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: chuck-tls
+            namespace: default
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: https-open-webui
+      protocol: HTTPS
+      port: 443
+      hostname: open-webui.apo-llm-test.com
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: open-webui-tls
+            namespace: default
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: https-sock-shop
+      protocol: HTTPS
+      port: 443
+      hostname: sock-shop.apo-llm-test.com
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: sock-shop-tls
+            namespace: default
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: https-hubble
+      protocol: HTTPS
+      port: 443
+      hostname: hubble.apo-llm-test.com
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: hubble-tls
+            namespace: default
+      allowedRoutes:
+        namespaces:
+          from: All
     - name: https-grafana
       protocol: HTTPS
       port: 443
