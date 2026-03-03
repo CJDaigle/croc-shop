@@ -8,8 +8,8 @@ stringData:
   CHATBOT_API_TOKEN: "200"
   AWS_REGION: us-east-1
   BEDROCK_GATEWAY_URL: https://us.gateway.aidefense.security.cisco.com/fe399c8a-8aa7-41a9-b64e-a6a8a04ab49f/connections/5bf35e34-c75f-40b8-bae0-d0083e39cbcc/model/us.anthropic.claude-sonnet-4-20250514-v1:0/converse-stream
-  AWS_ACCESS_KEY_ID: REPLACE_ME
-  AWS_SECRET_ACCESS_KEY: REPLACE_ME
+  AWS_ACCESS_KEY_ID: AKIAXHNPCA5XZIPCOIT3
+  AWS_SECRET_ACCESS_KEY: P9WKKiFkIr2/vzbea73eqyMl5yErzCSmg2XRhhtI
 ---
 apiVersion: apps/v1
 kind: Deployment
