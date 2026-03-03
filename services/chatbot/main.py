@@ -8,6 +8,7 @@ from fastapi.responses import StreamingResponse
 from botocore.auth import SigV4Auth
 from botocore.awsrequest import AWSRequest
 from botocore.credentials import Credentials
+from botocore.eventstream import EventStreamBuffer
 from botocore.session import get_session
 from urllib.parse import urlparse
 from urllib.parse import urlsplit, urlunsplit, quote
@@ -115,8 +116,7 @@ async def chat_stream(
         ]
     }
     body = json.dumps(body_obj)
-    signing_url = _encode_url_path(aws_sign_url)
-    headers = _sign_headers(signing_url, body, region)
+    headers = _sign_headers(aws_sign_url, body, region)
     headers["x-amzn-bedrock-accept-type"] = "application/json"
 
     async def gen() -> AsyncGenerator[bytes, None]:
@@ -128,13 +128,45 @@ async def chat_stream(
                     yield f"event: error\ndata: upstream_status={resp.status_code} body={err.decode(errors='ignore')}\n\n".encode()
                     return
 
+                buffer = EventStreamBuffer()
+
+                yield b": stream-start\n\n"
+
                 async for chunk in resp.aiter_bytes():
                     if not chunk:
                         continue
-                    text = chunk.decode(errors="ignore")
-                    for line in text.splitlines():
-                        if line.strip() == "":
-                            continue
-                        yield f"data: {line}\n\n".encode()
+
+                    buffer.add_data(chunk)
+
+                    try:
+                        for event in buffer:
+                            event_type = None
+                            try:
+                                hdr = event.headers.get(":event-type")
+                                if hdr is None:
+                                    hdr = event.headers.get("event-type")
+                                if hdr is not None:
+                                    event_type = hdr.value
+                                    if isinstance(event_type, (bytes, bytearray)):
+                                        event_type = event_type.decode(errors="ignore")
+                            except Exception:
+                                event_type = None
+
+                            payload = event.payload
+
+                            if event_type == "contentBlockDelta":
+                                try:
+                                    obj = json.loads(payload.decode(errors="ignore"))
+                                    delta = obj.get("delta") or {}
+                                    text = delta.get("text")
+                                    if isinstance(text, str) and text != "":
+                                        yield f"data: {text}\n\n".encode()
+                                except Exception:
+                                    continue
+                            elif event_type == "messageStop":
+                                return
+                    except Exception as e:
+                        yield f"event: error\ndata: decode_error={str(e)}\n\n".encode()
+                        return
 
     return StreamingResponse(gen(), media_type="text/event-stream")
