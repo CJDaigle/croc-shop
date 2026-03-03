@@ -50,6 +50,7 @@ function ChatbotWidget() {
       const reader = resp.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
+      let eventType = null;
 
       while (true) {
         const { value, done } = await reader.read();
@@ -61,9 +62,35 @@ function ChatbotWidget() {
 
         for (const part of parts) {
           const lines = part.split('\n');
+          eventType = null;
           for (const line of lines) {
+            if (!line || line.startsWith(':')) {
+              continue;
+            }
+
+            if (line.startsWith('event: ')) {
+              eventType = line.slice(7).trim();
+              continue;
+            }
+
             if (line.startsWith('data: ')) {
               const data = line.slice(6);
+
+              if (eventType === 'done') {
+                reader.cancel();
+                abortRef.current = null;
+                setStreaming(false);
+                return;
+              }
+
+              if (eventType === 'error') {
+                setMessages((prev) => [...prev, { role: 'assistant', text: data }]);
+                reader.cancel();
+                abortRef.current = null;
+                setStreaming(false);
+                return;
+              }
+
               assistantText += data;
               setMessages((prev) => {
                 const copy = [...prev];
