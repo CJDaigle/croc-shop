@@ -100,7 +100,6 @@ async def chat_stream(
         "BEDROCK_GATEWAY_URL",
         "https://us.gateway.aidefense.security.cisco.com/fe399c8a-8aa7-41a9-b64e-a6a8a04ab49f/connections/5bf35e34-c75f-40b8-bae0-d0083e39cbcc/model/us.anthropic.claude-sonnet-4-20250514-v1:0/converse-stream",
     )
-    gateway_url = _encode_url_path(gateway_url)
     aws_sign_url = _get_env(
         "BEDROCK_AWS_SIGN_URL",
         "https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-4-20250514-v1:0/converse-stream",
@@ -116,11 +115,9 @@ async def chat_stream(
         ]
     }
     body = json.dumps(body_obj)
-    headers = _sign_headers(aws_sign_url, body, region)
+    signing_url = _encode_url_path(aws_sign_url)
+    headers = _sign_headers(signing_url, body, region)
     headers["x-amzn-bedrock-accept-type"] = "application/json"
-    aws_host = urlparse(aws_sign_url).netloc
-    if aws_host:
-        headers["Host"] = aws_host
 
     async def gen() -> AsyncGenerator[bytes, None]:
         timeout = httpx.Timeout(connect=10.0, read=None, write=10.0, pool=10.0)
