@@ -31,7 +31,7 @@ spec:
       containers:
       - name: chatbot
         image: cjdaigle2/croc-shop-chatbot:latest
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         ports:
         - containerPort: 3005
         env:
