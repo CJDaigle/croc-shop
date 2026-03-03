@@ -28,6 +28,7 @@ services:
       retries: 5
 
   product-catalog:
+    image: croc-shop-product-catalog:${CROC_SHOP_IMAGE_TAG:-dev}
     build: ./services/product-catalog
     ports:
       - "3001:3001"
@@ -43,6 +44,7 @@ services:
         condition: service_healthy
 
   user:
+    image: croc-shop-user:${CROC_SHOP_IMAGE_TAG:-dev}
     build: ./services/user
     ports:
       - "3002:3002"
@@ -59,6 +61,7 @@ services:
         condition: service_healthy
 
   cart:
+    image: croc-shop-cart:${CROC_SHOP_IMAGE_TAG:-dev}
     build: ./services/cart
     ports:
       - "3003:3003"
@@ -72,6 +75,7 @@ services:
         condition: service_healthy
 
   order:
+    image: croc-shop-order:${CROC_SHOP_IMAGE_TAG:-dev}
     build: ./services/order
     ports:
       - "3004:3004"
@@ -89,6 +93,7 @@ services:
         condition: service_healthy
 
   frontend:
+    image: croc-shop-frontend:${CROC_SHOP_IMAGE_TAG:-dev}
     build: ./services/frontend
     ports:
       - "3000:80"

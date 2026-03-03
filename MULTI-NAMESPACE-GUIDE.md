@@ -14,13 +14,13 @@ Crocs Shop uses a **dedicated namespace per service** approach, which is a best 
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  Gateway Nodes (role=gateway, hostNetwork)                    │
-│  Cilium Gateway API (Envoy) → HTTPRoute path matching        │
+│  Gateway Nodes (role=gateway, hostNetwork)                  │
+│  Cilium Gateway API (Envoy) → HTTPRoute path matching       │
 └─────────────────────────────────────────────────────────────┘
 ┌─────────────────────────────────────────────────────────────┐
-│                     kube-system                              │
-│              (Cilium CNI + Service Mesh)                     │
-│         Cilium Agent + Hubble + ClusterMesh                  │
+│                     kube-system                             │
+│              (Cilium CNI + Service Mesh)                    │
+│         Cilium Agent + Hubble + ClusterMesh                 │
 └─────────────────────────────────────────────────────────────┘
                           │
         ┌─────────────────┼─────────────────┐
@@ -32,21 +32,21 @@ Crocs Shop uses a **dedicated namespace per service** approach, which is a best 
 └────────┬───────┘ └──────┬──────┘ └───────┬────────┘
          │                │                 │
          │         ┌──────▼──────┐          │
-         │         │ croc-shop- │          │
+         │         │ croc-shop- │           │
          └────────▶│    data     │◀─────────┘
                    │ (Postgres + │
                    │   Redis)    │
                    └─────────────┘
 
 ┌───────────────┐  ┌────────────────┐
-│ croc-shop-   │  │ croc-shop-    │
+│ croc-shop-    │  │ croc-shop-     │
 │    cart       │  │    order       │
 └───────┬───────┘  └────────────────┘
         │
         └──────────▶ croc-shop-data
 
 ┌─────────────────────────────────────┐
-│    croc-shop-monitoring            │
+│    croc-shop-monitoring             │
 │  (Prometheus scrapes all namespaces)│
 └─────────────────────────────────────┘
 ```
