@@ -274,6 +274,16 @@ func createOrderHandler(w http.ResponseWriter, r *http.Request) {
 
 	itemsJSON, _ := json.Marshal(req.Items)
 
+	authHeader := r.Header.Get("Authorization")
+	if err := decrementStock(req.Items, authHeader); err != nil {
+		log.Printf("Stock check failed: %v", err)
+		httpRequestsTotal.WithLabelValues("POST", "/api/orders", "409").Inc()
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusConflict)
+		json.NewEncoder(w).Encode(map[string]string{"error": fmt.Sprintf("Stock unavailable: %v", err)})
+		return
+	}
+
 	status := "paid"
 	row := db.QueryRow(
 		fmt.Sprintf(`INSERT INTO orders (user_id, items, total, status, shipping_address, shipping_city, shipping_state, shipping_zip, payment_method, paid_at)
@@ -292,35 +302,38 @@ func createOrderHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	go decrementStock(req.Items)
-
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(order)
 	httpRequestsTotal.WithLabelValues("POST", "/api/orders", "201").Inc()
 }
 
-func decrementStock(items []Item) {
+func decrementStock(items []Item, authHeader string) error {
 	client := &http.Client{Timeout: 5 * time.Second}
 	for _, item := range items {
 		body, _ := json.Marshal(map[string]int{"decrement": item.Quantity})
 		url := fmt.Sprintf("%s/api/products/%d/stock", productCatalogURL, item.ProductID)
 		req, err := http.NewRequest("PATCH", url, bytes.NewReader(body))
 		if err != nil {
-			log.Printf("Error creating stock decrement request for product %d: %v", item.ProductID, err)
-			continue
+			return fmt.Errorf("stock decrement request for product %d: %w", item.ProductID, err)
 		}
 		req.Header.Set("Content-Type", "application/json")
+		if authHeader != "" {
+			req.Header.Set("Authorization", authHeader)
+		}
 		resp, err := client.Do(req)
 		if err != nil {
-			log.Printf("Error decrementing stock for product %d: %v", item.ProductID, err)
-			continue
+			return fmt.Errorf("stock decrement for product %d: %w", item.ProductID, err)
 		}
 		resp.Body.Close()
+		if resp.StatusCode == http.StatusConflict {
+			return fmt.Errorf("insufficient stock for product %d", item.ProductID)
+		}
 		if resp.StatusCode != http.StatusOK {
-			log.Printf("Stock decrement failed for product %d: status %d", item.ProductID, resp.StatusCode)
+			return fmt.Errorf("stock decrement failed for product %d: status %d", item.ProductID, resp.StatusCode)
 		}
 	}
+	return nil
 }
 
 func getOrderHandler(w http.ResponseWriter, r *http.Request) {

@@ -15,6 +15,11 @@ spec:
     - namespaceSelector:
         matchLabels:
           name: croc-shop-frontend
+    - namespaceSelector:
+        matchLabels:
+          name: croc-shop-order
+    - ipBlock:
+        cidr: 10.0.0.0/16
     ports:
     - protocol: TCP
       port: 3001
@@ -54,6 +59,8 @@ spec:
     - namespaceSelector:
         matchLabels:
           name: croc-shop-frontend
+    - ipBlock:
+        cidr: 10.0.0.0/16
     ports:
     - protocol: TCP
       port: 3003
@@ -147,14 +154,35 @@ spec:
       app: user
   policyTypes:
   - Ingress
+  - Egress
   ingress:
   - from:
     - namespaceSelector:
         matchLabels:
           name: croc-shop-frontend
+    - ipBlock:
+        cidr: 10.0.0.0/16
     ports:
     - protocol: TCP
       port: 3002
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: croc-shop-data
+      podSelector:
+        matchLabels:
+          app: postgres
+    ports:
+    - protocol: TCP
+      port: 5432
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -167,14 +195,45 @@ spec:
       app: order
   policyTypes:
   - Ingress
+  - Egress
   ingress:
   - from:
     - namespaceSelector:
         matchLabels:
           name: croc-shop-frontend
+    - ipBlock:
+        cidr: 10.0.0.0/16
     ports:
     - protocol: TCP
       port: 3004
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: croc-shop-data
+      podSelector:
+        matchLabels:
+          app: postgres
+    ports:
+    - protocol: TCP
+      port: 5432
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: croc-shop-product-catalog
+      podSelector:
+        matchLabels:
+          app: product-catalog
+    ports:
+    - protocol: TCP
+      port: 3001
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy

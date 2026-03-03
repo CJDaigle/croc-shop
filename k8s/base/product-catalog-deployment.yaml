@@ -18,6 +18,7 @@ metadata:
 type: Opaque
 stringData:
   POSTGRES_PASSWORD: postgres
+  JWT_SECRET: change-this-in-production-use-k8s-secrets
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -58,6 +59,11 @@ spec:
             secretKeyRef:
               name: postgres-secret
               key: POSTGRES_PASSWORD
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: JWT_SECRET
         livenessProbe:
           httpGet:
             path: /health

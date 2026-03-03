@@ -1,14 +1,30 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const { Pool } = require('pg');
 const promClient = require('prom-client');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
 app.use(cors());
 app.use(express.json());
+
+function requireAuth(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Missing or invalid Authorization header' });
+  }
+  try {
+    const token = authHeader.split(' ')[1];
+    jwt.verify(token, JWT_SECRET);
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+}
 
 const register = new promClient.Registry();
 promClient.collectDefaultMetrics({ register });
@@ -188,7 +204,7 @@ app.get('/api/products/:id', async (req, res) => {
   }
 });
 
-app.post('/api/products', async (req, res) => {
+app.post('/api/products', requireAuth, async (req, res) => {
   const end = httpRequestDuration.startTimer();
   try {
     const { name, price, description, stock, category, image } = req.body;
@@ -213,7 +229,7 @@ app.post('/api/products', async (req, res) => {
   }
 });
 
-app.patch('/api/products/:id/stock', async (req, res) => {
+app.patch('/api/products/:id/stock', requireAuth, async (req, res) => {
   const end = httpRequestDuration.startTimer();
   try {
     const productId = parseInt(req.params.id);
