@@ -1,0 +1,97 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: chatbot-secret
+  namespace: croc-shop-chatbot
+type: Opaque
+stringData:
+  CHATBOT_API_TOKEN: "200"
+  AWS_REGION: us-east-1
+  BEDROCK_GATEWAY_URL: https://us.gateway.aidefense.security.cisco.com/fe399c8a-8aa7-41a9-b64e-a6a8a04ab49f/connections/5bf35e34-c75f-40b8-bae0-d0083e39cbcc/model/us.anthropic.claude-sonnet-4-20250514-v1:0/converse-stream
+  AWS_ACCESS_KEY_ID: REPLACE_ME
+  AWS_SECRET_ACCESS_KEY: REPLACE_ME
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatbot
+  namespace: croc-shop-chatbot
+  labels:
+    app: chatbot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chatbot
+  template:
+    metadata:
+      labels:
+        app: chatbot
+    spec:
+      containers:
+      - name: chatbot
+        image: croc-shop-chatbot:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3005
+        env:
+        - name: CHATBOT_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: chatbot-secret
+              key: CHATBOT_API_TOKEN
+        - name: AWS_REGION
+          valueFrom:
+            secretKeyRef:
+              name: chatbot-secret
+              key: AWS_REGION
+        - name: BEDROCK_GATEWAY_URL
+          valueFrom:
+            secretKeyRef:
+              name: chatbot-secret
+              key: BEDROCK_GATEWAY_URL
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: chatbot-secret
+              key: AWS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: chatbot-secret
+              key: AWS_SECRET_ACCESS_KEY
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3005
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3005
+          initialDelaySeconds: 10
+          periodSeconds: 20
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chatbot
+  namespace: croc-shop-chatbot
+  labels:
+    app: chatbot
+spec:
+  selector:
+    app: chatbot
+  ports:
+  - name: http
+    port: 3005
+    targetPort: 3005
+  type: ClusterIP

@@ -7,6 +7,7 @@ import Cart from './components/Cart';
 import Login from './components/Login';
 import Orders from './components/Orders';
 import Profile from './components/Profile';
+import ChatbotWidget from './components/ChatbotWidget';
 
 function isTokenExpired(token) {
   try {
@@ -115,6 +116,8 @@ function App() {
             <Route path="/profile" element={<Profile user={user} />} />
           </Routes>
         </main>
+
+        <ChatbotWidget />
       </div>
     </Router>
   );

@@ -51,6 +51,15 @@ spec:
         - name: order
           namespace: croc-shop-order
           port: 3004
+    # Chatbot API
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/chat
+      backendRefs:
+        - name: chatbot
+          namespace: croc-shop-chatbot
+          port: 3005
     # Frontend (catch-all, must be last)
     - matches:
         - path:
