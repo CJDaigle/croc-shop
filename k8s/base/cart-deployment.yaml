@@ -8,6 +8,8 @@ data:
   REDIS_HOST: redis.croc-shop-data.svc.cluster.local
   REDIS_PORT: "6379"
 ---
+# WARNING: Plaintext secrets for dev/demo only.
+# In production, use External Secrets Operator, Sealed Secrets, or Vault.
 apiVersion: v1
 kind: Secret
 metadata:

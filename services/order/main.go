@@ -419,7 +419,7 @@ func updateOrderStatusHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
-		secret = "your-secret-key-change-in-production"
+		secret = "dev-secret-change-in-production"
 	}
 	jwtSecret = []byte(secret)
 

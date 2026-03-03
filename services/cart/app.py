@@ -23,7 +23,7 @@ redis_client = redis.Redis(
 REQUEST_COUNT = Counter('http_requests_total', 'Total HTTP requests', ['method', 'endpoint', 'status'])
 REQUEST_DURATION = Histogram('http_request_duration_seconds', 'HTTP request duration', ['method', 'endpoint'])
 
-JWT_SECRET = os.getenv('JWT_SECRET', 'your-secret-key-change-in-production')
+JWT_SECRET = os.getenv('JWT_SECRET', 'dev-secret-change-in-production')
 
 def require_auth(f):
     @wraps(f)
@@ -84,12 +84,18 @@ def add_to_cart(user_id):
     with REQUEST_DURATION.labels(method='POST', endpoint='/api/cart/items').time():
         try:
             data = request.json
-            product_id = int(data.get('productId'))
+            product_id = data.get('productId')
             quantity = data.get('quantity', 1)
             price = data.get('price')
             name = data.get('name')
             
-            if not all([product_id, price, name]):
+            if product_id is None or price is None or name is None:
+                REQUEST_COUNT.labels(method='POST', endpoint='/api/cart/items', status=400).inc()
+                return jsonify({'error': 'Missing required fields'}), 400
+            
+            product_id = int(product_id)
+            
+            if not isinstance(price, (int, float)) or not isinstance(quantity, int) or quantity < 1:
                 REQUEST_COUNT.labels(method='POST', endpoint='/api/cart/items', status=400).inc()
                 return jsonify({'error': 'Missing required fields'}), 400
             

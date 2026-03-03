@@ -11,6 +11,8 @@ data:
   DB_USER: postgres
   PRODUCT_CATALOG_URL: http://product-catalog.croc-shop-product-catalog.svc.cluster.local:3001
 ---
+# WARNING: Plaintext secrets for dev/demo only.
+# In production, use External Secrets Operator, Sealed Secrets, or Vault.
 apiVersion: v1
 kind: Secret
 metadata:

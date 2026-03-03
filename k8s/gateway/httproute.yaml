@@ -12,15 +12,6 @@ spec:
   hostnames:
     - "croc-shop.apo-llm-test.com"
   rules:
-    # Frontend (default route)
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /
-      backendRefs:
-        - name: frontend
-          namespace: croc-shop-frontend
-          port: 80
     # Product Catalog API
     - matches:
         - path:
@@ -60,3 +51,12 @@ spec:
         - name: order
           namespace: croc-shop-order
           port: 3004
+    # Frontend (catch-all, must be last)
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: frontend
+          namespace: croc-shop-frontend
+          port: 80

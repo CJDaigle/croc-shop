@@ -10,6 +10,8 @@ data:
   DB_NAME: crocshop
   DB_USER: postgres
 ---
+# WARNING: Plaintext secrets for dev/demo only.
+# In production, use External Secrets Operator, Sealed Secrets, or Vault.
 apiVersion: v1
 kind: Secret
 metadata:
