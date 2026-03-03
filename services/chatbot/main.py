@@ -9,6 +9,8 @@ from botocore.auth import SigV4Auth
 from botocore.awsrequest import AWSRequest
 from botocore.credentials import Credentials
 from botocore.session import get_session
+from urllib.parse import urlparse
+from urllib.parse import urlsplit, urlunsplit, quote
 
 app = FastAPI()
 
@@ -55,7 +57,7 @@ def _sign_headers(url: str, body: str, region: str) -> dict:
     signed = dict(req.headers)
     out = {
         "Content-Type": "application/json",
-        "AWS4-HMAC-SHA256": signed.get("Authorization"),
+        "Authorization": signed.get("Authorization"),
         "X-Amz-Date": signed.get("X-Amz-Date"),
     }
     token = signed.get("X-Amz-Security-Token")
@@ -63,6 +65,12 @@ def _sign_headers(url: str, body: str, region: str) -> dict:
         out["X-Amz-Security-Token"] = token
 
     return {k: v for k, v in out.items() if v is not None}
+
+
+def _encode_url_path(url: str) -> str:
+    parts = urlsplit(url)
+    encoded_path = quote(parts.path, safe="/-_.~")
+    return urlunsplit((parts.scheme, parts.netloc, encoded_path, parts.query, parts.fragment))
 
 
 @app.get("/health")
@@ -92,6 +100,7 @@ async def chat_stream(
         "BEDROCK_GATEWAY_URL",
         "https://us.gateway.aidefense.security.cisco.com/fe399c8a-8aa7-41a9-b64e-a6a8a04ab49f/connections/5bf35e34-c75f-40b8-bae0-d0083e39cbcc/model/us.anthropic.claude-sonnet-4-20250514-v1:0/converse-stream",
     )
+    gateway_url = _encode_url_path(gateway_url)
     aws_sign_url = _get_env(
         "BEDROCK_AWS_SIGN_URL",
         "https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-4-20250514-v1:0/converse-stream",
@@ -99,12 +108,19 @@ async def chat_stream(
     region = _get_env("AWS_REGION", "us-east-1")
 
     body_obj = {
-        "content": [{"text": message}],
-        "role": "user",
+        "messages": [
+            {
+                "role": "user",
+                "content": [{"text": message}],
+            }
+        ]
     }
     body = json.dumps(body_obj)
     headers = _sign_headers(aws_sign_url, body, region)
     headers["x-amzn-bedrock-accept-type"] = "application/json"
+    aws_host = urlparse(aws_sign_url).netloc
+    if aws_host:
+        headers["Host"] = aws_host
 
     async def gen() -> AsyncGenerator[bytes, None]:
         timeout = httpx.Timeout(connect=10.0, read=None, write=10.0, pool=10.0)
