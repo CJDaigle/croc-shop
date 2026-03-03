@@ -77,39 +77,3 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
-
----
-apiVersion: gateway.networking.k8s.io/v1
-kind: Gateway
-metadata:
-  name: monitoring-gateway
-  namespace: default
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
-spec:
-  gatewayClassName: cilium
-  listeners:
-    - name: https-grafana
-      protocol: HTTPS
-      port: 443
-      hostname: grafana.apo-llm-test.com
-      tls:
-        mode: Terminate
-        certificateRefs:
-          - name: grafana-tls
-            namespace: default
-      allowedRoutes:
-        namespaces:
-          from: All
-    - name: https-prometheus
-      protocol: HTTPS
-      port: 443
-      hostname: prometheus.apo-llm-test.com
-      tls:
-        mode: Terminate
-        certificateRefs:
-          - name: prometheus-tls
-            namespace: default
-      allowedRoutes:
-        namespaces:
-          from: All
