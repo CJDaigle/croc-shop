@@ -1,0 +1,15 @@
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: simple-network-monitoring
+  namespace: kube-system
+spec:
+  kprobes:
+    - call: "tcp_connect"
+      syscall: true
+      args:
+        - index: 0
+          type: "sockaddr"
+      selectors:
+        - matchActions:
+            - action: "Trace"

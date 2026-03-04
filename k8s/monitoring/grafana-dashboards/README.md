@@ -24,6 +24,10 @@
 11. **sock-shop-health.json** - Sock-shop service health status
 12. **sock-shop-overview.json** - Sock-shop complete overview with available metrics
 
+### Tetragon Security Dashboards (New)
+13. **tetragon-security.json** - Comprehensive Tetragon security monitoring
+14. **tetragon-network-security.json** - Network security and event analysis
+
 ## 🚀 Import Instructions
 
 ### Step 1: Access Grafana
@@ -107,6 +111,18 @@ After importing panels, you can:
 - **Type**: Combined panels
 - **Shows**: Service health, HTTP responses, error rates, response times
 - **Use**: Complete sock-shop application monitoring
+
+### 10. Tetragon Security
+- **Type**: Comprehensive security monitoring
+- **Shows**: Service health, events, errors, memory usage, cache performance, file monitoring, event processing, policy status
+- **Use**: Complete Tetragon security observability
+- **Key Metrics**: Event rates, error tracking, memory usage, cache performance, policy status
+
+### 11. Tetragon Network Security
+- **Type**: Network security focused
+- **Shows**: Security event rates, event loss monitoring, cache performance issues, error analysis
+- **Use**: Network security threat detection and analysis
+- **Key Metrics**: File events, process execution, event loss, cache misses, error breakdown
 
 ## 🎨 Customization Tips
 

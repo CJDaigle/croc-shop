@@ -1,0 +1,120 @@
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: network-security-monitoring
+  namespace: kube-system
+spec:
+  # Monitor all network connections
+  kprobes:
+    # TCP connect syscalls
+    - call: "tcp_connect"
+      syscall: true
+      args:
+        - index: 0
+          type: "sockaddr"
+        - index: 1
+          type: "size_t"
+      selectors:
+        - matchArgs:
+          - index: 0
+            operator: "NotEqual"
+            values:
+              - "0.0.0.0:0"
+          matchActions:
+            - action: "Trace"
+              argNames:
+                - "src_ip"
+                - "src_port"
+                - "dst_ip"
+                - "dst_port"
+                - "protocol"
+                - "pid"
+                - "comm"
+                - "uid"
+                - "gid"
+
+    # UDP send syscalls
+    - call: "udp_sendmsg"
+      syscall: true
+      args:
+        - index: 0
+          type: "sockaddr"
+        - index: 1
+          type: "size_t"
+      selectors:
+        - matchActions:
+            - action: "Trace"
+              argNames:
+                - "src_ip"
+                - "src_port"
+                - "dst_ip"
+                - "dst_port"
+                - "protocol"
+                - "pid"
+                - "comm"
+                - "uid"
+                - "gid"
+
+  # Monitor process execution
+  tracepoints:
+    - subsystem: "sched"
+      event: "sched_process_exec"
+      args:
+        - index: 0
+          type: "pid_t"
+        - index: 1
+          type: "pid_t"
+        - index: 2
+          type: "char*"
+        - index: 3
+          type: "char*"
+      selectors:
+        - matchActions:
+            - action: "Trace"
+              argNames:
+                - "parent_pid"
+                - "child_pid"
+                - "filename"
+                - "interpreter"
+
+  # Monitor file operations
+  kprobes:
+    - call: "security_file_permission"
+      syscall: false
+      args:
+        - index: 0
+          type: "file"
+        - index: 1
+          type: "int"
+      selectors:
+        - matchArgs:
+          - index: 1
+            operator: "Equal"
+            values:
+              - "4"  # MAY_READ
+          matchActions:
+            - action: "Trace"
+              argNames:
+                - "file_path"
+                - "mask"
+                - "pid"
+                - "comm"
+
+  # Monitor socket operations
+  kprobes:
+    - call: "inet_csk_accept"
+      syscall: false
+      args:
+        - index: 0
+          type: "sock"
+      selectors:
+        - matchActions:
+            - action: "Trace"
+              argNames:
+                - "sock"
+                - "pid"
+                - "comm"
+                - "src_ip"
+                - "src_port"
+                - "dst_ip"
+                - "dst_port"

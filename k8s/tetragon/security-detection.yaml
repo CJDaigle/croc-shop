@@ -1,0 +1,153 @@
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: security-threat-detection
+  namespace: kube-system
+spec:
+  # Detect suspicious network connections
+  kprobes:
+    - call: "tcp_connect"
+      syscall: true
+      args:
+        - index: 0
+          type: "sockaddr"
+        - index: 1
+          type: "size_t"
+      selectors:
+        # Detect connections to suspicious ports
+        - matchArgs:
+          - index: 0
+            operator: "In"
+            values:
+              - "0.0.0.0:22"      # SSH
+              - "0.0.0.0:23"      # Telnet
+              - "0.0.0.0:4444"    # Common backdoor
+              - "0.0.0.0:5555"    # Common backdoor
+              - "0.0.0.0:6667"    # IRC
+              - "0.0.0.0:6697"    # IRC SSL
+          matchActions:
+            - action: "Trace"
+              argNames:
+                - "src_ip"
+                - "src_port"
+                - "dst_ip"
+                - "dst_port"
+                - "protocol"
+                - "pid"
+                - "comm"
+                - "uid"
+                - "gid"
+                - "threat_type"
+                - "severity"
+
+        # Detect connections to known malicious IPs (example ranges)
+        - matchArgs:
+          - index: 0
+            operator: "Prefix"
+            values:
+              - "10.0.0."        # Internal network scanning
+              - "192.168."       # Internal network scanning
+              - "172.16."        # Internal network scanning
+          matchActions:
+            - action: "Trace"
+              argNames:
+                - "src_ip"
+                - "src_port"
+                - "dst_ip"
+                - "dst_port"
+                - "protocol"
+                - "pid"
+                - "comm"
+                - "uid"
+                - "gid"
+                - "threat_type"
+                - "severity"
+
+  # Detect suspicious process execution
+  tracepoints:
+    - subsystem: "sched"
+      event: "sched_process_exec"
+      args:
+        - index: 0
+          type: "pid_t"
+        - index: 1
+          type: "pid_t"
+        - index: 2
+          type: "char*"
+        - index: 3
+          type: "char*"
+      selectors:
+        # Detect suspicious binaries
+        - matchArgs:
+          - index: 2
+            operator: "In"
+            values:
+              - "/bin/sh"
+              - "/bin/bash"
+              - "/usr/bin/nc"
+              - "/usr/bin/netcat"
+              - "/usr/bin/wget"
+              - "/usr/bin/curl"
+              - "/usr/bin/python"
+              - "/usr/bin/perl"
+          matchActions:
+            - action: "Trace"
+              argNames:
+                - "parent_pid"
+                - "child_pid"
+                - "filename"
+                - "interpreter"
+                - "threat_type"
+                - "severity"
+
+        # Detect processes in unusual locations
+        - matchArgs:
+          - index: 2
+            operator: "Prefix"
+            values:
+              - "/tmp/"
+              - "/var/tmp/"
+              - "/dev/shm/"
+              - "/proc/"
+              - "/sys/"
+          matchActions:
+            - action: "Trace"
+              argNames:
+                - "parent_pid"
+                - "child_pid"
+                - "filename"
+                - "interpreter"
+                - "threat_type"
+                - "severity"
+
+  # Detect privilege escalation attempts
+  kprobes:
+    - call: "capable"
+      syscall: false
+      args:
+        - index: 0
+          type: "int"
+        - index: 1
+          type: "int"
+      selectors:
+        - matchArgs:
+          - index: 0
+            operator: "In"
+            values:
+              - "1"   # CAP_KILL
+              - "2"   # CAP_SETUID
+              - "7"   # CAP_SETGID
+              - "12"  # CAP_NET_ADMIN
+              - "21"  # CAP_SYS_ADMIN
+              - "24"  # CAP_SYS_PTRACE
+          matchActions:
+            - action: "Trace"
+              argNames:
+                - "cap"
+                - "audit"
+                - "pid"
+                - "comm"
+                - "uid"
+                - "gid"
+                - "threat_type"
+                - "severity"

@@ -1,0 +1,38 @@
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: network-monitoring
+  namespace: kube-system
+spec:
+  kprobes:
+    - call: "tcp_connect"
+      syscall: true
+      args:
+        - index: 0
+          type: "sockaddr"
+      selectors:
+        - matchActions:
+            - action: "Post"
+
+    - call: "udp_sendmsg"
+      syscall: true
+      args:
+        - index: 0
+          type: "sockaddr"
+      selectors:
+        - matchActions:
+            - action: "Post"
+
+  tracepoints:
+    - subsystem: "sched"
+      event: "sched_process_exec"
+      args:
+        - index: 0
+          type: "int32"
+        - index: 1
+          type: "int32"
+        - index: 2
+          type: "filename"
+      selectors:
+        - matchActions:
+            - action: "Post"

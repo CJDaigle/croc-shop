@@ -1,0 +1,149 @@
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicyNamespaced
+metadata:
+  name: croc-shop-monitoring
+  namespace: croc-shop-user
+spec:
+  kprobes:
+    - call: "tcp_connect"
+      syscall: true
+      args:
+        - index: 0
+          type: "sockaddr"
+      selectors:
+        - matchActions:
+            - action: "Post"
+
+  tracepoints:
+    - subsystem: "sched"
+      event: "sched_process_exec"
+      args:
+        - index: 0
+          type: "int32"
+        - index: 1
+          type: "int32"
+        - index: 2
+          type: "filename"
+      selectors:
+        - matchActions:
+            - action: "Post"
+---
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicyNamespaced
+metadata:
+  name: croc-shop-monitoring
+  namespace: croc-shop-cart
+spec:
+  kprobes:
+    - call: "tcp_connect"
+      syscall: true
+      args:
+        - index: 0
+          type: "sockaddr"
+      selectors:
+        - matchActions:
+            - action: "Post"
+
+  tracepoints:
+    - subsystem: "sched"
+      event: "sched_process_exec"
+      args:
+        - index: 0
+          type: "int32"
+        - index: 1
+          type: "int32"
+        - index: 2
+          type: "filename"
+      selectors:
+        - matchActions:
+            - action: "Post"
+---
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicyNamespaced
+metadata:
+  name: croc-shop-monitoring
+  namespace: croc-shop-order
+spec:
+  kprobes:
+    - call: "tcp_connect"
+      syscall: true
+      args:
+        - index: 0
+          type: "sockaddr"
+      selectors:
+        - matchActions:
+            - action: "Post"
+
+  tracepoints:
+    - subsystem: "sched"
+      event: "sched_process_exec"
+      args:
+        - index: 0
+          type: "int32"
+        - index: 1
+          type: "int32"
+        - index: 2
+          type: "filename"
+      selectors:
+        - matchActions:
+            - action: "Post"
+---
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicyNamespaced
+metadata:
+  name: croc-shop-monitoring
+  namespace: croc-shop-product-catalog
+spec:
+  kprobes:
+    - call: "tcp_connect"
+      syscall: true
+      args:
+        - index: 0
+          type: "sockaddr"
+      selectors:
+        - matchActions:
+            - action: "Post"
+
+  tracepoints:
+    - subsystem: "sched"
+      event: "sched_process_exec"
+      args:
+        - index: 0
+          type: "int32"
+        - index: 1
+          type: "int32"
+        - index: 2
+          type: "filename"
+      selectors:
+        - matchActions:
+            - action: "Post"
+---
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicyNamespaced
+metadata:
+  name: croc-shop-monitoring
+  namespace: croc-shop-chatbot
+spec:
+  kprobes:
+    - call: "tcp_connect"
+      syscall: true
+      args:
+        - index: 0
+          type: "sockaddr"
+      selectors:
+        - matchActions:
+            - action: "Post"
+
+  tracepoints:
+    - subsystem: "sched"
+      event: "sched_process_exec"
+      args:
+        - index: 0
+          type: "int32"
+        - index: 1
+          type: "int32"
+        - index: 2
+          type: "filename"
+      selectors:
+        - matchActions:
+            - action: "Post"

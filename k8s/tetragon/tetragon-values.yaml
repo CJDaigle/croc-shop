@@ -1,0 +1,61 @@
+# Tetragon Values for Security Monitoring
+namespace: kube-system
+
+# Enable Tetragon agent on all nodes
+agent:
+  enabled: true
+  # Deploy on all nodes including control-plane
+  tolerations:
+    - operator: Exists
+  # Run with host privileges for system visibility
+  hostNetwork: true
+  hostPID: true
+  hostIPC: true
+  # Security context for deep system monitoring
+  securityContext:
+    privileged: true
+  # Enable kernel probes and tracing
+  enableKernelProbes: true
+  # Enable process monitoring
+  enableProcessMonitoring: true
+  # Enable network monitoring
+  enableNetworkMonitoring: true
+
+# Enable Tetragon operator
+operator:
+  enabled: true
+  # Operator configuration
+  replicas: 1
+
+# Enable Prometheus metrics
+prometheus:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    namespace: kube-system
+    labels:
+      release: prometheus
+  port: 2112
+  path: /metrics
+
+# Enable Tetragon API server
+apiServer:
+  enabled: true
+  port: 50051
+
+# Enable default tracing policies
+defaultTracingPolicies:
+  enabled: true
+
+# Logging configuration
+logging:
+  level: info
+
+# Resource limits
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
