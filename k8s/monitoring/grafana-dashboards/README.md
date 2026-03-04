@@ -20,6 +20,10 @@
 9. **simple-health-dashboard.json** - Basic service health
 10. **simple-request-rate-dashboard.json** - Basic request rate
 
+### Sock-Shop Dashboards (New)
+11. **sock-shop-health.json** - Sock-shop service health status
+12. **sock-shop-overview.json** - Sock-shop complete overview with available metrics
+
 ## 🚀 Import Instructions
 
 ### Step 1: Access Grafana
@@ -92,6 +96,17 @@ After importing panels, you can:
 - **Type**: Combined graphs and stats
 - **Shows**: Cart service metrics and Redis connection count
 - **Use**: Shopping cart performance and database health
+
+### 8. Sock-Shop Health
+- **Type**: Stat panel with color coding
+- **Query**: `up{job="kubernetes-services",kubernetes_namespace="sock-shop"}`
+- **Shows**: Green/Red status for sock-shop services
+- **Use**: Quick health check of sock-shop microservices
+
+### 9. Sock-Shop Overview
+- **Type**: Combined panels
+- **Shows**: Service health, HTTP responses, error rates, response times
+- **Use**: Complete sock-shop application monitoring
 
 ## 🎨 Customization Tips
 
