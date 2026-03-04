@@ -199,9 +199,9 @@ curl -I https://service.example.com/
 # Expected: HTTP 200 with valid TLS certificate
 ```
 
-## Chuck App Example
+## Multi-Service Gateway Example
 
-Here's the complete working example for Chuck App using the multi-service Gateway:
+Here's the complete working example for the multi-service Gateway serving chuck, hubble, and sock-shop:
 
 ### Gateway
 ```yaml
@@ -245,9 +245,23 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
+    - name: https-sock-shop
+      protocol: HTTPS
+      port: 443
+      hostname: sock-shop.apo-llm-test.com
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: sock-shop-tls
+            namespace: default
+      allowedRoutes:
+        namespaces:
+          from: All
 ```
 
-### HTTPRoute
+### HTTPRoutes
+
+#### Chuck App HTTPRoute
 ```yaml
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
@@ -272,7 +286,7 @@ spec:
           port: 80
 ```
 
-### Hubble HTTPRoute
+#### Hubble HTTPRoute
 ```yaml
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
@@ -297,7 +311,34 @@ spec:
           port: 80
 ```
 
-### Certificate
+#### Sock Shop HTTPRoute
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: sock-shop-route
+  namespace: sock-shop
+spec:
+  parentRefs:
+    - name: cilium-gateway-application-gateway
+      namespace: default
+      sectionName: https-sock-shop
+  hostnames:
+    - "sock-shop.apo-llm-test.com"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: front-end
+          namespace: sock-shop
+          port: 80
+```
+
+### Certificates
+
+#### Chuck App Certificate
 ```yaml
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -313,6 +354,38 @@ spec:
     - chuck.apo-llm-test.com
 ```
 
+#### Hubble Certificate
+```yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: hubble-tls
+  namespace: default
+spec:
+  secretName: hubble-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - hubble.apo-llm-test.com
+```
+
+#### Sock Shop Certificate
+```yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: sock-shop-tls
+  namespace: default
+spec:
+  secretName: sock-shop-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - sock-shop.apo-llm-test.com
+```
+
 ### LB-IPAM Pool
 ```yaml
 apiVersion: cilium.io/v2
@@ -323,6 +396,45 @@ spec:
   blocks:
     - cidr: 10.0.1.112/32
     - cidr: 10.0.1.169/32
+```
+
+## Verification
+
+Test all three services:
+
+```bash
+# Test Chuck App
+curl -I https://chuck.apo-llm-test.com/
+# Expected: HTTP 200 with valid TLS certificate
+
+# Test Hubble UI
+curl -I https://hubble.apo-llm-test.com/
+# Expected: HTTP 200 with valid TLS certificate
+
+# Test Sock Shop
+curl -I https://sock-shop.apo-llm-test.com/
+# Expected: HTTP 200 with valid TLS certificate
+```
+
+Check Gateway status:
+
+```bash
+kubectl get gateway cilium-gateway-application-gateway -o wide
+# Expected: PROGRAMMED=True with gateway node IP
+```
+
+Check all HTTPRoutes:
+
+```bash
+kubectl get httproutes -A
+# Expected: chuck-route, hubble-route, sock-shop-route all present
+```
+
+Check all certificates:
+
+```bash
+kubectl get certificates -n default
+# Expected: chuck-tls, hubble-tls, sock-shop-tls all READY=True
 ```
 
 ## Troubleshooting
