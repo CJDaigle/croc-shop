@@ -1,0 +1,130 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: etcd-backup-monitor
+  namespace: kube-system
+data:
+  backup-monitor.sh: |
+    #!/bin/bash
+    
+    # etcd Backup Monitoring Script
+    # Monitors backup success/failure and creates metrics
+    
+    BACKUP_DIR="/var/lib/rancher/rke2/server/db/etcd-backups"
+    LOG_FILE="/var/log/etcd-backup.log"
+    METRICS_FILE="/etc/prometheus/custom-metrics/etcd-backup.prom"
+    
+    # Create metrics directory
+    mkdir -p "$(dirname "$METRICS_FILE")"
+    
+    # Function to output Prometheus metrics
+    output_metric() {
+      local metric_name="$1"
+      local metric_value="$2"
+      local metric_help="$3"
+      local metric_type="$4"
+      
+      echo "# HELP $metric_name $metric_help"
+      echo "# TYPE $metric_name $metric_type"
+      echo "$metric_name $metric_value"
+    }
+    
+    # Count successful backups
+    successful_backups=$(find "$BACKUP_DIR" -name "etcd-backup-*.db.gz" | wc -l)
+    
+    # Get latest backup timestamp
+    latest_backup=$(find "$BACKUP_DIR" -name "etcd-backup-*.db.gz" -exec stat -c %Y {} \; | sort -r | head -1)
+    current_time=$(date +%s)
+    backup_age=$((current_time - latest_backup))
+    
+    # Check recent backup failures from log
+    recent_failures=$(grep "$(date '+%Y-%m-%d')" "$LOG_FILE" 2>/dev/null | grep -c "ERROR:" || echo "0")
+    
+    # Get total backup size
+    total_size=$(du -sb "$BACKUP_DIR" 2>/dev/null | cut -f1 || echo "0")
+    
+    # Get latest backup size
+    latest_size=$(find "$BACKUP_DIR" -name "etcd-backup-*.db.gz" -exec du -b {} \; | sort -r | head -1 | cut -f1 || echo "0")
+    
+    # Output metrics
+    cat > "$METRICS_FILE" << EOF
+    $(output_metric "etcd_backup_successful_count" "$successful_backups" "Number of successful etcd backups" "gauge")
+    $(output_metric "etcd_backup_last_success_timestamp" "$latest_backup" "Timestamp of last successful backup" "gauge")
+    $(output_metric "etcd_backup_age_seconds" "$backup_age" "Age of last backup in seconds" "gauge")
+    $(output_metric "etcd_backup_recent_failures" "$recent_failures" "Number of backup failures today" "gauge")
+    $(output_metric "etcd_backup_total_size_bytes" "$total_size" "Total size of all backups in bytes" "gauge")
+    $(output_metric "etcd_backup_latest_size_bytes" "$latest_size" "Size of latest backup in bytes" "gauge")
+    EOF
+    
+    # Health check (backup age less than 48 hours)
+    if [ $backup_age -lt 172800 ]; then
+      echo "etcd_backup_health 1" >> "$METRICS_FILE"
+    else
+      echo "etcd_backup_health 0" >> "$METRICS_FILE"
+    fi
+    
+    echo "# HELP etcd_backup_health Health status of etcd backup (1=healthy, 0=unhealthy)" >> "$METRICS_FILE"
+    echo "# TYPE etcd_backup_health gauge" >> "$METRICS_FILE"
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: etcd-backup-monitor
+  namespace: kube-system
+spec:
+  schedule: "*/5 * * * *"  # Every 5 minutes
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          tolerations:
+          - key: "node-role.kubernetes.io/control-plane"
+            operator: "Exists"
+            effect: "NoSchedule"
+          nodeSelector:
+            node-role.kubernetes.io/control-plane: "true"
+          containers:
+          - name: backup-monitor
+            image: rancher/rke2-tools:v1.31.12
+            command:
+            - /bin/bash
+            - -c
+            - |
+              # Run the monitoring script
+              /scripts/backup-monitor.sh
+              
+              # Create a simple Prometheus node exporter format
+              echo "etcd_backup_monitoring_timestamp $(date +%s)" >> /etc/prometheus/custom-metrics/etcd-backup.prom
+            volumeMounts:
+            - name: etcd-backups
+              mountPath: /var/lib/rancher/rke2/server/db/etcd-backups
+              readOnly: true
+            - name: etcd-logs
+              mountPath: /var/log
+              readOnly: true
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+            - name: metrics-dir
+              mountPath: /etc/prometheus/custom-metrics
+          volumes:
+          - name: etcd-backups
+            hostPath:
+              path: /var/lib/rancher/rke2/server/db/etcd-backups
+              type: Directory
+          - name: etcd-logs
+            hostPath:
+              path: /var/log
+              type: Directory
+          - name: scripts
+            configMap:
+              name: etcd-backup-monitor
+              defaultMode: 0755
+          - name: metrics-dir
+            hostPath:
+              path: /etc/prometheus/custom-metrics
+              type: DirectoryOrCreate
+          restartPolicy: OnFailure

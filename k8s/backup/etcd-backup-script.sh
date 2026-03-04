@@ -93,7 +93,7 @@ fi
 
 # Create backup metadata
 METADATA_FILE="$BACKUP_DIR/$BACKUP_NAME-metadata.json"
-cat > "$METADATA_FILE" << EOF
+cat > "$METADATA_FILE" << METADATAEOF
 {
   "backup_name": "$BACKUP_NAME",
   "timestamp": "$TIMESTAMP",
@@ -106,3 +106,34 @@ cat > "$METADATA_FILE" << EOF
   "snapshot_checksum": "$(sha256sum "$BACKUP_DIR/$BACKUP_NAME.db" | cut -d' ' -f1)",
   "backup_script_version": "1.0"
 }
+METADATAEOF
+
+# Compress the backup
+backup_log "Compressing backup..."
+gzip "$BACKUP_DIR/$BACKUP_NAME.db"
+gzip "$BACKUP_DIR/$BACKUP_NAME-metadata.json"
+
+# Cleanup old backups
+backup_log "Cleaning up backups older than $RETENTION_DAYS days..."
+find "$BACKUP_DIR" -name "etcd-backup-*.db.gz" -mtime +$RETENTION_DAYS -delete
+find "$BACKUP_DIR" -name "etcd-backup-*-metadata.json.gz" -mtime +$RETENTION_DAYS -delete
+
+# List current backups
+BACKUP_COUNT=$(find "$BACKUP_DIR" -name "etcd-backup-*.db.gz" | wc -l)
+backup_log "Backup completed successfully"
+backup_log "Total backups retained: $BACKUP_COUNT"
+backup_log "Backup location: $BACKUP_DIR/$BACKUP_NAME.db.gz"
+
+# Create backup summary
+echo "=========================================="
+echo "etcd Backup Summary"
+echo "=========================================="
+echo "Backup Name: $BACKUP_NAME"
+echo "Created: $(date)"
+echo "Size: $(stat -f%z "$BACKUP_DIR/$BACKUP_NAME.db.gz" | awk '{printf "%.2f MB", $1/1024/1024}')"
+echo "Checksum: $(sha256sum "$BACKUP_DIR/$BACKUP_NAME.db.gz" | cut -d' ' -f1)"
+echo "Location: $BACKUP_DIR/$BACKUP_NAME.db.gz"
+echo "Retained Backups: $BACKUP_COUNT"
+echo "=========================================="
+
+backup_log "etcd backup process completed successfully"
