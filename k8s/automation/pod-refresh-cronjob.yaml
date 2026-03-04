@@ -1,0 +1,78 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: croc-shop-daily-refresh
+  namespace: monitoring
+spec:
+  schedule: "0 2 * * *"  # Daily at 2 AM UTC
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: pod-refresh-sa
+          containers:
+          - name: refresh
+            image: bitnami/kubectl:latest
+            command:
+            - /bin/sh
+            - -c
+            - |
+              echo "🔄 Starting Croc-Shop Daily Refresh at $(date)"
+              echo "=========================================="
+              
+              # Array of croc-shop services
+              services=("user" "cart" "order" "product-catalog" "chatbot")
+              
+              for service in "${services[@]}"; do
+                namespace="croc-shop-$service"
+                echo "📦 Refreshing $service in $namespace..."
+                
+                # Check if deployment exists
+                if kubectl get deployment $service -n $namespace >/dev/null 2>&1; then
+                  # Restart deployment
+                  kubectl rollout restart deployment/$service -n $namespace
+                  
+                  # Wait for rollout to complete
+                  if kubectl rollout status deployment/$service -n $namespace --timeout=300s; then
+                    echo "✅ $service refreshed successfully"
+                  else
+                    echo "❌ $service refresh failed"
+                  fi
+                else
+                  echo "⚠️  Deployment $service not found in $namespace"
+                fi
+                
+                echo "---"
+              done
+              
+              echo "🎉 Croc-Shop Daily Refresh completed at $(date)"
+              
+              # Optional: Refresh sock-shop services
+              echo ""
+              echo "🔄 Refreshing Sock-Shop services..."
+              sock_services=("carts" "catalogue" "orders" "payment" "shipping" "user" "front-end")
+              
+              for service in "${sock_services[@]}"; do
+                namespace="sock-shop"
+                echo "📦 Refreshing sock-shop $service..."
+                
+                if kubectl get deployment $service -n $namespace >/dev/null 2>&1; then
+                  kubectl rollout restart deployment/$service -n $namespace
+                  
+                  if kubectl rollout status deployment/$service -n $namespace --timeout=300s; then
+                    echo "✅ sock-shop $service refreshed successfully"
+                  else
+                    echo "❌ sock-shop $service refresh failed"
+                  fi
+                else
+                  echo "⚠️  Deployment $service not found in sock-shop"
+                fi
+                
+                echo "---"
+              done
+              
+              echo "🎉 All services refresh completed at $(date)"
+          restartPolicy: OnFailure
