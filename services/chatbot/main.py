@@ -12,8 +12,13 @@ from botocore.eventstream import EventStreamBuffer
 from botocore.session import get_session
 from urllib.parse import urlparse
 from urllib.parse import urlsplit, urlunsplit, quote
+from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 
 app = FastAPI()
+
+# Prometheus metrics
+REQUEST_COUNT = Counter('http_requests_total', 'Total HTTP requests', ['method', 'endpoint', 'status'])
+REQUEST_DURATION = Histogram('http_request_duration_seconds', 'HTTP request duration', ['method', 'endpoint'])
 
 
 def _get_env(name: str, default: Optional[str] = None) -> str:
@@ -77,6 +82,11 @@ def _encode_url_path(url: str) -> str:
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/metrics")
+def metrics():
+    return generate_latest(), 200, {'Content-Type': CONTENT_TYPE_LATEST}
 
 
 @app.post("/api/chat/stream")
