@@ -81,7 +81,7 @@ Create Gateway with HTTP and HTTPS listeners:
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: service-gateway
+  name: cilium-gateway-application-gateway
   namespace: default
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
@@ -111,6 +111,8 @@ spec:
 ```bash
 kubectl apply -f gateway.yaml
 ```
+
+**Note**: Cilium will automatically create a LoadBalancer Service named `cilium-gateway-cilium-gateway-application-gateway` that handles the external traffic.
 
 ### Step 3: Create TLS Certificate
 
@@ -172,14 +174,14 @@ kubectl apply -f httproute.yaml
 Check Gateway status:
 
 ```bash
-kubectl get gateway service-gateway -o wide
+kubectl get gateway cilium-gateway-application-gateway -o wide
 # Expected: PROGRAMMED=True with gateway node IP
 ```
 
 Check LoadBalancer Service:
 
 ```bash
-kubectl get svc cilium-gateway-service-gateway -o wide
+kubectl get svc cilium-gateway-cilium-gateway-application-gateway -o wide
 # Expected: EXTERNAL-IP shows gateway node IP
 ```
 
@@ -199,14 +201,14 @@ curl -I https://service.example.com/
 
 ## Chuck App Example
 
-Here's the complete working example for Chuck App:
+Here's the complete working example for Chuck App using the multi-service Gateway:
 
 ### Gateway
 ```yaml
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: chuck-gateway
+  name: cilium-gateway-application-gateway
   namespace: default
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
@@ -231,6 +233,18 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
+    - name: https-hubble
+      protocol: HTTPS
+      port: 443
+      hostname: hubble.apo-llm-test.com
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: hubble-tls
+            namespace: default
+      allowedRoutes:
+        namespaces:
+          from: All
 ```
 
 ### HTTPRoute
@@ -242,7 +256,7 @@ metadata:
   namespace: chuck-app
 spec:
   parentRefs:
-    - name: chuck-gateway
+    - name: cilium-gateway-application-gateway
       namespace: default
       sectionName: https-chuck
   hostnames:
@@ -255,6 +269,31 @@ spec:
       backendRefs:
         - name: chuck-app-service
           namespace: chuck-app
+          port: 80
+```
+
+### Hubble HTTPRoute
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: hubble-route
+  namespace: kube-system
+spec:
+  parentRefs:
+    - name: cilium-gateway-application-gateway
+      namespace: default
+      sectionName: https-hubble
+  hostnames:
+    - "hubble.apo-llm-test.com"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: hubble-ui
+          namespace: kube-system
           port: 80
 ```
 
@@ -336,10 +375,14 @@ Example of adding to existing Gateway:
 
 To remove a service configuration:
 ```bash
-kubectl delete gateway service-gateway
 kubectl delete httproute service-route
 kubectl delete certificate service-tls
 kubectl delete secret service-tls
+```
+
+To remove the entire Gateway (only if no services need it):
+```bash
+kubectl delete gateway cilium-gateway-application-gateway
 ```
 
 To remove LB-IPAM pool (only if no gateways use it):
