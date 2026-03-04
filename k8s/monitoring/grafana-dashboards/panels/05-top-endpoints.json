@@ -1,0 +1,43 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Croc-Shop Top Endpoints",
+    "tags": ["croc-shop", "endpoints"],
+    "timezone": "",
+    "panels": [
+      {
+        "datasource": "Prometheus",
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "custom": {"align": "auto", "displayMode": "auto"},
+            "mappings": [],
+            "thresholds": {"steps": [{"color": "green", "value": null}]}
+          },
+          "overrides": []
+        },
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 0},
+        "id": 1,
+        "options": {"showHeader": true},
+        "targets": [
+          {
+            "expr": "topk(10, sum(rate(http_requests_total{job=\"kubernetes-pods\",kubernetes_namespace=~\"croc-shop-.*\"}[5m])) by (kubernetes_namespace, endpoint))",
+            "legendFormat": "{{kubernetes_namespace}}/{{endpoint}}",
+            "refId": "A",
+            "format": "table"
+          }
+        ],
+        "title": "Top 10 Endpoints by Request Rate",
+        "type": "table"
+      }
+    ],
+    "refresh": "5s",
+    "schemaVersion": 27,
+    "style": "dark",
+    "templating": {"list": []},
+    "time": {"from": "now-1h", "to": "now"},
+    "timepicker": {},
+    "uid": "croc-shop-top-endpoints",
+    "version": 1
+  }
+}
