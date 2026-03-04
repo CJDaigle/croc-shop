@@ -72,7 +72,7 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 24,
         "x": 0,
         "y": 0
       },
@@ -94,79 +94,20 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum(rate(http_requests_total{job=\"kubernetes-pods\",kubernetes_namespace=\"croc-shop-cart\"}[5m])) by (endpoint)",
-          "legendFormat": "{{endpoint}}",
+          "expr": "sum(rate(http_requests_total{job=\"kubernetes-pods\",kubernetes_namespace=~\"croc-shop-.*\"}[5m])) by (kubernetes_namespace)",
+          "legendFormat": "{{kubernetes_namespace}}",
           "refId": "A"
         }
       ],
-      "title": "Cart Service Request Rate",
+      "title": "Croc-Shop Request Rate",
       "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 0
-      },
-      "id": 2,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "12.4.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "expr": "redis_connected_clients{job=\"kubernetes-pods\",kubernetes_namespace=\"croc-shop-cart\"}",
-          "legendFormat": "Redis Connections",
-          "refId": "A"
-        }
-      ],
-      "title": "Cart Service Redis Connections",
-      "type": "stat"
     }
   ],
   "refresh": "5s",
   "schemaVersion": 39,
   "tags": [
     "croc-shop",
-    "cart-service"
+    "requests"
   ],
   "templating": {
     "list": []
@@ -177,8 +118,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Croc-Shop Cart Service",
-  "uid": "croc-shop-cart-service",
+  "title": "Croc-Shop Request Rate",
+  "uid": "croc-shop-requests-simple",
   "version": 1,
   "weekStart": ""
 }

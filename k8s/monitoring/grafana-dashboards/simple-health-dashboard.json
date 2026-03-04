@@ -29,31 +29,64 @@
           "color": {
             "mode": "thresholds"
           },
-          "custom": {
-            "align": "auto",
-            "displayMode": "auto"
-          },
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "index": 0,
+                  "text": "DOWN"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "1": {
+                  "color": "green",
+                  "index": 1,
+                  "text": "UP"
+                }
+              },
+              "type": "value"
+            }
+          ],
           "thresholds": {
             "steps": [
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "red",
+                "value": 0
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 8,
-        "w": 24,
+        "w": 12,
         "x": 0,
         "y": 0
       },
       "id": 1,
       "options": {
-        "showHeader": true
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
       },
       "pluginVersion": "12.4.0",
       "targets": [
@@ -62,21 +95,20 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "topk(10, sum(rate(http_requests_total{job=\"kubernetes-pods\",kubernetes_namespace=~\"croc-shop-.*\"}[5m])) by (kubernetes_namespace, endpoint))",
-          "legendFormat": "{{kubernetes_namespace}}/{{endpoint}}",
-          "refId": "A",
-          "format": "table"
+          "expr": "up{job=\"kubernetes-pods\",kubernetes_namespace=~\"croc-shop-.*\"}",
+          "legendFormat": "{{kubernetes_namespace}}/{{kubernetes_pod_name}}",
+          "refId": "A"
         }
       ],
-      "title": "Top 10 Endpoints by Request Rate",
-      "type": "table"
+      "title": "Croc-Shop Service Health",
+      "type": "stat"
     }
   ],
   "refresh": "5s",
   "schemaVersion": 39,
   "tags": [
     "croc-shop",
-    "endpoints"
+    "health"
   ],
   "templating": {
     "list": []
@@ -87,8 +119,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Croc-Shop Top Endpoints",
-  "uid": "croc-shop-top-endpoints",
+  "title": "Croc-Shop Service Health",
+  "uid": "croc-shop-health-simple",
   "version": 1,
   "weekStart": ""
 }

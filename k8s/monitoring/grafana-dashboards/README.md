@@ -2,16 +2,23 @@
 
 ## 📁 Available Dashboard Panels
 
-### Overview Panels
+### Overview Panels (Fixed for Grafana 12.4.0)
 1. **01-service-health.json** - Service health status (UP/DOWN)
 2. **02-request-rate.json** - Request rate by service
 3. **03-response-time.json** - Response time percentiles
 4. **04-error-rate.json** - Error rates (4xx/5xx)
 5. **05-top-endpoints.json** - Top 10 endpoints by request rate
 
-### Service-Specific Panels
+### Service-Specific Panels (Fixed for Grafana 12.4.0)
 6. **06-user-service.json** - User service metrics
 7. **07-cart-service.json** - Cart service metrics + Redis connections
+
+### Complete Dashboard (Fixed for Grafana 12.4.0)
+8. **croc-shop-overview.json** - Complete overview dashboard with all panels
+
+### Simple Test Dashboards (Working)
+9. **simple-health-dashboard.json** - Basic service health
+10. **simple-request-rate-dashboard.json** - Basic request rate
 
 ## 🚀 Import Instructions
 
