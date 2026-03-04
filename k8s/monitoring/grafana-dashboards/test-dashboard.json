@@ -1,0 +1,31 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Test Dashboard",
+    "tags": ["test"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Test Panel",
+        "type": "stat",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "up",
+            "legendFormat": "{{job}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        }
+      }
+    ],
+    "refresh": "5s",
+    "schemaVersion": 30,
+    "version": 1
+  }
+}
