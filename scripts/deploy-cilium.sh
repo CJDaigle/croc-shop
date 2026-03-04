@@ -75,9 +75,9 @@ echo "  ✓ Network policies applied (enforced by Cilium)"
 # Deploy Gateway API resources
 echo ""
 echo "[6/7] Deploying Gateway API resources..."
-kubectl apply -f k8s/gateway/gateway.yaml
-kubectl apply -f k8s/gateway/httproute.yaml
-kubectl apply -f k8s/gateway/reference-grants.yaml
+kubectl apply -f k8s/cilium-gateway/gateway.yaml
+kubectl apply -f k8s/cilium-gateway/httproute.yaml
+kubectl apply -f k8s/cilium-gateway/reference-grants.yaml
 echo "  ✓ Gateway, HTTPRoutes, and ReferenceGrants applied"
 
 # Deploy monitoring
