@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    field.cattle.io/publicEndpoints: "null"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"grafana"},"name":"grafana","namespace":"monitoring"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"grafana"}},"template":{"metadata":{"labels":{"app":"grafana"}},"spec":{"containers":[{"env":[{"name":"GF_SECURITY_ADMIN_PASSWORD","value":"admin"},{"name":"GF_SECURITY_ADMIN_USER","value":"admin"},{"name":"GF_SERVER_ROOT_URL","value":"%(protocol)s://%(domain)s/"},{"name":"GF_SERVER_SERVE_FROM_SUB_PATH","value":"false"}],"image":"grafana/grafana:latest","livenessProbe":{"httpGet":{"path":"/api/health","port":3000},"initialDelaySeconds":30,"periodSeconds":10},"name":"grafana","ports":[{"containerPort":3000,"name":"web","protocol":"TCP"}],"readinessProbe":{"httpGet":{"path":"/api/health","port":3000},"initialDelaySeconds":5,"periodSeconds":10},"resources":{"limits":{"cpu":"200m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"256Mi"}},"volumeMounts":[{"mountPath":"/etc/grafana/provisioning/datasources","name":"datasources"}]}],"volumes":[{"configMap":{"name":"grafana-datasources"},"name":"datasources"}]}}}}
+  creationTimestamp: "2026-03-04T16:12:07Z"
+  generation: 3
+  labels:
+    app: grafana
+  name: grafana
+  namespace: monitoring
+  resourceVersion: "13078753"
+  uid: 776939ec-29d0-4649-af0c-492f1aaed21a
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: grafana
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - env:
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          value: admin
+        - name: GF_SECURITY_ADMIN_USER
+          value: admin
+        - name: GF_SERVER_ROOT_URL
+          value: '%(protocol)s://%(domain)s/'
+        - name: GF_SERVER_SERVE_FROM_SUB_PATH
+          value: "false"
+        image: grafana/grafana:latest
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /api/health
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: grafana
+        ports:
+        - containerPort: 3000
+          name: web
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /api/health
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: 200m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/grafana/provisioning/datasources
+          name: datasources
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: grafana-datasources
+        name: datasources
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2026-03-04T16:12:58Z"
+    lastUpdateTime: "2026-03-04T16:12:58Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  - lastTransitionTime: "2026-03-04T16:12:08Z"
+    lastUpdateTime: "2026-03-04T16:12:58Z"
+    message: ReplicaSet "grafana-c69f47c47" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  observedGeneration: 3
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1

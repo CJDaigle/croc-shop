@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana-pvc
+  namespace: monitoring
+  labels:
+    app: grafana
+    component: storage
+  annotations:
+    volume.beta.kubernetes.io/storage-class: "longhorn"
+    volume.beta.kubernetes.io/storage-provisioner: "driver.longhorn.io"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: longhorn
