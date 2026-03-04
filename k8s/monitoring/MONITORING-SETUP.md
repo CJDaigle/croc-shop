@@ -391,14 +391,375 @@ kubectl port-forward -n monitoring svc/prometheus 9090:9090
 
 ## Gateway API Integration
 
-To add Prometheus to the Gateway API:
+### ⚠️ KNOWN ISSUES WITH CILUM GATEWAY API
 
-1. Create TLS certificate
-2. Add HTTPS listener to Gateway
-3. Create HTTPRoute
-4. Test external access
+**Important**: There are known issues with Cilium Gateway API when exposing monitoring services. See the "Known Issues" section below for details.
 
-(See Gateway API documentation for detailed steps)
+### Step 7: Create TLS Certificate for Prometheus
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: prometheus-tls
+  namespace: default
+spec:
+  secretName: prometheus-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - prometheus.apo-llm-test.com
+```
+
+```bash
+kubectl apply -f prometheus-gateway-cert.yaml
+```
+
+### Step 8: Add HTTPS Listener to Gateway
+
+```yaml
+spec:
+  listeners:
+    # ... existing listeners ...
+    - name: https-prometheus
+      protocol: HTTPS
+      port: 443
+      hostname: prometheus.apo-llm-test.com
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: prometheus-tls
+            namespace: default
+      allowedRoutes:
+        namespaces:
+          from: All
+```
+
+```bash
+kubectl patch gateway cilium-gateway-application-gateway -n default --patch-file=gateway-patch-prometheus.yaml --type=merge
+```
+
+### Step 9: Create HTTPRoute for Prometheus
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: prometheus-route
+  namespace: monitoring
+spec:
+  parentRefs:
+    - name: cilium-gateway-application-gateway
+      namespace: default
+      sectionName: https-prometheus
+  hostnames:
+    - "prometheus.apo-llm-test.com"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: prometheus
+          namespace: monitoring
+          port: 9090
+```
+
+```bash
+kubectl apply -f prometheus-gateway-route.yaml
+```
+
+### Step 10: Test External Access
+
+```bash
+# Check certificate status
+kubectl get certificate prometheus-tls -o wide
+
+# Test external access
+curl -sS -m 10 -o /dev/null -w "prometheus: %{http_code}\n" https://prometheus.apo-llm-test.com/
+```
+
+## Grafana Deployment
+
+### Step 11: Create Grafana Datasources ConfigMap
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: monitoring
+data:
+  prometheus.yaml: |
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      access: proxy
+      url: http://prometheus.monitoring.svc.cluster.local:9090
+      isDefault: true
+```
+
+```bash
+kubectl apply -f grafana-datasources.yaml
+```
+
+### Step 12: Create Grafana Service
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: monitoring
+  labels:
+    app: grafana
+spec:
+  type: ClusterIP
+  ports:
+  - name: web
+    port: 3000
+    targetPort: 3000
+    protocol: TCP
+  selector:
+    app: grafana
+```
+
+```bash
+kubectl apply -f grafana-service.yaml
+```
+
+### Step 13: Create Grafana Deployment
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: monitoring
+  labels:
+    app: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:latest
+        env:
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          value: admin
+        - name: GF_SECURITY_ADMIN_USER
+          value: admin
+        - name: GF_SERVER_ROOT_URL
+          value: '%(protocol)s://%(domain)s/'
+        - name: GF_SERVER_SERVE_FROM_SUB_PATH
+          value: "false"
+        ports:
+        - containerPort: 3000
+          name: web
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 200m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        volumeMounts:
+        - name: datasources
+          mountPath: /etc/grafana/provisioning/datasources
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      volumes:
+      - name: datasources
+        configMap:
+          name: grafana-datasources
+```
+
+```bash
+kubectl apply -f grafana-deployment.yaml
+```
+
+### Step 14: Create Grafana NetworkPolicy
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: grafana-policy
+  namespace: monitoring
+spec:
+  podSelector:
+    matchLabels:
+      app: grafana
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Allow from gateway nodes (10.0.0.0/16)
+  - from:
+    - ipBlock:
+        cidr: 10.0.0.0/16
+    ports:
+    - protocol: TCP
+      port: 3000
+  # Allow from same namespace
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 3000
+  # Allow from all namespaces (for external access)
+  - from:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 3000
+  egress:
+  # Allow DNS
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
+  # Allow all egress for Prometheus access
+  - to: []
+    ports:
+    - protocol: TCP
+    - protocol: UDP
+```
+
+```bash
+kubectl apply -f grafana-networkpolicy.yaml
+```
+
+### Step 15: Add Grafana to Gateway API
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: grafana-tls
+  namespace: default
+spec:
+  secretName: grafana-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - grafana.apo-llm-test.com
+```
+
+```bash
+kubectl apply -f grafana-gateway-cert.yaml
+```
+
+Add HTTPS listener to Gateway (similar to Prometheus):
+```yaml
+- name: https-grafana
+  protocol: HTTPS
+  port: 443
+  hostname: grafana.apo-llm-test.com
+  tls:
+    mode: Terminate
+    certificateRefs:
+      - name: grafana-tls
+        namespace: default
+  allowedRoutes:
+    namespaces:
+      from: All
+```
+
+Create Grafana HTTPRoute:
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: grafana-route
+  namespace: monitoring
+spec:
+  parentRefs:
+    - name: cilium-gateway-application-gateway
+      namespace: default
+      sectionName: https-grafana
+  hostnames:
+    - "grafana.apo-llm-test.com"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: grafana
+          namespace: monitoring
+          port: 3000
+```
+
+## Alternative Access Methods (Workarounds)
+
+### NodePort Access
+
+**Note**: NodePort also has issues with Cilium on gateway nodes.
+
+```bash
+# Change service type to NodePort
+kubectl patch svc prometheus -n monitoring -p '{"spec":{"type":"NodePort"}}'
+kubectl patch svc grafana -n monitoring -p '{"spec":{"type":"NodePort"}}'
+
+# Get assigned ports
+kubectl get svc -n monitoring
+
+# Test access (will likely timeout due to Cilium issues)
+curl http://10.0.1.112:<NODEPORT>/-
+curl http://10.0.1.169:<NODEPORT>/-
+```
+
+### Port-Forwarding (Recommended Workaround)
+
+```bash
+# Prometheus port-forward
+kubectl port-forward -n monitoring svc/prometheus 9090:9090 &
+# Access: http://localhost:9090
+
+# Grafana port-forward  
+kubectl port-forward -n monitoring svc/grafana 3000:3000 &
+# Access: http://localhost:3000 (admin/admin)
+
+# Kill port-forwards when done
+kill %1 %2
+```
+
+### LoadBalancer Service (If Supported)
+
+```bash
+# Change to LoadBalancer (requires cloud provider support)
+kubectl patch svc prometheus -n monitoring -p '{"spec":{"type":"LoadBalancer"}}'
+kubectl patch svc grafana -n monitoring -p '{"spec":{"type":"LoadBalancer"}}'
+
+# Get external IPs
+kubectl get svc -n monitoring
+```
 
 ## Service Annotations
 
@@ -412,6 +773,39 @@ metadata:
     prometheus.io/path: "/metrics"  # Your metrics path
 ```
 
+## Final Configuration (Recommended)
+
+Due to the known Cilium Gateway API issues with monitoring services, the recommended configuration is:
+
+### ✅ Working Setup
+- **Prometheus**: ClusterIP service, internal access only
+- **Grafana**: ClusterIP service, internal access only
+- **Access Method**: Port-forwarding script
+- **External Access**: Not available (due to Cilium bug)
+
+### 📁 Current Files
+```bash
+# Access script
+./k8s/monitoring/access-monitoring.sh
+
+# Documentation
+./k8s/monitoring/MONITORING-SETUP.md
+```
+
+### 🚀 Quick Access
+```bash
+# Run the access script
+./k8s/monitoring/access-monitoring.sh
+
+# Or manual port-forwarding
+kubectl port-forward -n monitoring svc/prometheus 9090:9090 &
+kubectl port-forward -n monitoring svc/grafana 3000:3000 &
+```
+
+### 📊 URLs
+- **Prometheus**: http://localhost:9090
+- **Grafana**: http://localhost:3000 (admin/admin)
+
 ## Cleanup
 
 To remove the monitoring stack:
@@ -420,6 +814,51 @@ To remove the monitoring stack:
 kubectl delete namespace monitoring
 kubectl delete clusterrole prometheus
 kubectl delete clusterrolebinding prometheus
+```
+
+## Known Issues with Cilium Gateway API
+
+### ⚠️ Critical: "no healthy upstream" Bug
+
+**Issue**: Cilium Gateway API has a known bug affecting monitoring services (Prometheus, Grafana, AlertManager) that results in 503 "no healthy upstream" errors.
+
+**Affected Versions**: Cilium 1.15.x, 1.16.x, 1.17.x, 1.18.x (including our 1.18.6)
+
+**GitHub Issues**:
+- [HTTPRoute results in "no healthy upstream" on Alert Manager and Prometheus #31212](https://github.com/cilium/cilium/issues/31212)
+- [No healthy upstream for kube-prometheus-stack-grafana exposed through gateway #32089](https://github.com/cilium/cilium/issues/32089)
+- [HTTPRoute fails with 'no healthy upstream' with externalTrafficPolicy #41482](https://github.com/cilium/cilium/issues/41482)
+
+**Symptoms**:
+- Gateway API returns 503 Service Unavailable
+- Error message: "no healthy upstream"
+- Internal cluster access works fine (HTTP 200)
+- NodePort also fails (connection timeouts)
+- Only affects monitoring services, other services work correctly
+
+**Root Cause**: Bug in Cilium's logic for handling monitoring services through Gateway API.
+
+**Current Status**: Open issues, no confirmed fixes available.
+
+**Workarounds**:
+1. **Port-forwarding** (recommended for admin access)
+2. **LoadBalancer services** (if cloud provider supports)
+3. **Alternative ingress controllers** (nginx, Traefik)
+4. **Wait for Cilium fix** and monitor GitHub issues
+
+### NodePort Issues
+
+**Additional Issue**: NodePort services also fail on gateway nodes with connection timeouts, suggesting broader networking issues with Cilium's hostNetwork mode.
+
+**Test Results**:
+```bash
+# Both services work internally
+curl http://prometheus.monitoring.svc.cluster.local:9090/-/healthy  # 200 OK
+curl http://grafana.monitoring.svc.cluster.local:3000/api/health      # 200 OK
+
+# Both fail via NodePort
+curl http://10.0.1.112:31150/-/healthy  # Connection timeout
+curl http://10.0.1.169:31150/-/healthy  # Connection timeout
 ```
 
 ## Troubleshooting
@@ -435,6 +874,33 @@ kubectl delete clusterrolebinding prometheus
 - Verify annotations on target services
 
 ### Gateway Access Issues
+- **Expected**: 503 "no healthy upstream" (known Cilium bug)
 - Check NetworkPolicy allows gateway node IPs
 - Verify HTTPRoute configuration
 - Check TLS certificate status
+- **Use port-forwarding workaround instead**
+
+### NodePort Not Working
+- **Expected**: Connection timeouts (known Cilium issue)
+- Verify service type is NodePort
+- Check assigned ports
+- **Use port-forwarding workaround instead**
+
+### Port-Forwarding Issues
+```bash
+# Check if services are running
+kubectl get pods -n monitoring
+
+# Check service endpoints
+kubectl get endpoints -n monitoring
+
+# Test internal connectivity
+kubectl run test-pod --image=curlimages/curl --rm -it --restart=Never -- \
+  curl -s http://prometheus.monitoring.svc.cluster.local:9090/-/healthy
+```
+
+### Grafana Cannot Connect to Prometheus
+- Check Grafana datasource configuration
+- Verify Prometheus service is accessible from Grafana pod
+- Check NetworkPolicy allows Grafana → Prometheus traffic
+- Verify Prometheus is healthy and scraping targets
