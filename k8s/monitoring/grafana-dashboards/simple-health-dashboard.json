@@ -22,7 +22,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -93,7 +93,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "PBFA97CFB590B2093"
           },
           "expr": "up{job=\"kubernetes-pods\",kubernetes_namespace=~\"croc-shop-.*\"}",
           "legendFormat": "{{kubernetes_namespace}}/{{kubernetes_pod_name}}",

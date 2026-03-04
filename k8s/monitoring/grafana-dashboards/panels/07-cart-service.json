@@ -22,7 +22,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -92,7 +92,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "PBFA97CFB590B2093"
           },
           "expr": "sum(rate(http_requests_total{job=\"kubernetes-pods\",kubernetes_namespace=\"croc-shop-cart\"}[5m])) by (endpoint)",
           "legendFormat": "{{endpoint}}",
@@ -105,7 +105,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -151,7 +151,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "PBFA97CFB590B2093"
           },
           "expr": "redis_connected_clients{job=\"kubernetes-pods\",kubernetes_namespace=\"croc-shop-cart\"}",
           "legendFormat": "Redis Connections",

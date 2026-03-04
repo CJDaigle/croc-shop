@@ -22,7 +22,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -93,7 +93,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "PBFA97CFB590B2093"
           },
           "expr": "up{job=\"kubernetes-pods\",kubernetes_namespace=~\"croc-shop-.*\"}",
           "legendFormat": "{{kubernetes_namespace}}/{{kubernetes_pod_name}}",
@@ -106,7 +106,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -176,7 +176,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "PBFA97CFB590B2093"
           },
           "expr": "sum(rate(http_requests_total{job=\"kubernetes-pods\",kubernetes_namespace=~\"croc-shop-.*\"}[5m])) by (kubernetes_namespace)",
           "legendFormat": "{{kubernetes_namespace}}",
@@ -189,7 +189,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -259,7 +259,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "PBFA97CFB590B2093"
           },
           "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"kubernetes-pods\",kubernetes_namespace=~\"croc-shop-.*\"}[5m])) by (le, kubernetes_namespace))",
           "legendFormat": "95th percentile - {{kubernetes_namespace}}",
@@ -268,7 +268,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "PBFA97CFB590B2093"
           },
           "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{job=\"kubernetes-pods\",kubernetes_namespace=~\"croc-shop-.*\"}[5m])) by (le, kubernetes_namespace))",
           "legendFormat": "50th percentile - {{kubernetes_namespace}}",
@@ -281,7 +281,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -351,7 +351,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "PBFA97CFB590B2093"
           },
           "expr": "sum(rate(http_requests_total{job=\"kubernetes-pods\",kubernetes_namespace=~\"croc-shop-.*\",status_code=~\"5..\"}[5m])) by (kubernetes_namespace) / sum(rate(http_requests_total{job=\"kubernetes-pods\",kubernetes_namespace=~\"croc-shop-.*\"}[5m])) by (kubernetes_namespace) * 100",
           "legendFormat": "5xx Error Rate - {{kubernetes_namespace}}",
@@ -360,7 +360,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "PBFA97CFB590B2093"
           },
           "expr": "sum(rate(http_requests_total{job=\"kubernetes-pods\",kubernetes_namespace=~\"croc-shop-.*\",status_code=~\"4..\"}[5m])) by (kubernetes_namespace) / sum(rate(http_requests_total{job=\"kubernetes-pods\",kubernetes_namespace=~\"croc-shop-.*\"}[5m])) by (kubernetes_namespace) * 100",
           "legendFormat": "4xx Error Rate - {{kubernetes_namespace}}",
