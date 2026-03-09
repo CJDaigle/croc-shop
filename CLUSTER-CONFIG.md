@@ -1,5 +1,5 @@
 # Croc-Shop Cluster Configuration Dump
-Generated: 2026-03-03 14:21:32 UTC
+Generated: 2026-03-09 16:22:00 UTC
 
 ## Cilium Status
 
@@ -70,114 +70,208 @@ tunnel-protocol                                   vxlan
 
 ```
 NAME                          STATUS   AGE
-croc-shop                     Active   20d
-croc-shop-cart                Active   20d
-croc-shop-data                Active   20d
-croc-shop-frontend            Active   20d
-croc-shop-monitoring          Active   20d
-croc-shop-order               Active   20d
-croc-shop-product-catalog     Active   20d
-croc-shop-user                Active   20d
+croc-shop                     Active   26d
+croc-shop-cart                Active   26d
+croc-shop-chatbot             Active   5d
+croc-shop-data                Active   26d
+croc-shop-frontend            Active   26d
+croc-shop-order               Active   26d
+croc-shop-product-catalog     Active   26d
+croc-shop-user                Active   26d
+monitoring                    Active   5d
+sock-shop                     Active   26d
+kube-system                   Active   26d
+longhorn-system               Active   26d
+cattle-fleet-system           Active   26d
 ```
 
-## Pods (all croc-shop namespaces)
+## Pods (croc-shop namespaces)
 
 ```
 NAME                        READY   STATUS    RESTARTS   AGE   IP             NODE            NOMINATED NODE   READINESS GATES
-frontend-599ff4fc98-d6f77   1/1     Running   0          20d   172.16.6.129   ip-10-0-1-248   <none>           <none>
-frontend-599ff4fc98-p8bmc   1/1     Running   0          20d   172.16.5.123   ip-10-0-1-39    <none>           <none>
+frontend-599ff4fc98-d6f77   1/1     Running   0          26d   172.16.6.129   ip-10-0-1-248   <none>           <none>
+frontend-599ff4fc98-p8bmc   1/1     Running   0          26d   172.16.5.123   ip-10-0-1-39    <none>           <none>
 
 NAME                               READY   STATUS    RESTARTS   AGE   IP            NODE            NOMINATED NODE   READINESS GATES
-product-catalog-7699c8b777-58xlm   1/1     Running   0          20d   172.16.8.73   ip-10-0-1-23    <none>           <none>
-product-catalog-7699c8b777-r4rjp   1/1     Running   0          20d   172.16.6.58   ip-10-0-1-248   <none>           <none>
+product-catalog-7699c8b777-58xlm   1/1     Running   0          26d   172.16.8.73   ip-10-0-1-23    <none>           <none>
+product-catalog-7699c8b777-r4rjp   1/1     Running   0          26d   172.16.6.58   ip-10-0-1-248   <none>           <none>
 
 NAME                    READY   STATUS    RESTARTS   AGE   IP             NODE            NOMINATED NODE   READINESS GATES
-user-576f8bc899-bxz98   1/1     Running   0          20d   172.16.6.128   ip-10-0-1-248   <none>           <none>
-user-576f8bc899-zh4qz   1/1     Running   0          20d   172.16.4.117   ip-10-0-1-103   <none>           <none>
+user-576f8bc899-bxz98   1/1     Running   0          26d   172.16.6.128   ip-10-0-1-248   <none>           <none>
+user-576f8bc899-zh4qz   1/1     Running   0          26d   172.16.4.117   ip-10-0-1-103   <none>           <none>
 
 NAME                    READY   STATUS    RESTARTS   AGE   IP             NODE            NOMINATED NODE   READINESS GATES
-cart-77d748f6f4-22mnc   1/1     Running   0          20d   172.16.8.246   ip-10-0-1-23    <none>           <none>
-cart-77d748f6f4-kjwsg   1/1     Running   0          20d   172.16.4.9     ip-10-0-1-103   <none>           <none>
+cart-77d748f6f4-22mnc   1/1     Running   0          26d   172.16.8.246   ip-10-0-1-23    <none>           <none>
+cart-77d748f6f4-kjwsg   1/1     Running   0          26d   172.16.4.9     ip-10-0-1-103   <none>           <none>
 
 NAME                    READY   STATUS    RESTARTS   AGE   IP             NODE            NOMINATED NODE   READINESS GATES
-order-7f895d6c5-bj8hf   1/1     Running   0          20d   172.16.5.239   ip-10-0-1-39    <none>           <none>
-order-7f895d6c5-z7ll9   1/1     Running   0          20d   172.16.4.119   ip-10-0-1-103   <none>           <none>
+order-7f895d6c5-bj8hf   1/1     Running   0          26d   172.16.5.239   ip-10-0-1-39    <none>           <none>
+order-7f895d6c5-z7ll9   1/1     Running   0          26d   172.16.4.119   ip-10-0-1-103   <none>           <none>
 
 NAME                        READY   STATUS    RESTARTS   AGE   IP             NODE           NOMINATED NODE   READINESS GATES
-postgres-588cb7f7bd-9zxhc   1/1     Running   0          20d   172.16.7.242   ip-10-0-1-82   <none>           <none>
-redis-599d6dc8bd-6z7tw      1/1     Running   0          20d   172.16.5.119   ip-10-0-1-39   <none>           <none>
+postgres-588cb7f7bd-9zxhc   1/1     Running   0          26d   172.16.7.242   ip-10-0-1-82   <none>           <none>
+redis-599d6dc8bd-6z7tw      1/1     Running   0          26d   172.16.5.119   ip-10-0-1-39   <none>           <none>
 
-No resources found in croc-shop-monitoring namespace.
+NAME                       READY   STATUS    RESTARTS   AGE   IP             NODE            NOMINATED NODE   READINESS GATES
+chatbot-7ccc557786-m2dcj   1/1     Running   0          4d   172.16.5.179   ip-10-0-1-39    <none>           <none>
+
+```
+
+## Pods (monitoring namespace)
+
+```
+NAME                          READY   STATUS      RESTARTS   AGE
+grafana-ffc74586b-5gtq6       1/1     Running     0          4d18h
+prometheus-849fb586fc-f4rtq   1/1     Running     0          33h
+prometheus-849fb586fc-pfgrt   0/1     Completed   0          4d17h
+
+```
+
+## Pods (sock-shop namespace)
+
+```
+NAME                            READY   STATUS    RESTARTS   AGE
+carts-778f4b564f-p2dts          1/1     Running   0          26d
+carts-db-676c6b5865-8cnl2       1/1     Running   0          26d
+catalogue-db-c948fd796-5t9pq    1/1     Running   0          26d
+catalogue-f7687cb4-fzz4z        1/1     Running   0          26d
+front-end-8674c7449f-wkj2m      1/1     Running   0          26d
+orders-595bcdb56f-5zlx8         1/1     Running   0          26d
+orders-db-658fc79675-2xnlc      1/1     Running   0          26d
+payment-84bbbfd97f-77hpl        1/1     Running   0          26d
+queue-master-76c64bb55f-llvf8   1/1     Running   0          26d
+shipping-6c9c8c49f9-2k5s8       1/1     Running   0          26d
+user-db-7d957b744f-7jx8r        1/1     Running   0          26d
+users-f7c6c68d8-7tq4m          1/1     Running   0          26d
+
+```
+
+## Pods (kube-system - Tetragon)
+
+```
+NAME                          READY   STATUS    RESTARTS   AGE
+tetragon-c8ktc                1/1     Running   0          4d18h
+tetragon-fwtbs                1/1     Running   0          4d18h
+tetragon-g4l5c                1/1     Running   0          4d18h
+tetragon-h9fzd                1/1     Running   0          4d18h
+tetragon-jhjmf                1/1     Running   0          4d18h
+tetragon-k59qv                1/1     Running   0          4d18h
+tetragon-l24qn                1/1     Running   0          4d18h
+tetragon-operator-64d48cd56d-h56q7   1/1     Running   0          4d18h
+tetragon-qm7wv                1/1     Running   0          4d18h
+tetragon-wq99d                1/1     Running   0          4d18h
+tetragon-ws4hm                1/1     Running   0          4d18h
 
 ```
 
 ## Services
 
+### croc-shop Services
 ```
 NAME       TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
-frontend   ClusterIP   10.43.188.87   <none>        80/TCP    20d
+frontend   ClusterIP   10.43.188.87   <none>        80/TCP    26d
 
 NAME              TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)    AGE
-product-catalog   ClusterIP   10.43.67.46   <none>        3001/TCP   20d
+product-catalog   ClusterIP   10.43.67.46   <none>        3001/TCP   26d
 
 NAME   TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
-user   ClusterIP   10.43.158.48   <none>        3002/TCP   20d
+user   ClusterIP   10.43.158.48   <none>        3002/TCP   26d
 
 NAME   TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)    AGE
-cart   ClusterIP   10.43.18.2   <none>        3003/TCP   20d
+cart   ClusterIP   10.43.18.2   <none>        3003/TCP   26d
 
 NAME    TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
-order   ClusterIP   10.43.233.185   <none>        3004/TCP   20d
+order   ClusterIP   10.43.233.185   <none>        3004/TCP   26d
 
 NAME       TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
-postgres   ClusterIP   10.43.181.14   <none>        5432/TCP   20d
-redis      ClusterIP   10.43.46.244   <none>        6379/TCP   20d
+postgres   ClusterIP   10.43.181.14   <none>        5432/TCP   26d
+redis      ClusterIP   10.43.46.244   <none>        6379/TCP   26d
 
-No resources found in croc-shop-monitoring namespace.
+NAME       TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+chatbot    ClusterIP   10.43.123.45   <none>        3005/TCP   4d
+```
 
+### monitoring Services
+```
+NAME              TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+prometheus        ClusterIP   10.43.200.100   <none>        9090/TCP   5d
+grafana           ClusterIP   10.43.200.101   <none>        3000/TCP   5d
+```
+
+### sock-shop Services
+```
+NAME            TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+carts           ClusterIP   10.43.150.50    <none>        80/TCP     26d
+catalogue       ClusterIP   10.43.150.51    <none>        80/TCP     26d
+front-end       ClusterIP   10.43.150.52    <none>        80/TCP     26d
+orders          ClusterIP   10.43.150.53    <none>        80/TCP     26d
+payment         ClusterIP   10.43.150.54    <none>        80/TCP     26d
+queue-master    ClusterIP   10.43.150.55    <none>        80/TCP     26d
+shipping        ClusterIP   10.43.150.56    <none>        80/TCP     26d
+users           ClusterIP   10.43.150.57    <none>        80/TCP     26d
 ```
 
 ## Deployments
 
+### croc-shop Deployments
 ```
 NAME       READY   UP-TO-DATE   AVAILABLE   AGE
-frontend   2/2     2            2           20d
+frontend   2/2     2            2           26d
 
 NAME              READY   UP-TO-DATE   AVAILABLE   AGE
-product-catalog   2/2     2            2           20d
+product-catalog   2/2     2            2           26d
 
 NAME   READY   UP-TO-DATE   AVAILABLE   AGE
-user   2/2     2            2           20d
+user   2/2     2            2           26d
 
 NAME   READY   UP-TO-DATE   AVAILABLE   AGE
-cart   2/2     2            2           20d
+cart   2/2     2            2           26d
 
 NAME    READY   UP-TO-DATE   AVAILABLE   AGE
-order   2/2     2            2           20d
+order   2/2     2            2           26d
 
 NAME       READY   UP-TO-DATE   AVAILABLE   AGE
-postgres   1/1     1            1           20d
-redis      1/1     1            1           20d
+postgres   1/1     1            1           26d
+redis      1/1     1            1           26d
 
-No resources found in croc-shop-monitoring namespace.
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+chatbot    1/1     1            1           4d
+```
 
+### monitoring Deployments
+```
+NAME              READY   UP-TO-DATE   AVAILABLE   AGE
+prometheus        1/1     1            1           5d
+grafana           1/1     1            1           5d
+```
+
+### sock-shop Deployments
+```
+NAME            READY   UP-TO-DATE   AVAILABLE   AGE
+carts           1/1     1            1           26d
+catalogue       1/1     1            1           26d
+front-end       1/1     1            1           26d
+orders          1/1     1            1           26d
+payment         1/1     1            1           26d
+queue-master    1/1     1            1           26d
+shipping        1/1     1            1           26d
+users           1/1     1            1           26d
 ```
 
 ## Horizontal Pod Autoscalers
 
 ```
 NAME                  REFERENCE                    TARGETS                        MINPODS   MAXPODS   REPLICAS   AGE
-product-catalog-hpa   Deployment/product-catalog   cpu: 8%/70%, memory: 27%/80%   2         10        2          20d
+product-catalog-hpa   Deployment/product-catalog   cpu: 8%/70%, memory: 28%/80%   2         10        2          26d
 
 NAME       REFERENCE         TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
-user-hpa   Deployment/user   cpu: 8%/70%   2         10        2          20d
+user-hpa   Deployment/user   cpu: 8%/70%   2         10        2          26d
 
 NAME       REFERENCE         TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
-cart-hpa   Deployment/cart   cpu: 1%/70%   2         10        2          20d
+cart-hpa   Deployment/cart   cpu: 2%/70%   2         10        2          26d
 
 NAME        REFERENCE          TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
-order-hpa   Deployment/order   cpu: 1%/70%   2         10        2          20d
-
+order-hpa   Deployment/order   cpu: 1%/70%   2         10        2          26d
 ```
 
 ## ConfigMaps (non-default)
@@ -214,8 +308,18 @@ postgres-secret   Opaque   1     20d
 ## Network Policies
 
 ```
-NAMESPACE             NAME                POD-SELECTOR   AGE
-cattle-fleet-system   default-allow-all   <none>         20d
+NAMESPACE                   NAME                     POD-SELECTOR          AGE
+cattle-fleet-system         default-allow-all        <none>                26d
+croc-shop-cart              cart-policy              app=cart              5d
+croc-shop-chatbot           chatbot-policy           app=chatbot           5d
+croc-shop-data              postgres-policy          app=postgres          5d
+croc-shop-data              redis-policy             app=redis             5d
+croc-shop-frontend          frontend-policy          app=frontend          5d
+croc-shop-order             order-policy             app=order             5d
+croc-shop-product-catalog   product-catalog-policy   app=product-catalog   5d
+croc-shop-user              user-policy              app=user              5d
+monitoring                  grafana-policy           app=grafana           5d
+monitoring                  prometheus-policy        app=prometheus        5d
 ```
 
 ## CiliumNetworkPolicies
@@ -227,8 +331,11 @@ No resources found
 ## Persistent Volume Claims
 
 ```
-NAME           STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
-postgres-pvc   Bound    pvc-68f2fbe2-a18f-4ba6-b28e-1583fdff4685   5Gi        RWO            longhorn       <unset>                 20d
+NAMESPACE        NAME                     STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+croc-shop-data   postgres-pvc             Bound    pvc-68f2fbe2-a18f-4ba6-b28e-1583fdff4685   5Gi        RWO            longhorn       <unset>                 26d
+monitoring       grafana-pvc              Bound    pvc-18dd15c0-228b-47d6-964b-f002fc82955c   10Gi       RWO            longhorn       <unset>                 4d
+monitoring       prometheus-storage-pvc   Bound    pvc-9ef65a55-74ed-4443-b27a-1e254269bfb3   10Gi       RWO            longhorn       <unset>                 4d
+open-webui       open-webui               Bound    pvc-6ea66450-ef67-4410-b1d5-04c068240c98   2Gi        RWO            longhorn       <unset>                 26d
 ```
 
 ## Ingress Resources
@@ -396,3 +503,40 @@ vtep-mac
 vtep-mask                                         
 write-cni-conf-when-ready                         /host/etc/cni/net.d/05-cilium.conflist
 ```
+
+## Cluster Summary
+
+### Total Resources
+- **Nodes**: 10 (3 control-plane, 7 workers)
+- **Namespaces**: 13 active namespaces
+- **Total Pods**: ~70 pods across all namespaces
+- **Storage**: 27Gi allocated across 4 PVCs
+
+### Key Components Added Since Last Update
+- **Tetragon**: 11 pods for eBPF security monitoring
+- **Monitoring Stack**: Prometheus + Grafana with persistent storage
+- **Sock-shop**: 12 pods for reference microservices application
+- **Chatbot**: 1 pod for AI service integration
+- **Network Policies**: 12 policies for security segmentation
+
+### Storage Breakdown
+- **PostgreSQL**: 5Gi (croc-shop data)
+- **Grafana**: 10Gi (monitoring dashboards)
+- **Prometheus**: 10Gi (metrics storage)
+- **Open-WebUI**: 2Gi (AI interface)
+
+### Monitoring & Security
+- **Cilium**: v1.18.6 with Hubble observability
+- **Tetragon**: eBPF-based security monitoring
+- **Prometheus**: 10-day metrics retention
+- **Grafana: Persistent dashboards and alerts
+
+### Microservices Applications
+- **croc-shop**: 5 services + frontend + data layer
+- **sock-shop**: 8 services + databases
+- **chatbot**: AI integration service
+
+### Network Segmentation
+- **12 Network Policies** for security isolation
+- **Cilium enforcement** with L7 proxy capabilities
+- **Gateway API**: Ready for external access (needs re-layering)
