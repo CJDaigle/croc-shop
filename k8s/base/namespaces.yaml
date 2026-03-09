@@ -1,13 +1,6 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: croc-shop
-  labels:
-    name: croc-shop
----
-apiVersion: v1
-kind: Namespace
-metadata:
   name: croc-shop-frontend
   labels:
     name: croc-shop-frontend
