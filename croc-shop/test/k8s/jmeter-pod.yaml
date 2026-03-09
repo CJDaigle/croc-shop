@@ -1,0 +1,182 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: jmeter-test-pod
+  namespace: testing
+  labels:
+    app: jmeter-test
+    purpose: load-testing
+spec:
+  serviceAccountName: jmeter-test-sa
+  restartPolicy: Never
+  containers:
+  - name: jmeter
+    image: apache/jmeter:5.6.3
+    imagePullPolicy: IfNotPresent
+    command: ["/bin/bash"]
+    args: ["/opt/jmeter/run-test.sh"]
+    env:
+    - name: NUM_CUSTOMERS
+      value: "100"
+    - name: ORDERS_PER_CUSTOMER
+      value: "10"
+    - name: THREADS
+      value: "10"
+    - name: RAMP_TIME
+      value: "10"
+    - name: KUBECONFIG
+      value: "/etc/kubernetes/config"
+    volumeMounts:
+    - name: jmeter-config
+      mountPath: /opt/jmeter/test.properties
+      subPath: test.properties
+    - name: jmeter-config
+      mountPath: /opt/jmeter/jmeter.properties
+      subPath: jmeter.properties
+    - name: jmeter-config
+      mountPath: /opt/jmeter/run-test.sh
+      subPath: run-test.sh
+    - name: jmx-file
+      mountPath: /opt/jmeter/croc-shop-load-test.jmx
+    - name: results
+      mountPath: /results
+    - name: kubeconfig
+      mountPath: /etc/kubernetes/config
+      readOnly: true
+    resources:
+      requests:
+        memory: "2Gi"
+        cpu: "1000m"
+      limits:
+        memory: "4Gi"
+        cpu: "2000m"
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: false
+      capabilities:
+        drop:
+        - ALL
+  volumes:
+  - name: jmeter-config
+    configMap:
+      name: jmeter-test-config
+      defaultMode: 0755
+  - name: jmx-file
+    configMap:
+      name: jmeter-test-jmx
+  - name: results
+    emptyDir: {}
+  - name: kubeconfig
+    secret:
+      secretName: jmeter-kubeconfig
+  securityContext:
+    fsGroup: 1000
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: jmeter-load-test
+  namespace: testing
+  labels:
+    app: jmeter-test
+    purpose: load-testing
+spec:
+  backoffLimit: 3
+  completions: 1
+  parallelism: 1
+  template:
+    metadata:
+      labels:
+        app: jmeter-test
+        purpose: load-testing
+    spec:
+      serviceAccountName: jmeter-test-sa
+      restartPolicy: Never
+      containers:
+      - name: jmeter
+        image: apache/jmeter:5.6.3
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/bash"]
+        args: ["/opt/jmeter/run-test.sh"]
+        env:
+        - name: NUM_CUSTOMERS
+          valueFrom:
+            configMapKeyRef:
+              name: jmeter-test-config
+              key: test.properties
+        - name: ORDERS_PER_CUSTOMER
+          valueFrom:
+            configMapKeyRef:
+              name: jmeter-test-config
+              key: test.properties
+        - name: THREADS
+          valueFrom:
+            configMapKeyRef:
+              name: jmeter-test-config
+              key: test.properties
+        - name: RAMP_TIME
+          valueFrom:
+            configMapKeyRef:
+              name: jmeter-test-config
+              key: test.properties
+        volumeMounts:
+        - name: jmeter-config
+          mountPath: /opt/jmeter/test.properties
+          subPath: test.properties
+        - name: jmeter-config
+          mountPath: /opt/jmeter/jmeter.properties
+          subPath: jmeter.properties
+        - name: jmeter-config
+          mountPath: /opt/jmeter/run-test.sh
+          subPath: run-test.sh
+        - name: jmx-file
+          mountPath: /opt/jmeter/croc-shop-load-test.jmx
+        - name: results
+          mountPath: /results
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+            - ALL
+      volumes:
+      - name: jmeter-config
+        configMap:
+          name: jmeter-test-config
+          defaultMode: 0755
+      - name: jmx-file
+        configMap:
+          name: jmeter-test-jmx
+      - name: results
+        emptyDir: {}
+      securityContext:
+        fsGroup: 1000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jmeter-test-results
+  namespace: testing
+  labels:
+    app: jmeter-test
+    purpose: results-access
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: jmeter-results-server

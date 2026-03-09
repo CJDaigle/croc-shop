@@ -1,0 +1,162 @@
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: Gateway
+metadata:
+  name: testing-gateway
+  namespace: testing
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  gatewayClassName: cilium
+  listeners:
+  - name: https
+    protocol: HTTPS
+    port: 443
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - name: testing-apo-llm-test-com-tls
+      options:
+        alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:123456789012:certificate/12345678-1234-1234-1234-123456789012
+    allowedRoutes:
+      kinds:
+      - kind: HTTPRoute
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: HTTPRoute
+metadata:
+  name: user-service-route
+  namespace: testing
+spec:
+  parentRefs:
+  - name: testing-gateway
+    namespace: testing
+    sectionName: https
+  hostnames:
+  - "testing.apo-llm-test.com"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /user-service
+    forwardTo:
+    - serviceName: user
+      servicePort: 3002
+      namespace: croc-shop-user
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: HTTPRoute
+metadata:
+  name: product-service-route
+  namespace: testing
+spec:
+  parentRefs:
+  - name: testing-gateway
+    namespace: testing
+    sectionName: https
+  hostnames:
+  - "testing.apo-llm-test.com"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /product-service
+    forwardTo:
+    - serviceName: product-catalog
+      servicePort: 3001
+      namespace: croc-shop-product-catalog
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: HTTPRoute
+metadata:
+  name: cart-service-route
+  namespace: testing
+spec:
+  parentRefs:
+  - name: testing-gateway
+    namespace: testing
+    sectionName: https
+  hostnames:
+  - "testing.apo-llm-test.com"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /cart-service
+    forwardTo:
+    - serviceName: cart
+      servicePort: 3003
+      namespace: croc-shop-cart
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: HTTPRoute
+metadata:
+  name: order-service-route
+  namespace: testing
+spec:
+  parentRefs:
+  - name: testing-gateway
+    namespace: testing
+    sectionName: https
+  hostnames:
+  - "testing.apo-llm-test.com"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /order-service
+    forwardTo:
+    - serviceName: order
+      servicePort: 3004
+      namespace: croc-shop-order
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: HTTPRoute
+metadata:
+  name: chatbot-service-route
+  namespace: testing
+spec:
+  parentRefs:
+  - name: testing-gateway
+    namespace: testing
+    sectionName: https
+  hostnames:
+  - "testing.apo-llm-test.com"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /chatbot-service
+    forwardTo:
+    - serviceName: chatbot
+      servicePort: 3005
+      namespace: croc-shop-chatbot
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /

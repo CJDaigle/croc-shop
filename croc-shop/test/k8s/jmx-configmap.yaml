@@ -1,0 +1,325 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jmeter-test-jmx
+  namespace: testing
+data:
+  croc-shop-load-test.jmx: |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
+      <hashTree>
+        <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Croc-Shop Load Test - Gateway" enabled="true">
+          <stringProp name="TestPlan.comments">Performance test for Croc-Shop via Gateway API
+    - Generate 100 random customers
+    - Each customer places 10 orders
+    - Each order contains 2-3 random items
+    - All data is fake/test data only
+    - Routes through testing.apo-llm-test.com gateway</stringProp>
+          <boolProp name="TestPlan.functional_mode">false</boolProp>
+          <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
+          <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+          <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="USER_SERVICE_HOST" elementType="Argument">
+                <stringProp name="Argument.name">USER_SERVICE_HOST</stringProp>
+                <stringProp name="Argument.value">testing.apo-llm-test.com</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="USER_SERVICE_PORT" elementType="Argument">
+                <stringProp name="Argument.name">USER_SERVICE_PORT</stringProp>
+                <stringProp name="Argument.value">443</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PRODUCT_SERVICE_HOST" elementType="Argument">
+                <stringProp name="Argument.name">PRODUCT_SERVICE_HOST</stringProp>
+                <stringProp name="Argument.value">testing.apo-llm-test.com</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PRODUCT_SERVICE_PORT" elementType="Argument">
+                <stringProp name="Argument.name">PRODUCT_SERVICE_PORT</stringProp>
+                <stringProp name="Argument.value">443</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ORDER_SERVICE_HOST" elementType="Argument">
+                <stringProp name="Argument.name">ORDER_SERVICE_HOST</stringProp>
+                <stringProp name="Argument.value">testing.apo-llm-test.com</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ORDER_SERVICE_PORT" elementType="Argument">
+                <stringProp name="Argument.name">ORDER_SERVICE_PORT</stringProp>
+                <stringProp name="Argument.value">443</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="NUM_CUSTOMERS" elementType="Argument">
+                <stringProp name="Argument.name">NUM_CUSTOMERS</stringProp>
+                <stringProp name="Argument.value">100</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ORDERS_PER_CUSTOMER" elementType="Argument">
+                <stringProp name="Argument.name">ORDERS_PER_CUSTOMER</stringProp>
+                <stringProp name="Argument.value">10</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </TestPlan>
+        <hashTree>
+          <!-- Thread Group for Customer Creation -->
+          <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Customer Creation" enabled="true">
+            <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+            <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+              <boolProp name="LoopController.continue_forever">false</boolProp>
+              <stringProp name="LoopController.loops">${NUM_CUSTOMERS}</stringProp>
+            </elementProp>
+            <stringProp name="ThreadGroup.num_threads">1</stringProp>
+            <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+            <boolProp name="ThreadGroup.scheduler">false</boolProp>
+            <stringProp name="ThreadGroup.duration"></stringProp>
+            <stringProp name="ThreadGroup.delay"></stringProp>
+          </ThreadGroup>
+          <hashTree>
+            <!-- Random Customer Data Generator -->
+            <RandomVariableConfig guiclass="RandomVariableConfigGui" testclass="RandomVariableConfig" testname="Random First Name" enabled="true">
+              <stringProp name="RandomVariableConfig.variableName">randomFirstName</stringProp>
+              <stringProp name="RandomVariableConfig.outputFormat">John,Jane,Michael,Emily,David,Sarah,Robert,Lisa,James,Mary,William,Jennifer,George,Linda,Richard,Patricia,Charles,Barbara,Joseph,Elizabeth</stringProp>
+              <boolProp name="RandomVariableConfig.perThread">true</boolProp>
+              <stringProp name="RandomVariableConfig.seed">12345</stringProp>
+            </RandomVariableConfig>
+            <hashTree/>
+            <RandomVariableConfig guiclass="RandomVariableConfigGui" testclass="RandomVariableConfig" testname="Random Last Name" enabled="true">
+              <stringProp name="RandomVariableConfig.variableName">randomLastName</stringProp>
+              <stringProp name="RandomVariableConfig.outputFormat">Smith,Johnson,Williams,Brown,Jones,Garcia,Miller,Davis,Rodriguez,Martinez,Hernandez,Lopez,Gonzalez,Wilson,Anderson,Thomas,Taylor,Moore,Jackson,Martin</stringProp>
+              <boolProp name="RandomVariableConfig.perThread">true</boolProp>
+              <stringProp name="RandomVariableConfig.seed">54321</stringProp>
+            </RandomVariableConfig>
+            <hashTree/>
+            <RandomVariableConfig guiclass="RandomVariableConfigGui" testclass="RandomVariableConfig" testname="Random Email" enabled="true">
+              <stringProp name="RandomVariableConfig.variableName">randomEmail</stringProp>
+              <stringProp name="RandomVariableConfig.outputFormat">${randomFirstName}${randomLastName}${__Random(1,999)}@testmail.com</stringProp>
+              <boolProp name="RandomVariableConfig.perThread">true</boolProp>
+              <stringProp name="RandomVariableConfig.seed">55555</stringProp>
+            </RandomVariableConfig>
+            <hashTree/>
+            
+            <!-- Create Customer Request -->
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Create Customer" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">{
+      "firstName": "${randomFirstName}",
+      "lastName": "${randomLastName}",
+      "email": "${randomEmail}",
+      "phone": "555-${__Random(100,999)}-${__Random(1000,9999)}",
+      "address": {
+        "street": "${__Random(100,999)} Test St",
+        "city": "Test City",
+        "state": "TS",
+        "zip": "${__Random(10000,99999)}"
+      },
+      "paymentInfo": {
+        "cardNumber": "4111${__Random(1111,9999)}${__Random(1111,9999)}${__Random(1111,9999)}",
+        "expiryDate": "${__Random(2025,2030)}-${__Random(1,12)}",
+        "cvv": "${__Random(100,999)}"
+      }
+    }</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain">${USER_SERVICE_HOST}</stringProp>
+              <stringProp name="HTTPSampler.port">${USER_SERVICE_PORT}</stringProp>
+              <stringProp name="HTTPSampler.protocol">https</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
+              <stringProp name="HTTPSampler.path">/user-service/customers</stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+            </hashTree>
+            
+            <!-- Extract Customer ID -->
+            <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract Customer ID" enabled="true">
+              <stringProp name="JSONPostProcessor.referenceNames">customerId</stringProp>
+              <stringProp name="JSONPostProcessor.jsonPathExprs">$.id</stringProp>
+              <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+              <stringProp name="JSONPostProcessor.defaultValues">-1</stringProp>
+            </JSONPostProcessor>
+            <hashTree/>
+          </hashTree>
+          
+          <!-- Thread Group for Order Processing -->
+          <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Order Processing" enabled="true">
+            <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+            <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+              <boolProp name="LoopController.continue_forever">false</boolProp>
+              <stringProp name="LoopController.loops">${NUM_CUSTOMERS}</stringProp>
+            </elementProp>
+            <stringProp name="ThreadGroup.num_threads">10</stringProp>
+            <stringProp name="ThreadGroup.ramp_time">10</stringProp>
+            <boolProp name="ThreadGroup.scheduler">false</boolProp>
+            <stringProp name="ThreadGroup.duration"></stringProp>
+            <stringProp name="ThreadGroup.delay"></stringProp>
+          </ThreadGroup>
+          <hashTree>
+            <!-- Get Products -->
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Get Products" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain">${PRODUCT_SERVICE_HOST}</stringProp>
+              <stringProp name="HTTPSampler.port">${PRODUCT_SERVICE_PORT}</stringProp>
+              <stringProp name="HTTPSampler.protocol">https</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
+              <stringProp name="HTTPSampler.path">/product-service/products</stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+            </hashTree>
+            
+            <!-- Extract Product List -->
+            <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract Products" enabled="true">
+              <stringProp name="JSONPostProcessor.referenceNames">productList</stringProp>
+              <stringProp name="JSONPostProcessor.jsonPathExprs">$[*].id</stringProp>
+              <stringProp name="JSONPostProcessor.match_numbers">-1</stringProp>
+              <stringProp name="JSONPostProcessor.defaultValues"></stringProp>
+            </JSONPostProcessor>
+            <hashTree/>
+            
+            <!-- Create Order -->
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Create Order" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">{
+      "customerId": "${customerId}",
+      "items": [
+        {"productId": "1", "quantity": 2},
+        {"productId": "2", "quantity": 1}
+      ],
+      "shippingAddress": {
+        "street": "${__Random(100,999)} Test St",
+        "city": "Test City",
+        "state": "TS",
+        "zip": "${__Random(10000,99999)}"
+      },
+      "paymentInfo": {
+        "cardNumber": "4111${__Random(1111,9999)}${__Random(1111,9999)}${__Random(1111,9999)}",
+        "expiryDate": "${__Random(2025,2030)}-${__Random(1,12)}",
+        "cvv": "${__Random(100,999)}"
+      }
+    }</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain">${ORDER_SERVICE_HOST}</stringProp>
+              <stringProp name="HTTPSampler.port">${ORDER_SERVICE_PORT}</stringProp>
+              <stringProp name="HTTPSampler.protocol">https</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
+              <stringProp name="HTTPSampler.path">/order-service/orders</stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+            </hashTree>
+            
+            <!-- Extract Order ID -->
+            <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract Order ID" enabled="true">
+              <stringProp name="JSONPostProcessor.referenceNames">orderId</stringProp>
+              <stringProp name="JSONPostProcessor.jsonPathExprs">$.id</stringProp>
+              <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+              <stringProp name="JSONPostProcessor.defaultValues">-1</stringProp>
+            </JSONPostProcessor>
+            <hashTree/>
+          </hashTree>
+          
+          <!-- Results Collection -->
+          <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
+            <boolProp name="ResultCollector.error_logging">false</boolProp>
+            <objProp>
+              <name>saveConfig</name>
+              <value class="SampleSaveConfiguration">
+                <time>true</time>
+                <latency>true</latency>
+                <timestamp>true</timestamp>
+                <success>true</success>
+                <label>true</label>
+                <code>true</code>
+                <message>true</message>
+                <threadName>true</threadName>
+                <dataType>true</dataType>
+                <encoding>false</encoding>
+                <assertions>true</assertions>
+                <subresults>true</subresults>
+                <responseData>false</responseData>
+                <samplerData>false</samplerData>
+                <xml>false</xml>
+                <fieldNames>true</fieldNames>
+                <responseHeaders>false</responseHeaders>
+                <requestHeaders>false</requestHeaders>
+                <responseDataOnError>false</responseDataOnError>
+                <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+                <assertionsResultsToSave>0</assertionsResultsToSave>
+                <bytes>true</bytes>
+                <sentBytes>true</sentBytes>
+                <url>true</url>
+                <threadCounts>true</threadCounts>
+                <idleTime>true</idleTime>
+                <connectTime>true</connectTime>
+              </value>
+            </objProp>
+            <stringProp name="filename">/results/croc-shop-test-results.jtl</stringProp>
+          </ResultCollector>
+          <hashTree/>
+        </hashTree>
+      </hashTree>
+    </jmeterTestPlan>

@@ -1,0 +1,121 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jmeter-test-config
+  namespace: testing
+data:
+  jmeter.properties: |
+    # JMeter Configuration for Cluster Testing
+    # Standard JMeter properties with cluster-specific settings
+    
+    # Logging configuration
+    log_level.jmeter=INFO
+    log_level.jmeter.engine=INFO
+    log_level.jmeter.threads=INFO
+    log_level.jmeter.gui=WARN
+    
+    # HTTP configuration
+    httpclient.timeout=60000
+    httpclient.max_retries=3
+    httpclient.socket.timeout=60000
+    httpclient.connection.timeout=60000
+    
+    # Thread group settings
+    threadgroup.rampup=10
+    threadgroup.delay=0
+    
+    # Result collection
+    jmeter.save.saveservice.output_format=xml
+    jmeter.save.saveservice.response_data=true
+    jmeter.save.saveservice.samplerData=true
+    jmeter.save.saveservice.requestHeaders=true
+    jmeter.save.saveservice.url=true
+    jmeter.save.saveservice.filename=true
+    jmeter.save.saveservice.hostname=true
+    jmeter.save.saveservice.threadCounts=true
+    jmeter.save.saveservice.latency=true
+    
+    # Memory settings
+    heap=2048m
+    max_heap=4096m
+    
+  test.properties: |
+    # Test configuration
+    NUM_CUSTOMERS=100
+    ORDERS_PER_CUSTOMER=10
+    THREADS=10
+    RAMP_TIME=10
+    
+    # Service endpoints (using external gateway URLs)
+    USER_SERVICE_URL=https://testing.apo-llm-test.com/user-service
+    PRODUCT_SERVICE_URL=https://testing.apo-llm-test.com/product-service
+    CART_SERVICE_URL=https://testing.apo-llm-test.com/cart-service
+    ORDER_SERVICE_URL=https://testing.apo-llm-test.com/order-service
+    
+    # SSL/TLS settings
+    SSL_PROTOCOL=TLS
+    SSL_TRUST_ALL_CERTS=true
+    
+    # Test data settings
+    GENERATE_FAKE_DATA=true
+    DATA_PRIVACY_MODE=test-only
+    
+  run-test.sh: |
+    #!/bin/bash
+    set -e
+    
+    echo "Starting JMeter Load Test in Cluster..."
+    
+    # Load configuration
+    source /opt/jmeter/test.properties
+    
+    # Update JMX file with gateway URLs
+    sed -i "s|\${USER_SERVICE_HOST}|testing.apo-llm-test.com|g" /opt/jmeter/croc-shop-load-test.jmx
+    sed -i "s|\${USER_SERVICE_PORT}|443|g" /opt/jmeter/croc-shop-load-test.jmx
+    sed -i "s|\${PRODUCT_SERVICE_HOST}|testing.apo-llm-test.com|g" /opt/jmeter/croc-shop-load-test.jmx
+    sed -i "s|\${PRODUCT_SERVICE_PORT}|443|g" /opt/jmeter/croc-shop-load-test.jmx
+    sed -i "s|\${ORDER_SERVICE_HOST}|testing.apo-llm-test.com|g" /opt/jmeter/croc-shop-load-test.jmx
+    sed -i "s|\${ORDER_SERVICE_PORT}|443|g" /opt/jmeter/croc-shop-load-test.jmx
+    
+    # Update paths to include gateway routing
+    sed -i 's|/customers|/user-service/customers|g' /opt/jmeter/croc-shop-load-test.jmx
+    sed -i 's|/products|/product-service/products|g' /opt/jmeter/croc-shop-load-test.jmx
+    sed -i 's|/orders|/order-service/orders|g' /opt/jmeter/croc-shop-load-test.jmx
+    
+    # Update protocol to HTTPS
+    sed -i 's|<stringProp name="HTTPSampler.protocol">http</stringProp>|<stringProp name="HTTPSampler.protocol">https</stringProp>|g' /opt/jmeter/croc-shop-load-test.jmx
+    
+    echo "Configuration updated for gateway routing"
+    echo "Customers: $NUM_CUSTOMERS"
+    echo "Orders per customer: $ORDERS_PER_CUSTOMER"
+    echo "Total orders: $((NUM_CUSTOMERS * ORDERS_PER_CUSTOMER))"
+    
+    # Create results directory
+    mkdir -p /results
+    
+    # Run JMeter test
+    cd /opt/jmeter
+    jmeter -n -t croc-shop-load-test.jmx \
+           -l /results/test-results-$(date +%Y%m%d-%H%M%S).jtl \
+           -j /results/test-$(date +%Y%m%d-%H%M%S).log \
+           -Jjmeter.save.saveservice.output_format=xml
+    
+    echo "Test completed. Results saved in /results"
+    
+    # Generate summary
+    echo "=== Test Summary ===" > /results/summary.txt
+    echo "Timestamp: $(date)" >> /results/summary.txt
+    echo "Customers: $NUM_CUSTOMERS" >> /results/summary.txt
+    echo "Orders per customer: $ORDERS_PER_CUSTOMER" >> /results/summary.txt
+    echo "Total orders: $((NUM_CUSTOMERS * ORDERS_PER_CUSTOMER))" >> /results/summary.txt
+    
+    # Count results if file exists
+    if ls /results/*.jtl 1> /dev/null 2>&1; then
+      for file in /results/*.jtl; do
+        requests=$(grep -c "^[^#]" "$file" || echo "0")
+        echo "Results file: $(basename $file) - $requests requests" >> /results/summary.txt
+      done
+    fi
+    
+    echo "Summary saved to /results/summary.txt"
+    cat /results/summary.txt
