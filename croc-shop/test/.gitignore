@@ -1,0 +1,37 @@
+# JMeter test results
+*.jtl
+*.log
+report*/
+results/
+
+# Generated test data
+customer_data.csv
+order_data.csv
+
+# Temporary files
+*.tmp
+temp-*.jmx
+.port_forward_pids
+
+# JMeter backup files
+*.jmx.bak
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Docker
+.dockerignore
+
+# Logs
+*.out
+*.err
+
+# Backup files
+*~
+*.swp
+*.swo
