@@ -1,0 +1,30 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: sock-shop-l7-observability
+  namespace: sock-shop
+spec:
+  endpointSelector:
+    matchExpressions:
+    - key: name
+      operator: In
+      values:
+      - carts
+      - catalogue
+      - orders
+      - payment
+      - queue-master
+      - shipping
+      - user
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        k8s:io.kubernetes.pod.namespace: sock-shop
+    toPorts:
+    - ports:
+      - port: "80"
+        protocol: TCP
+      rules:
+        http:
+        - method: ".*"
+          path: ".*"
