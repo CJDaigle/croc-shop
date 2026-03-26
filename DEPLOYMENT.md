@@ -129,7 +129,39 @@ find k8s/base -name "*-deployment.yaml" -type f -exec sed -i '' "s|image: croc-s
 find k8s/base -name "*-deployment.yaml" -type f -exec sed -i '' "s|imagePullPolicy: IfNotPresent|imagePullPolicy: Always|g" {} \;
 ```
 
-For the chatbot service, ensure the Secret in `k8s/base/chatbot-deployment.yaml` has valid values (at minimum `CHATBOT_API_TOKEN`, `AWS_REGION`, `BEDROCK_GATEWAY_URL`, and AWS credentials) before applying manifests.
+For the chatbot service, do not commit real secret values to `k8s/base/chatbot-deployment.yaml`. Keep the placeholders in Git and create the real Kubernetes secret out-of-band before deploying the chatbot.
+
+Required chatbot secret keys:
+
+- `CHATBOT_API_TOKEN`
+- `AWS_REGION`
+- `BEDROCK_GATEWAY_URL`
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+
+Example:
+
+```bash
+kubectl create namespace croc-shop-chatbot --dry-run=client -o yaml | kubectl apply -f -
+
+kubectl create secret generic chatbot-secret \
+  -n croc-shop-chatbot \
+  --from-literal=CHATBOT_API_TOKEN='<replace-with-random-token>' \
+  --from-literal=AWS_REGION='us-east-1' \
+  --from-literal=BEDROCK_GATEWAY_URL='https://<replace-with-bedrock-gateway-url>' \
+  --from-literal=AWS_ACCESS_KEY_ID='<replace-with-access-key-id>' \
+  --from-literal=AWS_SECRET_ACCESS_KEY='<replace-with-secret-access-key>' \
+  --dry-run=client -o yaml | kubectl apply -f -
+```
+
+Verify the secret exists before applying the chatbot deployment:
+
+```bash
+kubectl get secret chatbot-secret -n croc-shop-chatbot
+kubectl describe secret chatbot-secret -n croc-shop-chatbot
+```
+
+If a chatbot credential was ever committed to Git, rotate it in AWS and replace the cluster secret with the new value before redeploying.
 
 **Note for Linux users**: Remove the empty quotes after `-i` in the sed commands:
 ```bash
