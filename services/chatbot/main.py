@@ -84,6 +84,15 @@ def health():
     return {"status": "ok"}
 
 
+@app.get("/ready")
+def ready():
+    required = ["CHATBOT_API_TOKEN", "AWS_REGION", "BEDROCK_GATEWAY_URL"]
+    missing = [name for name in required if not os.getenv(name)]
+    if missing:
+        raise HTTPException(status_code=503, detail=f"Missing required env vars: {', '.join(missing)}")
+    return {"status": "ready"}
+
+
 @app.get("/metrics")
 def metrics():
     return generate_latest(), 200, {'Content-Type': CONTENT_TYPE_LATEST}

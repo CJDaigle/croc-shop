@@ -62,7 +62,7 @@ spec:
               key: AWS_SECRET_ACCESS_KEY
         readinessProbe:
           httpGet:
-            path: /health
+            path: /ready
             port: 3005
           initialDelaySeconds: 5
           periodSeconds: 10
