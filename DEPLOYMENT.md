@@ -131,7 +131,9 @@ find k8s/base -name "*-deployment.yaml" -type f -exec sed -i '' "s|imagePullPoli
 
 ### Create the Chatbot Secret
 
-Before deploying the chatbot service, create the Kubernetes secret it depends on. Do not commit real secret values to `k8s/base/chatbot-deployment.yaml`. Keep the placeholders in Git and create the real Kubernetes secret out-of-band.
+Before deploying the chatbot service, create the Kubernetes secret it depends on. The chatbot will not start correctly without this secret. Do not commit real secret values to `k8s/base/chatbot-deployment.yaml`. Keep the placeholders in Git and create the real Kubernetes secret out-of-band.
+
+`CHATBOT_API_TOKEN` is an inbound access token for the chatbot service. Clients calling `/api/chat/stream` must send this value in the `X-API-Token` header. It is not generated during the image build, and it is not the AWS SigV4 authorization value used for Bedrock. You create it at deployment time, store it in `chatbot-secret`, and distribute it only to trusted callers of the chatbot service.
 
 Required chatbot secret keys:
 
@@ -161,6 +163,12 @@ Verify the secret exists before applying the chatbot deployment:
 ```bash
 kubectl get secret chatbot-secret -n croc-shop-chatbot
 kubectl describe secret chatbot-secret -n croc-shop-chatbot
+```
+
+Apply the chatbot deployment only after the secret exists:
+
+```bash
+kubectl apply -f k8s/base/chatbot-deployment.yaml
 ```
 
 If a chatbot credential was ever committed to Git, rotate it in AWS and replace the cluster secret with the new value before redeploying.

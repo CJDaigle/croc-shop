@@ -103,7 +103,7 @@ async def chat_stream(
     request: Request,
     x_api_token: Optional[str] = Header(default=None, alias="X-API-Token"),
 ):
-    expected_token = _get_env("CHATBOT_API_TOKEN", "200")
+    expected_token = _get_env("CHATBOT_API_TOKEN")
     token = x_api_token
     if token is None:
         token = request.headers.get("x_api_token")
