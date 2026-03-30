@@ -129,7 +129,9 @@ find k8s/base -name "*-deployment.yaml" -type f -exec sed -i '' "s|image: croc-s
 find k8s/base -name "*-deployment.yaml" -type f -exec sed -i '' "s|imagePullPolicy: IfNotPresent|imagePullPolicy: Always|g" {} \;
 ```
 
-For the chatbot service, do not commit real secret values to `k8s/base/chatbot-deployment.yaml`. Keep the placeholders in Git and create the real Kubernetes secret out-of-band before deploying the chatbot.
+### Create the Chatbot Secret
+
+Before deploying the chatbot service, create the Kubernetes secret it depends on. Do not commit real secret values to `k8s/base/chatbot-deployment.yaml`. Keep the placeholders in Git and create the real Kubernetes secret out-of-band.
 
 Required chatbot secret keys:
 
