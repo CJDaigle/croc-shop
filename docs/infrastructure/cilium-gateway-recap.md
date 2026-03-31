@@ -71,7 +71,7 @@ All 5 required CRDs are installed:
 - tlsroutes.gateway.networking.k8s.io (experimental, optional)
 
 ### 3. Cilium Helm Upgraded with Gateway API ✅
-Key settings enabled via `/tmp/cilium-overrides.yaml`:
+Key settings enabled via `/tmp/gateway-api-overrides.yaml`:
 - `gatewayAPI.enabled: true`
 - `gatewayAPI.hostNetwork.enabled: true`
 - `gatewayAPI.hostNetwork.nodes.matchLabels.role: gateway`

@@ -217,7 +217,7 @@ sed -i "s|pattern|replacement|g" file
      --namespace kube-system \
      --version 1.18.6 \
      -f docs/infrastructure/cilium-values.yaml \
-     -f docs/infrastructure/cilium-overrides.yaml
+     -f docs/infrastructure/gateway-api-overrides.yaml
    ```
 
 4. **Verify the installation**

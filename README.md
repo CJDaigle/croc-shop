@@ -87,7 +87,7 @@ croc-shop/
 │   └── infrastructure/        # Cluster provisioning & Cilium setup
 │       ├── configure-cilium-in-aws.md
 │       ├── cilium-gateway-recap.md
-│       ├── cilium-overrides.yaml
+│       ├── gateway-api-overrides.yaml
 │       ├── cilium-values.yaml
 │       └── cluster.RKE2.yaml
 ├── scripts/                    # Deployment automation
