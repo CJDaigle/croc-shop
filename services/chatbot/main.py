@@ -3,7 +3,7 @@ import json
 from typing import AsyncGenerator, Optional
 
 import httpx
-from fastapi import FastAPI, Header, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from botocore.auth import SigV4Auth
 from botocore.awsrequest import AWSRequest
@@ -19,6 +19,7 @@ app = FastAPI()
 # Prometheus metrics
 REQUEST_COUNT = Counter('http_requests_total', 'Total HTTP requests', ['method', 'endpoint', 'status'])
 REQUEST_DURATION = Histogram('http_request_duration_seconds', 'HTTP request duration', ['method', 'endpoint'])
+DEFAULT_MODEL_ID = "us.anthropic.claude-sonnet-4-20250514-v1:0"
 
 
 def _get_env(name: str, default: Optional[str] = None) -> str:
@@ -79,6 +80,17 @@ def _encode_url_path(url: str) -> str:
     return urlunsplit((parts.scheme, parts.netloc, encoded_path, parts.query, parts.fragment))
 
 
+def _build_gateway_url(base_url: str, model_id: str) -> str:
+    normalized = base_url.rstrip("/")
+    if "/model/" in normalized and normalized.endswith("/converse-stream"):
+        return normalized
+    return f"{normalized}/model/{model_id}/converse-stream"
+
+
+def _build_aws_sign_url(region: str, model_id: str) -> str:
+    return f"https://bedrock-runtime.{region}.amazonaws.com/model/{model_id}/converse-stream"
+
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
@@ -86,7 +98,7 @@ def health():
 
 @app.get("/ready")
 def ready():
-    required = ["CHATBOT_API_TOKEN", "AWS_REGION", "BEDROCK_GATEWAY_URL"]
+    required = ["AWS_REGION", "BEDROCK_GATEWAY_URL"]
     missing = [name for name in required if not os.getenv(name)]
     if missing:
         raise HTTPException(status_code=503, detail=f"Missing required env vars: {', '.join(missing)}")
@@ -101,30 +113,20 @@ def metrics():
 @app.post("/api/chat/stream")
 async def chat_stream(
     request: Request,
-    x_api_token: Optional[str] = Header(default=None, alias="X-API-Token"),
 ):
-    expected_token = _get_env("CHATBOT_API_TOKEN")
-    token = x_api_token
-    if token is None:
-        token = request.headers.get("x_api_token")
-
-    if token != expected_token:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-
     payload = await request.json()
     message = payload.get("message")
     if not isinstance(message, str) or not message.strip():
         raise HTTPException(status_code=400, detail="Missing message")
 
-    gateway_url = _get_env(
-        "BEDROCK_GATEWAY_URL",
-        "https://us.gateway.aidefense.security.cisco.com/fe399c8a-8aa7-41a9-b64e-a6a8a04ab49f/connections/5bf35e34-c75f-40b8-bae0-d0083e39cbcc/model/us.anthropic.claude-sonnet-4-20250514-v1:0/converse-stream",
-    )
-    aws_sign_url = _get_env(
-        "BEDROCK_AWS_SIGN_URL",
-        "https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-4-20250514-v1:0/converse-stream",
-    )
     region = _get_env("AWS_REGION", "us-east-1")
+    model_id = _get_env("BEDROCK_MODEL_ID", DEFAULT_MODEL_ID)
+    gateway_base_url = _get_env(
+        "BEDROCK_GATEWAY_URL",
+        "https://us.gateway.aidefense.security.cisco.com/fe399c8a-8aa7-41a9-b64e-a6a8a04ab49f/connections/5bf35e34-c75f-40b8-bae0-d0083e39cbcc",
+    )
+    gateway_url = _build_gateway_url(gateway_base_url, model_id)
+    aws_sign_url = _get_env("BEDROCK_AWS_SIGN_URL", _build_aws_sign_url(region, model_id))
 
     body_obj = {
         "messages": [
