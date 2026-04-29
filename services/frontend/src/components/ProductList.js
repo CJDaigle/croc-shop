@@ -5,11 +5,27 @@ import { ShoppingCart } from 'lucide-react';
 const API_BASE = process.env.REACT_APP_API_BASE || '';
 const CART_API = process.env.REACT_APP_CART_API || '';
 
+function ProductImage({ src, alt }) {
+  const [hasError, setHasError] = useState(false);
+
+  if (hasError) {
+    return <div className="text-gray-400 text-sm">Image unavailable</div>;
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className="w-full h-full object-contain"
+      onError={() => setHasError(true)}
+    />
+  );
+}
+
 function ProductList({ user, setCartCount }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [failedImages, setFailedImages] = useState({});
 
   useEffect(() => {
     fetchProducts();
@@ -62,16 +78,7 @@ function ProductList({ user, setCartCount }) {
         {products.map((product) => (
           <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
             <div className="h-56 bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center overflow-hidden p-4">
-              {failedImages[product.id] ? (
-                <div className="text-gray-400 text-sm">Image unavailable</div>
-              ) : (
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-full object-contain"
-                  onError={() => setFailedImages((prev) => ({ ...prev, [product.id]: true }))}
-                />
-              )}
+              <ProductImage src={product.image} alt={product.name} />
             </div>
             <div className="p-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-2">{product.name}</h3>
