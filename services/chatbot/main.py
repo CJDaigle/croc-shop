@@ -20,6 +20,13 @@ app = FastAPI()
 REQUEST_COUNT = Counter('http_requests_total', 'Total HTTP requests', ['method', 'endpoint', 'status'])
 REQUEST_DURATION = Histogram('http_request_duration_seconds', 'HTTP request duration', ['method', 'endpoint'])
 DEFAULT_MODEL_ID = "us.anthropic.claude-sonnet-4-20250514-v1:0"
+CHATBOT_SYSTEM_PROMPT = (
+    "You are the Croc Shop assistant. Answer clearly and concisely using plain English. "
+    "Use short paragraphs or short bullet lists when helpful. Keep product names exact. "
+    "Do not emit half-finished phrases, broken words, or compressed list fragments. "
+    "Use markdown sparingly and only for simple bold emphasis when useful. "
+    "If the user asks about products or the shop, answer as a helpful ecommerce assistant."
+)
 
 
 def _get_env(name: str, default: Optional[str] = None) -> str:
@@ -129,12 +136,18 @@ async def chat_stream(
     aws_sign_url = _get_env("BEDROCK_AWS_SIGN_URL", _build_aws_sign_url(region, model_id))
 
     body_obj = {
+        "system": [{"text": CHATBOT_SYSTEM_PROMPT}],
         "messages": [
             {
                 "role": "user",
                 "content": [{"text": message}],
             }
-        ]
+        ],
+        "inferenceConfig": {
+            "maxTokens": 350,
+            "temperature": 0.2,
+            "topP": 0.9,
+        },
     }
     body = json.dumps(body_obj)
     headers = _sign_headers(aws_sign_url, body, region)

@@ -3,6 +3,18 @@ import { ShieldCheck } from 'lucide-react';
 
 const CHATBOT_TOKEN = process.env.REACT_APP_CHATBOT_TOKEN || '200';
 
+function renderMessageText(text) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+
+  return parts.map((part, idx) => {
+    if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
+      return <strong key={idx}>{part.slice(2, -2)}</strong>;
+    }
+
+    return <React.Fragment key={idx}>{part}</React.Fragment>;
+  });
+}
+
 function ChatbotWidget() {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
@@ -132,7 +144,7 @@ function ChatbotWidget() {
       )}
 
       {open && (
-        <div className="w-80 bg-white rounded-lg shadow-xl border border-gray-200 flex flex-col">
+        <div className="w-[calc(100vw-2rem)] max-w-2xl bg-white rounded-lg shadow-xl border border-gray-200 flex flex-col">
           <div className="flex items-center justify-between px-4 py-3 border-b">
             <div>
               <div className="font-semibold text-gray-900">Croc Shop Chat</div>
@@ -146,7 +158,7 @@ function ChatbotWidget() {
             </button>
           </div>
 
-          <div ref={scrollRef} className="p-3 space-y-2 overflow-auto" style={{ maxHeight: '320px' }}>
+          <div ref={scrollRef} className="p-4 space-y-3 overflow-auto" style={{ height: '34rem', maxHeight: '75vh' }}>
             {messages.length === 0 && (
               <div className="text-sm text-gray-500">Ask anything about the shop.</div>
             )}
@@ -159,7 +171,7 @@ function ChatbotWidget() {
                     : 'text-sm bg-gray-50 border border-gray-100 rounded p-2'
                 }
               >
-                {m.text}
+                <div className="whitespace-pre-wrap break-words">{renderMessageText(m.text)}</div>
               </div>
             ))}
           </div>
