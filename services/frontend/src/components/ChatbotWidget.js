@@ -4,15 +4,27 @@ import { ShieldCheck } from 'lucide-react';
 const CHATBOT_TOKEN = process.env.REACT_APP_CHATBOT_TOKEN || '200';
 
 function renderMessageText(text) {
-  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  const nodes = [];
+  const boldPattern = /\*\*([^*]+)\*\*/g;
+  let lastIndex = 0;
+  let match;
 
-  return parts.map((part, idx) => {
-    if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
-      return <strong key={idx}>{part.slice(2, -2)}</strong>;
+  while ((match = boldPattern.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      nodes.push(
+        <React.Fragment key={nodes.length}>{text.slice(lastIndex, match.index)}</React.Fragment>
+      );
     }
 
-    return <React.Fragment key={idx}>{part}</React.Fragment>;
-  });
+    nodes.push(<strong key={nodes.length}>{match[1]}</strong>);
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < text.length) {
+    nodes.push(<React.Fragment key={nodes.length}>{text.slice(lastIndex)}</React.Fragment>);
+  }
+
+  return nodes;
 }
 
 function ChatbotWidget() {
