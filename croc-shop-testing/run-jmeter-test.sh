@@ -180,7 +180,7 @@ create_results_dir() {
 }
 
 update_jmx_parameters() {
-    echo "Updating JMX test parameters..."
+    echo "Updating JMX test parameters..." >&2
     
     # Create a temporary JMX file with updated parameters
     local temp_jmx="$TEST_DIR/croc-shop-load-test-$TIMESTAMP.jmx"
