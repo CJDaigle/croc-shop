@@ -304,9 +304,9 @@ show_summary() {
     echo -e "${BLUE}========================================${NC}"
     
     if [[ -f "$RESULTS_FILE" ]]; then
-        local total_requests=$(grep -c "^[^#]" "$RESULTS_FILE" || echo "0")
-        local successful_requests=$(grep ",true," "$RESULTS_FILE" | wc -l || echo "0")
-        local failed_requests=$((total_requests - successful_requests))
+        local total_requests=$(tail -n +2 "$RESULTS_FILE" | wc -l | tr -d ' ')
+        local successful_requests=$(tail -n +2 "$RESULTS_FILE" | grep -c ",true," || true)
+        local failed_requests=$(tail -n +2 "$RESULTS_FILE" | grep -c ",false," || true)
         
         echo "Total Requests: $total_requests"
         echo "Successful: $successful_requests"

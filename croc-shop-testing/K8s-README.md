@@ -4,6 +4,8 @@
 
 This setup deploys JMeter load testing directly inside the Kubernetes cluster, routing all traffic through the Cilium Gateway API using the hostname `testing.apo-llm-test.com`.
 
+The cluster-native path described here is separate from the local JMeter workflow. The local workflow in `README.md` is the currently validated path in this repository.
+
 ## Architecture
 
 ```
@@ -51,7 +53,7 @@ This setup deploys JMeter load testing directly inside the Kubernetes cluster, r
 ### 1. Deploy the Test
 
 ```bash
-cd croc-shop/test
+cd croc-shop-testing
 
 # Deploy everything (default command)
 ./deploy-k8s.sh
@@ -124,11 +126,13 @@ The gateway routes these paths:
 
 ## URL Mappings
 
-The JMeter test uses these final URLs:
+When the testing gateway hostname is deployed, the gateway maps these URLs:
 
 - **Customer Creation**: `https://testing.apo-llm-test.com/user-service/customers` (POST)
 - **Product Catalog**: `https://testing.apo-llm-test.com/product-service/products` (GET)
 - **Order Placement**: `https://testing.apo-llm-test.com/order-service/orders` (POST)
+
+These are gateway-path mappings for the cluster-native setup, not the same request flow used by the validated local JMeter plan.
 
 ## File Structure
 
@@ -158,6 +162,8 @@ deploy-k8s.sh           # Deployment script
 - **HTTPRoutes**: Service-specific routing rules
 - **Certificate**: Auto-generated TLS certificate
 - **URL Rewriting**: Path prefix matching and rewriting
+
+This setup assumes the `testing.apo-llm-test.com` hostname and related DNS/TLS resources are in place.
 
 ### JMeter Configuration
 - **ConfigMap**: Test parameters and execution script
@@ -340,3 +346,5 @@ kubectl get httproute -n testing -o yaml
 ```
 
 This Kubernetes-native setup provides a robust, scalable load testing solution that leverages the cluster's networking capabilities while maintaining proper isolation and security.
+
+For day-to-day verification of the current Croc-Shop APIs, prefer the local JMeter flow documented in `README.md`.

@@ -4,8 +4,8 @@
 
 This JMeter test plan simulates realistic e-commerce traffic for the Croc-Shop application:
 
-- **Customer Creation**: Generates 100 random customers with fake personal information
-- **Order Processing**: Each customer places 10 orders with 2-3 random items each
+- **User Registration**: Generates fake users and registers them through the current auth API
+- **Checkout Flow**: Updates shipping address, fetches products, adds items to cart, creates orders, and marks them shipped
 - **Total Test Volume**: 100 customers × 10 orders = 1,000 orders
 - **Data Privacy**: All data is fake/test data only - no real PII
 
@@ -24,23 +24,23 @@ Ensure you have access to the Croc-Shop Kubernetes cluster:
 ```bash
 # Set up kubectl access
 export KUBECONFIG=/path/to/your/kubeconfig
-kubectl get pods -n croc-shop
+kubectl get ns
 ```
 
 ### 3. Port Forwarding (Optional)
 For local testing, set up port forwarding:
 ```bash
 # User Service
-kubectl port-forward -n croc-shop svc/user 3002:3002 &
+kubectl port-forward -n croc-shop-user svc/user 3002:3002 &
 
 # Product Catalog Service  
-kubectl port-forward -n croc-shop svc/product-catalog 3001:3001 &
+kubectl port-forward -n croc-shop-product-catalog svc/product-catalog 3001:3001 &
 
 # Cart Service
-kubectl port-forward -n croc-shop svc/cart 3003:3003 &
+kubectl port-forward -n croc-shop-cart svc/cart 3003:3003 &
 
 # Order Service
-kubectl port-forward -n croc-shop svc/order 3004:3004 &
+kubectl port-forward -n croc-shop-order svc/order 3004:3004 &
 ```
 
 ## Test Configuration
@@ -52,37 +52,30 @@ The test uses these configurable variables (in the JMX file):
 |----------|---------------|-------------|
 | `NUM_CUSTOMERS` | 100 | Number of customers to create |
 | `ORDERS_PER_CUSTOMER` | 10 | Orders each customer places |
-| `USER_SERVICE_HOST` | croc-shop-user.croc-shop | User service hostname |
-| `PRODUCT_SERVICE_HOST` | croc-shop-product-catalog.croc-shop | Product service hostname |
-| `CART_SERVICE_HOST` | croc-shop-cart.croc-shop | Cart service hostname |
-| `ORDER_SERVICE_HOST` | croc-shop-order.croc-shop | Order service hostname |
+| `USER_SERVICE_HOST` | localhost | User service hostname |
+| `PRODUCT_SERVICE_HOST` | localhost | Product service hostname |
+| `CART_SERVICE_HOST` | localhost | Cart service hostname |
+| `ORDER_SERVICE_HOST` | localhost | Order service hostname |
 
 ### Test Data Generation
 
-#### Customer Data (Fake)
-- **Names**: Random selection from 20 first names + 20 last names
-- **Addresses**: Random street names + cities + states + ZIP codes
-- **Contact**: Fake phone numbers and email addresses
-- **Payment**: Test credit card numbers (4111 prefix)
-
-#### Order Data
-- **Items**: 2-3 random products per order
-- **Quantity**: 1-3 units per item
-- **Shipping**: Random test addresses
-- **Payment**: Test credit card information
+- **Users**: Random names with unique generated email addresses
+- **Addresses**: Fake shipping address, city, state, and ZIP values
+- **Products**: Product data fetched from the live `GET /api/products` endpoint
+- **Payment**: Test payment method identifiers such as `visa_4242`
 
 ## Running the Test
 
 ### 1. Command Line
 ```bash
 # Navigate to test directory
-cd croc-shop/test
+cd croc-shop-testing
 
-# Run the test
-jmeter -n -t croc-shop-load-test.jmx -l results.jtl -j test.log
+# Run the local test with automatic port-forwarding
+./run-jmeter-test.sh -p
 
-# With HTML report
-jmeter -n -t croc-shop-load-test.jmx -l results.jtl -e -o report/
+# Small verification run
+./run-jmeter-test.sh -p -c 2 -o 1 -t 1 -r 1
 ```
 
 ### 2. GUI Mode
@@ -90,57 +83,38 @@ jmeter -n -t croc-shop-load-test.jmx -l results.jtl -e -o report/
 # Open JMeter GUI
 jmeter
 
-# File -> Open -> croc-shop-load-test.jmx
+# File -> Open -> croc-shop-load-test-current-api.jmx
 # Click "Run" button or press Ctrl+R
 ```
 
-### 3. Kubernetes Test Runner (Recommended)
+### 3. Scripted Local Runner (Recommended)
 ```bash
 # Use the provided test runner script
-./run-jmeter-test.sh
+./run-jmeter-test.sh -p
 ```
 
 ## Test Phases
 
-### Phase 1: Customer Creation
+### Phase 1: User Setup
 - **Thread Group**: Single thread
-- **Iterations**: 100 customers
-- **Actions**: Create customer accounts with fake data
-- **Output**: `customer_data.csv` with customer IDs
+- **Iterations**: 100 users
+- **Actions**: Register user accounts and update shipping address
 
-### Phase 2: Order Processing  
+### Phase 2: Shopping and Checkout
 - **Thread Group**: 10 parallel threads
 - **Iterations**: 100 customers × 10 orders each
-- **Actions**: Place orders with 2-3 random items
-- **Output**: `order_data.csv` with order details
+- **Actions**: Fetch products, add items to cart, place orders, and mark them shipped
 
 ## Output Files
 
 ### Test Results
-- `croc-shop-test-results.jtl`: Detailed test results
-- `croc-shop-test-summary.jtl`: Summary statistics
-- `report/`: HTML report (if generated with `-e -o`)
+- `results/croc-shop-test-*.jtl`: Detailed test results
+- `results/test-*.log`: JMeter execution log
+- `results/report-*/`: HTML reports
 
-### Data Files
-- `customer_data.csv`: Created customer records
-- `order_data.csv`: Placed order records
-- `test.log`: JMeter execution log
-
-### CSV Formats
-
-#### customer_data.csv
-```csv
-customerId,firstName,lastName,email
-123,John,Smith,johnsmith123@testmail.com
-124,Jane,Johnson,janejohnson456@testmail.com
-```
-
-#### order_data.csv
-```csv
-orderId,customerId,numItems,timestamp
-4567,123,2,1694123456789
-4568,124,3,1694123456790
-```
+### Active JMX Files
+- `croc-shop-load-test-current-api.jmx`: Current local flow for the live APIs
+- `croc-shop-load-test.jmx`: Older legacy plan kept for reference
 
 ## Performance Metrics
 
@@ -182,7 +156,10 @@ The test measures:
 #### Connection Refused
 ```bash
 # Check service endpoints
-kubectl get svc -n croc-shop
+kubectl get svc -n croc-shop-user
+kubectl get svc -n croc-shop-product-catalog
+kubectl get svc -n croc-shop-cart
+kubectl get svc -n croc-shop-order
 
 # Verify port forwarding
 netstat -an | grep 300[1-4]
@@ -191,36 +168,37 @@ netstat -an | grep 300[1-4]
 #### High Error Rates
 ```bash
 # Check pod status
-kubectl get pods -n croc-shop
+kubectl get pods -n croc-shop-user
+kubectl get pods -n croc-shop-product-catalog
+kubectl get pods -n croc-shop-cart
+kubectl get pods -n croc-shop-order
 
 # View service logs
-kubectl logs -n croc-shop -l app=user
-kubectl logs -n croc-shop -l app=order
+kubectl logs -n croc-shop-user -l app=user
+kubectl logs -n croc-shop-order -l app=order
 ```
 
 #### Memory Issues
 ```bash
 # Increase JMeter heap size
 export JVM_ARGS="-Xms2g -Xmx4g"
-jmeter -n -t croc-shop-load-test.jmx -l results.jtl
+./run-jmeter-test.sh -p -c 10 -o 2 -t 2 -r 5
 ```
 
 ### Debug Mode
 ```bash
 # Run with debug logging
-jmeter -n -t croc-shop-load-test.jmx -l results.jtl -j test.log -LDEBUG
+jmeter -n -t croc-shop-load-test-current-api.jmx -l results/debug-results.jtl -j results/debug.log -LDEBUG
 ```
 
 ## Clean Up
 
 After testing, clean up generated files:
 ```bash
-# Remove test data files
-rm -f customer_data.csv order_data.csv
-rm -f *.jtl test.log
-
-# Remove HTML report
-rm -rf report/
+# Remove generated JMX files and result artifacts
+rm -f croc-shop-load-test-*.jmx
+rm -f results/*.jtl results/*.log
+rm -rf results/report-*
 ```
 
 ## Security Notes
