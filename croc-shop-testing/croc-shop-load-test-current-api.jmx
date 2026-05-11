@@ -108,7 +108,8 @@
           <stringProp name="parameters"></stringProp>
           <stringProp name="filename"></stringProp>
           <stringProp name="cacheKey">prepare-user-data</stringProp>
-          <stringProp name="script">def email = (vars.get('randomFirstName') + '.' + vars.get('randomLastName') + '.' + vars.get('randomEmailSuffix') + '@testmail.com').toLowerCase()
+          <stringProp name="script">def uniqueSuffix = System.currentTimeMillis().toString() + '-' + ctx.getThreadNum() + '-' + vars.getIteration()
+def email = (vars.get('randomFirstName') + '.' + vars.get('randomLastName') + '.' + uniqueSuffix + '@testmail.com').toLowerCase()
 vars.put('userEmail', email)
 vars.put('userPassword', 'TestPassword123!')
 vars.put('shippingAddress', vars.get('randomStreetNumber') + ' Test St')
@@ -156,11 +157,18 @@ vars.put('shippingZip', String.valueOf(org.apache.commons.lang3.RandomUtils.next
           </HeaderManager>
           <hashTree/>
         </hashTree>
-        <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract Auth Data" enabled="true">
-          <stringProp name="JSONPostProcessor.referenceNames">authToken;userId</stringProp>
-          <stringProp name="JSONPostProcessor.jsonPathExprs">$.token;$.user.id</stringProp>
-          <stringProp name="JSONPostProcessor.match_numbers">1;1</stringProp>
-          <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND;NOT_FOUND</stringProp>
+        <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract Auth Token" enabled="true">
+          <stringProp name="JSONPostProcessor.referenceNames">authToken</stringProp>
+          <stringProp name="JSONPostProcessor.jsonPathExprs">$.token</stringProp>
+          <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+          <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
+        </JSONPostProcessor>
+        <hashTree/>
+        <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract User ID" enabled="true">
+          <stringProp name="JSONPostProcessor.referenceNames">userId</stringProp>
+          <stringProp name="JSONPostProcessor.jsonPathExprs">$.user.id</stringProp>
+          <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+          <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
         </JSONPostProcessor>
         <hashTree/>
         <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Auth Available" enabled="true">
