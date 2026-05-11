@@ -156,21 +156,21 @@ vars.put('shippingZip', String.valueOf(org.apache.commons.lang3.RandomUtils.next
             </collectionProp>
           </HeaderManager>
           <hashTree/>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract Auth Token" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">authToken</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.token</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+            <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract User ID" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">userId</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.user.id</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+            <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
         </hashTree>
-        <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract Auth Token" enabled="true">
-          <stringProp name="JSONPostProcessor.referenceNames">authToken</stringProp>
-          <stringProp name="JSONPostProcessor.jsonPathExprs">$.token</stringProp>
-          <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
-          <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
-        </JSONPostProcessor>
-        <hashTree/>
-        <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract User ID" enabled="true">
-          <stringProp name="JSONPostProcessor.referenceNames">userId</stringProp>
-          <stringProp name="JSONPostProcessor.jsonPathExprs">$.user.id</stringProp>
-          <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
-          <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
-        </JSONPostProcessor>
-        <hashTree/>
         <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Auth Available" enabled="true">
           <stringProp name="IfController.condition">${__groovy(vars.get('authToken') != 'NOT_FOUND' &amp;&amp; vars.get('userId') != 'NOT_FOUND')}</stringProp>
           <boolProp name="IfController.evaluateAll">false</boolProp>
