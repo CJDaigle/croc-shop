@@ -8,17 +8,17 @@ This setup deploys JMeter load testing directly inside the Kubernetes cluster, r
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Kubernetes Cluster                        │
+│                    Kubernetes Cluster                       │
 │                                                             │
 │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐      │
 │  │   JMeter    │    │   Gateway   │    │  Services   │      │
 │  │     Pod     │───▶│   (Cilium)  │───▶│ (Croc-Shop) │      │
 │  │             │    │             │    │             │      │
 │  │ testing     │    │ testing.    │    │ user:3002   │      │
-│  │ namespace   │    │ apo-llm-     │    │ prod:3001   │      │
+│  │ namespace   │    │ apo-llm-    │    │ prod:3001   │      │
 │  │             │    │ test.com    │    │ cart:3003   │      │
 │  └─────────────┘    └─────────────┘    │ order:3004  │      │
-│                                     └─────────────┘      │
+│                                        └─────────────┘      │
 └─────────────────────────────────────────────────────────────┘
 ```
 
