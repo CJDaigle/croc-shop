@@ -14,7 +14,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 TEST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-JMX_FILE="$TEST_DIR/croc-shop-load-test.jmx"
+JMX_FILE="$TEST_DIR/croc-shop-load-test-current-api.jmx"
 RESULTS_DIR="$TEST_DIR/results"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 RESULTS_FILE="$RESULTS_DIR/croc-shop-test-$TIMESTAMP.jtl"
@@ -28,13 +28,13 @@ THREADS=${THREADS:-10}
 RAMP_TIME=${RAMP_TIME:-10}
 
 # Service endpoints (can be overridden)
-USER_SERVICE_HOST=${USER_SERVICE_HOST:-"croc-shop-user.croc-shop"}
+USER_SERVICE_HOST=${USER_SERVICE_HOST:-"localhost"}
 USER_SERVICE_PORT=${USER_SERVICE_PORT:-"3002"}
-PRODUCT_SERVICE_HOST=${PRODUCT_SERVICE_HOST:-"croc-shop-product-catalog.croc-shop"}
+PRODUCT_SERVICE_HOST=${PRODUCT_SERVICE_HOST:-"localhost"}
 PRODUCT_SERVICE_PORT=${PRODUCT_SERVICE_PORT:-"3001"}
-CART_SERVICE_HOST=${CART_SERVICE_HOST:-"croc-shop-cart.croc-shop"}
+CART_SERVICE_HOST=${CART_SERVICE_HOST:-"localhost"}
 CART_SERVICE_PORT=${CART_SERVICE_PORT:-"3003"}
-ORDER_SERVICE_HOST=${ORDER_SERVICE_HOST:-"croc-shop-order.croc-shop"}
+ORDER_SERVICE_HOST=${ORDER_SERVICE_HOST:-"localhost"}
 ORDER_SERVICE_PORT=${ORDER_SERVICE_PORT:-"3004"}
 
 # Functions
@@ -111,20 +111,20 @@ check_services() {
     echo "Checking Croc-Shop services..."
     
     local services=(
-        "croc-shop-user:3002"
-        "croc-shop-product-catalog:3001"
-        "croc-shop-cart:3003"
-        "croc-shop-order:3004"
+        "croc-shop-user:user:3002"
+        "croc-shop-product-catalog:product-catalog:3001"
+        "croc-shop-cart:cart:3003"
+        "croc-shop-order:order:3004"
     )
     
     for service in "${services[@]}"; do
-        local name=$(echo $service | cut -d: -f1)
-        local port=$(echo $service | cut -d: -f2)
+        local namespace=$(echo $service | cut -d: -f1)
+        local name=$(echo $service | cut -d: -f2)
         
-        if kubectl get svc $name -n croc-shop &> /dev/null; then
-            echo -e "${GREEN}✓ Service $name found${NC}"
+        if kubectl get svc $name -n $namespace &> /dev/null; then
+            echo -e "${GREEN}✓ Service $name found in $namespace${NC}"
         else
-            echo -e "${YELLOW}⚠ Service $name not found in croc-shop namespace${NC}"
+            echo -e "${YELLOW}⚠ Service $name not found in $namespace namespace${NC}"
         fi
     done
 }
@@ -136,16 +136,16 @@ setup_port_forwarding() {
     pkill -f "kubectl.*port-forward.*300[1-4]" || true
     
     # Set up new port forwards
-    kubectl port-forward -n croc-shop svc/user 3002:3002 &
+    kubectl port-forward -n croc-shop-user svc/user 3002:3002 &
     local pf1=$!
     
-    kubectl port-forward -n croc-shop svc/product-catalog 3001:3001 &
+    kubectl port-forward -n croc-shop-product-catalog svc/product-catalog 3001:3001 &
     local pf2=$!
     
-    kubectl port-forward -n croc-shop svc/cart 3003:3003 &
+    kubectl port-forward -n croc-shop-cart svc/cart 3003:3003 &
     local pf3=$!
     
-    kubectl port-forward -n croc-shop svc/order 3004:3004 &
+    kubectl port-forward -n croc-shop-order svc/order 3004:3004 &
     local pf4=$!
     
     # Store PIDs for cleanup
@@ -184,19 +184,52 @@ update_jmx_parameters() {
     
     # Create a temporary JMX file with updated parameters
     local temp_jmx="$TEST_DIR/croc-shop-load-test-$TIMESTAMP.jmx"
-    
-    sed "s/<stringProp name=\"NUM_CUSTOMERS\">.*<\/stringProp>/<stringProp name=\"NUM_CUSTOMERS\">$NUM_CUSTOMERS<\/stringProp>/g" "$JMX_FILE" | \
-    sed "s/<stringProp name=\"ORDERS_PER_CUSTOMER\">.*<\/stringProp>/<stringProp name=\"ORDERS_PER_CUSTOMER\">$ORDERS_PER_CUSTOMER<\/stringProp>/g" | \
-    sed "s/<stringProp name=\"ThreadGroup.num_threads\">.*<\/stringProp>/<stringProp name=\"ThreadGroup.num_threads\">$THREADS<\/stringProp>/g" | \
-    sed "s/<stringProp name=\"ThreadGroup.ramp_time\">.*<\/stringProp>/<stringProp name=\"ThreadGroup.ramp_time\">$RAMP_TIME<\/stringProp>/g" | \
-    sed "s/<stringProp name=\"USER_SERVICE_HOST\">.*<\/stringProp>/<stringProp name=\"USER_SERVICE_HOST\">$USER_SERVICE_HOST<\/stringProp>/g" | \
-    sed "s/<stringProp name=\"USER_SERVICE_PORT\">.*<\/stringProp>/<stringProp name=\"USER_SERVICE_PORT\">$USER_SERVICE_PORT<\/stringProp>/g" | \
-    sed "s/<stringProp name=\"PRODUCT_SERVICE_HOST\">.*<\/stringProp>/<stringProp name=\"PRODUCT_SERVICE_HOST\">$PRODUCT_SERVICE_HOST<\/stringProp>/g" | \
-    sed "s/<stringProp name=\"PRODUCT_SERVICE_PORT\">.*<\/stringProp>/<stringProp name=\"PRODUCT_SERVICE_PORT\">$PRODUCT_SERVICE_PORT<\/stringProp>/g" | \
-    sed "s/<stringProp name=\"CART_SERVICE_HOST\">.*<\/stringProp>/<stringProp name=\"CART_SERVICE_HOST\">$CART_SERVICE_HOST<\/stringProp>/g" | \
-    sed "s/<stringProp name=\"CART_SERVICE_PORT\">.*<\/stringProp>/<stringProp name=\"CART_SERVICE_PORT\">$CART_SERVICE_PORT<\/stringProp>/g" | \
-    sed "s/<stringProp name=\"ORDER_SERVICE_HOST\">.*<\/stringProp>/<stringProp name=\"ORDER_SERVICE_HOST\">$ORDER_SERVICE_HOST<\/stringProp>/g" | \
-    sed "s/<stringProp name=\"ORDER_SERVICE_PORT\">.*<\/stringProp>/<stringProp name=\"ORDER_SERVICE_PORT\">$ORDER_SERVICE_PORT<\/stringProp>/g" > "$temp_jmx"
+    python3 - "$JMX_FILE" "$temp_jmx" "$NUM_CUSTOMERS" "$ORDERS_PER_CUSTOMER" "$THREADS" "$RAMP_TIME" "$USER_SERVICE_HOST" "$USER_SERVICE_PORT" "$PRODUCT_SERVICE_HOST" "$PRODUCT_SERVICE_PORT" "$CART_SERVICE_HOST" "$CART_SERVICE_PORT" "$ORDER_SERVICE_HOST" "$ORDER_SERVICE_PORT" <<'PY'
+import sys
+import xml.etree.ElementTree as ET
+
+source_path, output_path = sys.argv[1], sys.argv[2]
+num_customers, orders_per_customer, threads, ramp_time = sys.argv[3:7]
+user_host, user_port, product_host, product_port, cart_host, cart_port, order_host, order_port = sys.argv[7:15]
+
+tree = ET.parse(source_path)
+root = tree.getroot()
+
+argument_values = {
+    'USER_SERVICE_HOST': user_host,
+    'USER_SERVICE_PORT': user_port,
+    'PRODUCT_SERVICE_HOST': product_host,
+    'PRODUCT_SERVICE_PORT': product_port,
+    'CART_SERVICE_HOST': cart_host,
+    'CART_SERVICE_PORT': cart_port,
+    'ORDER_SERVICE_HOST': order_host,
+    'ORDER_SERVICE_PORT': order_port,
+    'NUM_CUSTOMERS': num_customers,
+    'ORDERS_PER_CUSTOMER': orders_per_customer,
+}
+
+for element_prop in root.iter('elementProp'):
+    name = element_prop.attrib.get('name')
+    if name in argument_values:
+        for child in element_prop:
+            if child.tag == 'stringProp' and child.attrib.get('name') == 'Argument.value':
+                child.text = argument_values[name]
+
+thread_group_seen = 0
+for string_prop in root.iter('stringProp'):
+    prop_name = string_prop.attrib.get('name')
+    if prop_name == 'ThreadGroup.num_threads':
+        string_prop.text = '1' if thread_group_seen == 0 else threads
+    elif prop_name == 'ThreadGroup.ramp_time':
+        string_prop.text = '1' if thread_group_seen == 0 else ramp_time
+        thread_group_seen += 1
+    elif prop_name == 'LoopController.loops' and string_prop.text == '${NUM_CUSTOMERS}':
+        string_prop.text = '${NUM_CUSTOMERS}'
+    elif prop_name == 'LoopController.loops' and string_prop.text == '${ORDERS_PER_CUSTOMER}':
+        string_prop.text = '${ORDERS_PER_CUSTOMER}'
+
+tree.write(output_path, encoding='utf-8', xml_declaration=True)
+PY
     
     echo "$temp_jmx"
 }

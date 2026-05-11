@@ -75,7 +75,7 @@ create_secrets() {
         cp "$KUBECONFIG_PATH" "$temp_kubeconfig"
         
         # Convert to base64
-        kubeconfig_b64=$(base64 -w 0 "$temp_kubeconfig")
+        kubeconfig_b64=$(base64 < "$temp_kubeconfig" | tr -d '\n')
         
         # Update the secret with actual kubeconfig
         cat > k8s/kubeconfig-secret.yaml << EOF

@@ -20,8 +20,28 @@ spec:
     allowedRoutes:
       kinds:
       - kind: HTTPRoute
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: testing-gateway
+  namespace: testing
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  gatewayClassName: cilium
+  listeners:
+  - name: https
+    protocol: HTTPS
+    port: 443
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - name: testing-apo-llm-test-com-tls
+    allowedRoutes:
+      kinds:
+      - kind: HTTPRoute
 ---
-apiVersion: gateway.networking.k8s.io/v1beta1
+apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: user-service-route
@@ -38,10 +58,10 @@ spec:
     - path:
         type: PathPrefix
         value: /user-service
-    forwardTo:
-    - serviceName: user
-      servicePort: 3002
+    backendRefs:
+    - name: user
       namespace: croc-shop-user
+      port: 3002
     filters:
     - type: URLRewrite
       urlRewrite:
@@ -49,7 +69,7 @@ spec:
           type: ReplacePrefixMatch
           replacePrefixMatch: /
 ---
-apiVersion: gateway.networking.k8s.io/v1beta1
+apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: product-service-route
@@ -66,10 +86,10 @@ spec:
     - path:
         type: PathPrefix
         value: /product-service
-    forwardTo:
-    - serviceName: product-catalog
-      servicePort: 3001
+    backendRefs:
+    - name: product-catalog
       namespace: croc-shop-product-catalog
+      port: 3001
     filters:
     - type: URLRewrite
       urlRewrite:
@@ -77,7 +97,7 @@ spec:
           type: ReplacePrefixMatch
           replacePrefixMatch: /
 ---
-apiVersion: gateway.networking.k8s.io/v1beta1
+apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: cart-service-route
@@ -94,10 +114,10 @@ spec:
     - path:
         type: PathPrefix
         value: /cart-service
-    forwardTo:
-    - serviceName: cart
-      servicePort: 3003
+    backendRefs:
+    - name: cart
       namespace: croc-shop-cart
+      port: 3003
     filters:
     - type: URLRewrite
       urlRewrite:
@@ -105,7 +125,7 @@ spec:
           type: ReplacePrefixMatch
           replacePrefixMatch: /
 ---
-apiVersion: gateway.networking.k8s.io/v1beta1
+apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: order-service-route
@@ -122,10 +142,10 @@ spec:
     - path:
         type: PathPrefix
         value: /order-service
-    forwardTo:
-    - serviceName: order
-      servicePort: 3004
+    backendRefs:
+    - name: order
       namespace: croc-shop-order
+      port: 3004
     filters:
     - type: URLRewrite
       urlRewrite:
@@ -133,7 +153,7 @@ spec:
           type: ReplacePrefixMatch
           replacePrefixMatch: /
 ---
-apiVersion: gateway.networking.k8s.io/v1beta1
+apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: chatbot-service-route
@@ -150,10 +170,10 @@ spec:
     - path:
         type: PathPrefix
         value: /chatbot-service
-    forwardTo:
-    - serviceName: chatbot
-      servicePort: 3005
+    backendRefs:
+    - name: chatbot
       namespace: croc-shop-chatbot
+      port: 3005
     filters:
     - type: URLRewrite
       urlRewrite:
