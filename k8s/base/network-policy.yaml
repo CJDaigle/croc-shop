@@ -18,6 +18,9 @@ spec:
     - namespaceSelector:
         matchLabels:
           name: croc-shop-order
+    - namespaceSelector:
+        matchLabels:
+          name: croc-shop-monitoring
     - ipBlock:
         cidr: 10.0.0.0/16
     ports:
@@ -59,6 +62,9 @@ spec:
     - namespaceSelector:
         matchLabels:
           name: croc-shop-frontend
+    - namespaceSelector:
+        matchLabels:
+          name: croc-shop-monitoring
     - ipBlock:
         cidr: 10.0.0.0/16
     ports:
@@ -170,6 +176,9 @@ spec:
     - namespaceSelector:
         matchLabels:
           name: croc-shop-frontend
+    - namespaceSelector:
+        matchLabels:
+          name: croc-shop-monitoring
     - ipBlock:
         cidr: 10.0.0.0/16
     ports:
@@ -207,6 +216,9 @@ spec:
     - namespaceSelector:
         matchLabels:
           name: croc-shop-frontend
+    - namespaceSelector:
+        matchLabels:
+          name: croc-shop-monitoring
     - ipBlock:
         cidr: 10.0.0.0/16
     ports:
@@ -248,6 +260,9 @@ spec:
     - namespaceSelector:
         matchLabels:
           name: croc-shop-frontend
+    - namespaceSelector:
+        matchLabels:
+          name: croc-shop-monitoring
     - ipBlock:
         cidr: 10.0.0.0/16
     ports:
