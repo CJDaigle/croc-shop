@@ -20,10 +20,7 @@
   "liveNow": false,
   "panels": [
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
+      "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -91,10 +88,7 @@
       "pluginVersion": "12.4.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
+          "datasource": "Prometheus",
           "expr": "up{job=\"kubernetes-services\",kubernetes_namespace=\"sock-shop\"}",
           "legendFormat": "{{kubernetes_name}}",
           "refId": "A"
@@ -104,10 +98,7 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
+      "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -174,10 +165,7 @@
       "pluginVersion": "12.4.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
+          "datasource": "Prometheus",
           "expr": "counter_status_200_metrics{job=\"kubernetes-services\",kubernetes_namespace=\"sock-shop\"}",
           "legendFormat": "{{kubernetes_name}}",
           "refId": "A"
@@ -187,10 +175,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
+      "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -257,10 +242,7 @@
       "pluginVersion": "12.4.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
+          "datasource": "Prometheus",
           "expr": "counter_status_500_carts_customerId_items{job=\"kubernetes-services\",kubernetes_namespace=\"sock-shop\"}",
           "legendFormat": "Carts 500 Errors",
           "refId": "A"
@@ -270,10 +252,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
+      "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -340,10 +319,7 @@
       "pluginVersion": "12.4.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
+          "datasource": "Prometheus",
           "expr": "gauge_response_carts_customerId_items{job=\"kubernetes-services\",kubernetes_namespace=\"sock-shop\"}",
           "legendFormat": "Carts Response Time",
           "refId": "A"

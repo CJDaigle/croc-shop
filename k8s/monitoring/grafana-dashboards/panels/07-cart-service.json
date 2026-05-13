@@ -20,10 +20,7 @@
   "liveNow": false,
   "panels": [
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
+      "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -90,10 +87,7 @@
       "pluginVersion": "12.4.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
+          "datasource": "Prometheus",
           "expr": "sum(rate(http_requests_total{job=\"kubernetes-pods\",kubernetes_namespace=\"croc-shop-cart\"}[5m])) by (endpoint)",
           "legendFormat": "{{endpoint}}",
           "refId": "A"
@@ -103,10 +97,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
+      "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -149,10 +140,7 @@
       "pluginVersion": "12.4.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
+          "datasource": "Prometheus",
           "expr": "redis_connected_clients{job=\"kubernetes-pods\",kubernetes_namespace=\"croc-shop-cart\"}",
           "legendFormat": "Redis Connections",
           "refId": "A"
