@@ -384,6 +384,113 @@ data:
       "version": 1,
       "weekStart": ""
     }
+  croc-shop-frontend-service.json: |
+    {
+      "annotations": {
+        "list": [
+          {
+            "builtIn": 1,
+            "datasource": {
+              "type": "grafana",
+              "uid": "-- Grafana --"
+            },
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "type": "dashboard"
+          }
+        ]
+      },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "id": null,
+      "links": [],
+      "panels": [
+        {
+          "datasource": "Prometheus",
+          "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "mappings": [ { "options": { "0": { "color": "red", "index": 0, "text": "DOWN" } }, "type": "value" }, { "options": { "1": { "color": "green", "index": 1, "text": "UP" } }, "type": "value" } ], "thresholds": { "steps": [ { "color": "red", "value": null }, { "color": "green", "value": 1 } ] }, "unit": "short" }, "overrides": [] },
+          "gridPos": { "h": 8, "w": 6, "x": 0, "y": 0 },
+          "id": 1,
+          "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+          "pluginVersion": "12.4.0",
+          "targets": [ { "editorMode": "code", "expr": "max(nginx_up{app=\"frontend\",kubernetes_namespace=\"croc-shop-frontend\"})", "legendFormat": "frontend", "range": true, "refId": "A" } ],
+          "title": "Frontend Metrics Up",
+          "type": "stat"
+        },
+        {
+          "datasource": "Prometheus",
+          "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "thresholds": { "steps": [{ "color": "green", "value": null }] }, "unit": "reqps" }, "overrides": [] },
+          "gridPos": { "h": 8, "w": 6, "x": 6, "y": 0 },
+          "id": 2,
+          "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+          "pluginVersion": "12.4.0",
+          "targets": [ { "editorMode": "code", "expr": "sum(rate(nginx_http_requests_total{app=\"frontend\",kubernetes_namespace=\"croc-shop-frontend\"}[5m])) or vector(0)", "legendFormat": "requests/sec", "range": true, "refId": "A" } ],
+          "title": "Frontend Request Rate",
+          "type": "stat"
+        },
+        {
+          "datasource": "Prometheus",
+          "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "thresholds": { "steps": [{ "color": "green", "value": null }] }, "unit": "short" }, "overrides": [] },
+          "gridPos": { "h": 8, "w": 6, "x": 12, "y": 0 },
+          "id": 3,
+          "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+          "pluginVersion": "12.4.0",
+          "targets": [ { "editorMode": "code", "expr": "sum(nginx_connections_active{app=\"frontend\",kubernetes_namespace=\"croc-shop-frontend\"}) or vector(0)", "legendFormat": "active", "range": true, "refId": "A" } ],
+          "title": "Frontend Active Connections",
+          "type": "stat"
+        },
+        {
+          "datasource": "Prometheus",
+          "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "thresholds": { "steps": [{ "color": "green", "value": null }] }, "unit": "short" }, "overrides": [] },
+          "gridPos": { "h": 8, "w": 6, "x": 18, "y": 0 },
+          "id": 4,
+          "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+          "pluginVersion": "12.4.0",
+          "targets": [ { "editorMode": "code", "expr": "sum(nginx_connections_waiting{app=\"frontend\",kubernetes_namespace=\"croc-shop-frontend\"}) or vector(0)", "legendFormat": "waiting", "range": true, "refId": "A" } ],
+          "title": "Frontend Waiting Connections",
+          "type": "stat"
+        },
+        {
+          "datasource": "Prometheus",
+          "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "custom": { "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0, "drawStyle": "line", "fillOpacity": 10, "gradientMode": "none", "hideFrom": { "legend": false, "tooltip": false, "vis": false }, "lineInterpolation": "linear", "lineWidth": 1, "pointSize": 5, "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": false, "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "off" } }, "thresholds": { "steps": [{ "color": "green", "value": null }] }, "unit": "reqps" }, "overrides": [] },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "id": 5,
+          "options": { "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "single" } },
+          "pluginVersion": "12.4.0",
+          "targets": [ { "editorMode": "code", "expr": "sum by (kubernetes_pod_name) (rate(nginx_http_requests_total{app=\"frontend\",kubernetes_namespace=\"croc-shop-frontend\"}[5m]))", "legendFormat": "{{kubernetes_pod_name}}", "range": true, "refId": "A" } ],
+          "title": "Frontend Requests by Pod",
+          "type": "timeseries"
+        },
+        {
+          "datasource": "Prometheus",
+          "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "custom": { "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0, "drawStyle": "line", "fillOpacity": 10, "gradientMode": "none", "hideFrom": { "legend": false, "tooltip": false, "vis": false }, "lineInterpolation": "linear", "lineWidth": 1, "pointSize": 5, "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": false, "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "off" } }, "thresholds": { "steps": [{ "color": "green", "value": null }] }, "unit": "short" }, "overrides": [] },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "id": 6,
+          "options": { "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "single" } },
+          "pluginVersion": "12.4.0",
+          "targets": [
+            { "editorMode": "code", "expr": "sum(nginx_connections_reading{app=\"frontend\",kubernetes_namespace=\"croc-shop-frontend\"})", "legendFormat": "reading", "range": true, "refId": "A" },
+            { "editorMode": "code", "expr": "sum(nginx_connections_writing{app=\"frontend\",kubernetes_namespace=\"croc-shop-frontend\"})", "legendFormat": "writing", "range": true, "refId": "B" },
+            { "editorMode": "code", "expr": "sum(nginx_connections_waiting{app=\"frontend\",kubernetes_namespace=\"croc-shop-frontend\"})", "legendFormat": "waiting", "range": true, "refId": "C" }
+          ],
+          "title": "Frontend Connection States",
+          "type": "timeseries"
+        }
+      ],
+      "refresh": "5s",
+      "schemaVersion": 39,
+      "tags": ["croc-shop", "frontend", "service"],
+      "templating": { "list": [] },
+      "time": { "from": "now-1h", "to": "now" },
+      "timepicker": {},
+      "timezone": "",
+      "title": "Croc Shop Frontend Service",
+      "uid": "croc-shop-frontend-service",
+      "version": 1,
+      "weekStart": ""
+    }
   croc-shop-chatbot-service.json: |
     {
       "annotations": {
