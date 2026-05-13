@@ -54,7 +54,7 @@ The included [cilium-values.yaml](cilium-values.yaml) is a confirmed working con
 ~~~
 helm install cilium cilium/cilium \
   --namespace kube-system \
-  -f docs/cilium-values.yaml
+  -f docs/infrastructure/cilium-values.yaml
 ~~~
 
 Or install with explicit flags:
@@ -101,6 +101,7 @@ kubectl get po -n kube-system -l app.kubernetes.io/name=hubble-ui
 
 ~~~
 kubectl get gatewayclasses
+kubectl get gateway cilium-gateway-application-gateway -n default
 ~~~
 
 ## 5) Access Hubble UI
@@ -112,6 +113,16 @@ kubectl port-forward -n kube-system svc/hubble-ui 12000:80
 ~~~
 
 Then open http://localhost:12000 in your browser.
+
+To enable Gateway API on top of the base Cilium values, apply the repository overlay:
+
+~~~
+helm upgrade cilium cilium/cilium \
+  --namespace kube-system \
+  --version 1.19.3 \
+  -f docs/infrastructure/cilium-values.yaml \
+  -f docs/infrastructure/gateway-api-overrides.yaml
+~~~
 
 ## 6) Optional Future Multi-Cluster Expansion
 
@@ -193,7 +204,7 @@ cilium status
 
 # Gateway status
 kubectl get gatewayclass cilium
-kubectl get gateway main-gateway
+kubectl get gateway cilium-gateway-application-gateway -n default
 kubectl get ciliumenvoyconfigs --all-namespaces
 
 # Gateway node status

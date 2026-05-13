@@ -213,7 +213,7 @@ sed -i "s|pattern|replacement|g" file
    ```bash
    helm upgrade cilium cilium/cilium \
      --namespace kube-system \
-     --version 1.18.6 \
+     --version 1.19.3 \
      -f docs/infrastructure/cilium-values.yaml \
      -f docs/infrastructure/gateway-api-overrides.yaml
    ```

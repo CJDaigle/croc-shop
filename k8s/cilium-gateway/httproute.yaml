@@ -7,7 +7,7 @@ metadata:
   namespace: default
 spec:
   parentRefs:
-    - name: main-gateway
+    - name: cilium-gateway-application-gateway
       namespace: default
   hostnames:
     - "croc-shop.apo-llm-test.com"
