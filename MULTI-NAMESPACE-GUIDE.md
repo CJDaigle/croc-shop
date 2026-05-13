@@ -1,6 +1,6 @@
-# Multi-Namespace Service Mesh Architecture Guide
+# Multi-Namespace Cilium Architecture Guide
 
-This document explains the multi-namespace architecture of Crocs Shop and how it demonstrates advanced Kubernetes and Cilium service mesh capabilities.
+This document explains the multi-namespace architecture of Crocs Shop and how it demonstrates advanced Kubernetes and Cilium networking capabilities.
 
 ## Architecture Overview
 
@@ -8,7 +8,7 @@ Crocs Shop uses a **dedicated namespace per service** approach, which is a best 
 - **Isolation**: Each service has its own security boundary
 - **Resource Management**: Namespace-level quotas and limits
 - **Access Control**: Fine-grained RBAC and network policies
-- **Service Mesh**: Demonstrates cross-namespace traffic management via Cilium Gateway API
+- **Traffic Management**: Demonstrates cross-namespace traffic management via Cilium Gateway API
 
 ## Namespace Structure
 
@@ -19,8 +19,8 @@ Crocs Shop uses a **dedicated namespace per service** approach, which is a best 
 └─────────────────────────────────────────────────────────────┘
 ┌─────────────────────────────────────────────────────────────┐
 │                     kube-system                             │
-│              (Cilium CNI + Service Mesh)                    │
-│         Cilium Agent + Hubble + ClusterMesh                 │
+│                  (Cilium CNI + Hubble)                      │
+│            Cilium Agent + Gateway API Control               │
 └─────────────────────────────────────────────────────────────┘
                           │
         ┌─────────────────┼─────────────────┐
@@ -168,7 +168,7 @@ spec:
         protocol: TCP
 ```
 
-## Service Mesh Features Demonstrated
+## Cilium Features Demonstrated
 
 ### 1. Transparent Encryption
 All cross-namespace communication can be encrypted using Cilium's WireGuard integration.
@@ -308,8 +308,8 @@ curl http://product-catalog.croc-shop-product-catalog.svc.cluster.local:3001/api
 - Independent deployment cycles
 - Namespace-level access control
 
-### 4. **Service Mesh Capabilities**
-- Demonstrates advanced Cilium service mesh features
+### 4. **Cilium Capabilities**
+- Demonstrates advanced Cilium networking and policy features
 - Cross-namespace traffic management
 - Namespace-aware observability
 - Fine-grained authorization
@@ -371,8 +371,8 @@ kubectl get configmap prometheus-config -n croc-shop-monitoring -o yaml
 
 ## Conclusion
 
-This multi-namespace architecture demonstrates enterprise-grade Kubernetes and service mesh patterns. It showcases:
-- Advanced Cilium service mesh capabilities
+This multi-namespace architecture demonstrates enterprise-grade Kubernetes and Cilium networking patterns. It showcases:
+- Advanced Cilium networking capabilities
 - Cross-namespace security and communication
 - Production-ready observability
 - Scalable microservices architecture

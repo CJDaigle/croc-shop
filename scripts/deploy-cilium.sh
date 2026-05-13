@@ -2,7 +2,7 @@
 
 # Deploy Crocs Shop to RKE2 cluster with Cilium CNI + Gateway API
 # Cluster: cilium-ai-defense (RKE2 on AWS EC2, Rancher managed)
-# Cilium: v1.18.6 (Helm), Gateway API, Hubble, ClusterMesh
+# Cilium: v1.18.6 (Helm), Gateway API, Hubble
 #
 # Prerequisites:
 #   - Cilium installed via Helm (see docs/infrastructure/configure-cilium-in-aws.md)

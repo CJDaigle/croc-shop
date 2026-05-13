@@ -1,6 +1,6 @@
 # Deployment Guide
 
-This guide covers building Docker images, pushing them to Docker Hub, and deploying the Crocs Shop application to a Kubernetes cluster running Cilium as the CNI and service mesh.
+This guide covers building Docker images, pushing them to Docker Hub, and deploying the Crocs Shop application to a Kubernetes cluster running Cilium as the CNI, policy, and Gateway API layer.
 
 ## Cluster Infrastructure
 
@@ -16,7 +16,6 @@ This guide covers building Docker images, pushing them to Docker Hub, and deploy
 | **Storage** | Longhorn |
 | **TLS** | cert-manager with Let's Encrypt |
 | **Domain** | `apo-llm-test.com` (Route 53) |
-| **ClusterMesh** | Enabled |
 
 See [docs/infrastructure/](docs/infrastructure/) for cluster provisioning details.
 
@@ -176,7 +175,7 @@ If a chatbot credential was ever committed to Git, rotate it in AWS and replace 
 sed -i "s|pattern|replacement|g" file
 ```
 
-## Step 4: Install Cilium (CNI + Service Mesh)
+## Step 4: Install Cilium (CNI + Gateway API)
 
 > **Note:** The RKE2 cluster is provisioned with `cni: none` and `rke2-ingress-nginx` disabled.
 > Cilium provides all networking, and Gateway API replaces the nginx ingress controller.
@@ -207,8 +206,7 @@ sed -i "s|pattern|replacement|g" file
      --set hubble.relay.enabled=true \
      --set hubble.ui.enabled=true \
      --set hubble.metrics.enabled="{dns,drop,tcp,flow,icmp,http}" \
-     --set gatewayAPI.enabled=true \
-     --set clustermesh.useAPIServer=true
+     --set gatewayAPI.enabled=true
    ```
 
 3. **Enable Gateway API features** (apply overrides on top of base values)
@@ -241,7 +239,7 @@ sed -i "s|pattern|replacement|g" file
 chmod +x scripts/deploy-cilium.sh
 chmod +x scripts/deploy-monitoring.sh
 
-# Deploy application with Cilium service mesh
+# Deploy application with Cilium networking and Gateway API
 ./scripts/deploy-cilium.sh
 
 # Deploy monitoring stack

@@ -2,12 +2,12 @@
 
 ## Overview
 
-Crocs Shop is a cloud-native microservices application designed to demonstrate Kubernetes and service mesh capabilities. The application implements a simple e-commerce platform for selling footwear.
+Crocs Shop is a cloud-native microservices application designed to demonstrate Kubernetes and Cilium networking capabilities. The application implements a simple e-commerce platform for selling footwear.
 
 ### Platform
 - **Cluster**: RKE2 on AWS EC2 (Rancher managed), `cilium-ai-defense`
 - **Kubernetes**: v1.31.12+rke2r1
-- **CNI + Service Mesh**: Cilium v1.18.6 (Helm)
+- **CNI**: Cilium v1.18.6 (Helm)
 - **Ingress**: Cilium Gateway API with dedicated gateway nodes
 - **Storage**: Longhorn
 - **TLS**: cert-manager + Let's Encrypt
@@ -183,7 +183,7 @@ Crocs Shop is a cloud-native microservices application designed to demonstrate K
 - Allow only necessary traffic
 - Database access control
 
-## Cilium Service Mesh
+## Cilium Networking
 
 ### CNI (Container Network Interface)
 - eBPF-based networking for high performance
@@ -208,7 +208,7 @@ Crocs Shop is a cloud-native microservices application designed to demonstrate K
 ### Load Balancing
 - eBPF-based service load balancing
 - `nodePort.enabled: true` (required for Gateway API in Cilium 1.18)
-- ClusterMesh enabled for multi-cluster support
+- Optional future ClusterMesh expansion remains documented separately for multi-cluster use cases
 
 ### Observability (Hubble)
 - Real-time network flow visibility
@@ -309,6 +309,6 @@ Crocs Shop is a cloud-native microservices application designed to demonstrate K
 - **React**: Modern UI framework, component-based
 - **PostgreSQL**: ACID compliance, relational data
 - **Redis**: Fast in-memory storage, perfect for caching
-- **Cilium**: eBPF-based CNI, service mesh, and observability (Hubble)
+- **Cilium**: eBPF-based CNI, policy enforcement, Gateway API, and observability (Hubble)
 - **Prometheus**: Industry-standard metrics collection
 - **Grafana**: Powerful visualization and alerting

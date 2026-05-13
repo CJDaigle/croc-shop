@@ -3268,7 +3268,7 @@ enableCriticalPriorityClass: true
 #disableEnvoyVersionCheck: false
 clustermesh:
   # -- Deploy clustermesh-apiserver for clustermesh
-  useAPIServer: true
+  useAPIServer: false
   # -- The maximum number of clusters to support in a ClusterMesh. This value
   # cannot be changed on running clusters, and all clusters in a ClusterMesh
   # must be configured with the same value. Values > 255 will decrease the

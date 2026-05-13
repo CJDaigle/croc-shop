@@ -1,10 +1,10 @@
 # Crocs Shop - Cloud-Native E-Commerce Demo
 
-A realistic cloud-native microservices application demonstrating Kubernetes and Cilium service mesh capabilities, running on RKE2 (AWS EC2, Rancher managed) with Cilium Gateway API.
+A realistic cloud-native microservices application demonstrating Kubernetes and Cilium networking capabilities, running on RKE2 (AWS EC2, Rancher managed) with Cilium Gateway API.
 
 ## Architecture
 
-This application demonstrates a **multi-namespace service mesh architecture** where each microservice runs in its own Kubernetes namespace on a 10-node RKE2 cluster with Cilium v1.18.6 as the CNI and service mesh:
+This application demonstrates a **multi-namespace Kubernetes architecture** where each microservice runs in its own Kubernetes namespace on a 10-node RKE2 cluster with Cilium v1.18.6 as the CNI and policy enforcement layer:
 
 ### Microservices (Each in Dedicated Namespace)
 - **Frontend Service** (`croc-shop-frontend`): React-based web UI
@@ -29,7 +29,7 @@ This application demonstrates a **multi-namespace service mesh architecture** wh
 - **Databases**: PostgreSQL, Redis
 - **Container Runtime**: Docker
 - **Orchestration**: Kubernetes v1.31.12+rke2r1
-- **CNI + Service Mesh**: Cilium v1.18.6 (Helm)
+- **CNI**: Cilium v1.18.6 (Helm)
 - **Ingress**: Cilium Gateway API (dedicated gateway nodes, hostNetwork)
 - **TLS**: cert-manager + Let's Encrypt
 - **Storage**: Longhorn
@@ -47,13 +47,14 @@ This application demonstrates a **multi-namespace service mesh architecture** wh
 - **Horizontal Pod Autoscaling**: CPU/memory-based scaling
 - **Network Policies**: Cross-namespace communication control
 
-### Service Mesh (Cilium)
+### Cilium Networking
 - **eBPF-Based Networking**: High-performance CNI with VXLAN tunnel mode
 - **Gateway API**: Cilium GatewayClass with HTTPRoute-based path routing
 - **Dedicated Gateway Nodes**: 2 nodes labeled `role=gateway` with hostNetwork Envoy
 - **Network Policies**: Standard K8s NetworkPolicy enforced by Cilium at eBPF level
-- **ClusterMesh**: Enabled for multi-cluster connectivity
 - **Hubble Metrics**: dns, drop, tcp, flow, icmp, http
+
+ClusterMesh is not part of the active single-cluster deployment, but the infrastructure docs keep optional notes for future multi-cluster expansion.
 
 ### Observability
 - **Prometheus**: Multi-namespace metrics collection

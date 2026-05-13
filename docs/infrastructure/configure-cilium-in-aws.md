@@ -1,6 +1,6 @@
 # Configure Cilium in AWS
 
-Build a Rancher-provisioned RKE2 cluster on AWS with **Cilium CNI**, **Hubble**, **Hubble UI**, **Cluster Mesh**, and **Gateway API**.
+Build a Rancher-provisioned RKE2 cluster on AWS with **Cilium CNI**, **Hubble**, **Hubble UI**, and **Gateway API**.
 
 ## Prerequisites
 
@@ -12,7 +12,6 @@ Build a Rancher-provisioned RKE2 cluster on AWS with **Cilium CNI**, **Hubble**,
   - **UDP 8472** — VXLAN overlay traffic between nodes
   - **TCP 4240** — Cilium health checks
   - **TCP 4244** — Hubble Relay
-  - **TCP 2379** — Cluster Mesh API server (if using NodePort or LoadBalancer)
 
 ## 1) Provision the RKE2 Cluster via Rancher
 
@@ -50,7 +49,7 @@ helm repo update
 
 ### Install using the values file
 
-The included [cilium-values.yaml](cilium-values.yaml) is a confirmed working configuration with `cluster.name: cluster-1` and `cluster.id: 1` already set. Update these values if connecting multiple clusters via Cluster Mesh (each cluster needs a unique name and ID 1–255).
+The included [cilium-values.yaml](cilium-values.yaml) is a confirmed working configuration with `cluster.name: cluster-1` and `cluster.id: 1` already set. Those values are retained for identity and future expansion, but ClusterMesh is not part of the active single-cluster deployment.
 
 ~~~
 helm install cilium cilium/cilium \
@@ -69,9 +68,7 @@ helm install cilium cilium/cilium \
   --set hubble.relay.enabled=true \
   --set hubble.ui.enabled=true \
   --set hubble.metrics.enabled="{dns,drop,tcp,flow,icmp,http}" \
-  --set gatewayAPI.enabled=true \
-  --set clustermesh.useAPIServer=true \
-  --set clustermesh.apiserver.service.type=LoadBalancer
+  --set gatewayAPI.enabled=true
 ~~~
 
 ## 4) Verify the Installation
@@ -100,12 +97,6 @@ kubectl get po -n kube-system -l app.kubernetes.io/name=hubble-relay
 kubectl get po -n kube-system -l app.kubernetes.io/name=hubble-ui
 ~~~
 
-### Verify Cluster Mesh API server
-
-~~~
-kubectl get po -n kube-system -l app.kubernetes.io/name=clustermesh-apiserver
-~~~
-
 ### Verify Gateway API
 
 ~~~
@@ -122,9 +113,9 @@ kubectl port-forward -n kube-system svc/hubble-ui 12000:80
 
 Then open http://localhost:12000 in your browser.
 
-## 6) Connect Clusters with Cluster Mesh
+## 6) Optional Future Multi-Cluster Expansion
 
-To mesh two clusters together, ensure both clusters have Cilium installed with unique `cluster.name` and `cluster.id` values, then connect them using the Cilium CLI:
+If you later decide to connect multiple clusters, keep unique `cluster.name` and `cluster.id` values per cluster and then use the Cilium CLI to establish ClusterMesh.
 
 ~~~
 cilium clustermesh connect --context <CLUSTER1_CONTEXT> --destination-context <CLUSTER2_CONTEXT>
@@ -135,6 +126,8 @@ Verify the connection:
 ~~~
 cilium clustermesh status --context <CLUSTER1_CONTEXT>
 ~~~
+
+ClusterMesh is intentionally not part of the active Croc-Shop deployment path in this repository.
 
 ## 7) Create a Gateway
 
@@ -182,7 +175,6 @@ spec:
 
 - **Pods stuck in `Init` state** — Verify AWS security groups allow UDP 8472 and TCP 4240 between nodes.
 - **Hubble UI not loading** — Confirm `hubble-relay` pods are running and the relay service is healthy.
-- **Cluster Mesh not connecting** — Ensure both clusters have unique `cluster.id` values and the Cluster Mesh API server service is reachable (check LoadBalancer external IP).
 - **Gateway not getting an address** — Confirm Gateway API CRDs were installed before Cilium and that the `cilium` GatewayClass exists (`kubectl get gatewayclasses`).
 
 ### Save Current State & Health Check
