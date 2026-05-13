@@ -48,6 +48,10 @@ spec:
     metadata:
       labels:
         app: postgres
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9187"
+        prometheus.io/path: "/metrics"
     spec:
       securityContext:
         runAsNonRoot: true
@@ -106,6 +110,34 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
+      - name: postgres-exporter
+        image: prometheuscommunity/postgres-exporter:v0.15.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9187
+          name: metrics
+        securityContext:
+          allowPrivilegeEscalation: false
+        env:
+        - name: DATA_SOURCE_URI
+          value: localhost:5432/crocshop?sslmode=disable
+        - name: DATA_SOURCE_USER
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: POSTGRES_USER
+        - name: DATA_SOURCE_PASS
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_PASSWORD
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "20m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
       volumes:
       - name: postgres-storage
         persistentVolumeClaim:

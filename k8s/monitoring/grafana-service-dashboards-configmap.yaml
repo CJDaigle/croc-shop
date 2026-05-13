@@ -491,6 +491,115 @@ data:
       "version": 1,
       "weekStart": ""
     }
+  croc-shop-postgres-service.json: |
+    {
+      "annotations": {
+        "list": [
+          {
+            "builtIn": 1,
+            "datasource": {
+              "type": "grafana",
+              "uid": "-- Grafana --"
+            },
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "type": "dashboard"
+          }
+        ]
+      },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "id": null,
+      "links": [],
+      "panels": [
+        {
+          "datasource": "Prometheus",
+          "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "mappings": [ { "options": { "0": { "color": "red", "index": 0, "text": "DOWN" } }, "type": "value" }, { "options": { "1": { "color": "green", "index": 1, "text": "UP" } }, "type": "value" } ], "thresholds": { "steps": [ { "color": "red", "value": null }, { "color": "green", "value": 1 } ] }, "unit": "short" }, "overrides": [] },
+          "gridPos": { "h": 8, "w": 6, "x": 0, "y": 0 },
+          "id": 1,
+          "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+          "pluginVersion": "12.4.0",
+          "targets": [ { "editorMode": "code", "expr": "max(pg_up{app=\"postgres\",kubernetes_namespace=\"croc-shop-data\"})", "legendFormat": "postgres", "range": true, "refId": "A" } ],
+          "title": "PostgreSQL Up",
+          "type": "stat"
+        },
+        {
+          "datasource": "Prometheus",
+          "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "thresholds": { "steps": [{ "color": "green", "value": null }] }, "unit": "short" }, "overrides": [] },
+          "gridPos": { "h": 8, "w": 6, "x": 6, "y": 0 },
+          "id": 2,
+          "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+          "pluginVersion": "12.4.0",
+          "targets": [ { "editorMode": "code", "expr": "sum(pg_stat_database_numbackends{app=\"postgres\",kubernetes_namespace=\"croc-shop-data\",datname=\"crocshop\"}) or vector(0)", "legendFormat": "connections", "range": true, "refId": "A" } ],
+          "title": "Active DB Connections",
+          "type": "stat"
+        },
+        {
+          "datasource": "Prometheus",
+          "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "thresholds": { "steps": [{ "color": "green", "value": null }] }, "unit": "ops" }, "overrides": [] },
+          "gridPos": { "h": 8, "w": 6, "x": 12, "y": 0 },
+          "id": 3,
+          "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+          "pluginVersion": "12.4.0",
+          "targets": [ { "editorMode": "code", "expr": "sum(rate(pg_stat_database_xact_commit{app=\"postgres\",kubernetes_namespace=\"croc-shop-data\",datname=\"crocshop\"}[5m]) + rate(pg_stat_database_xact_rollback{app=\"postgres\",kubernetes_namespace=\"croc-shop-data\",datname=\"crocshop\"}[5m])) or vector(0)", "legendFormat": "tx/sec", "range": true, "refId": "A" } ],
+          "title": "Transactions / sec",
+          "type": "stat"
+        },
+        {
+          "datasource": "Prometheus",
+          "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "thresholds": { "steps": [{ "color": "green", "value": null }] }, "unit": "bytes" }, "overrides": [] },
+          "gridPos": { "h": 8, "w": 6, "x": 18, "y": 0 },
+          "id": 4,
+          "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+          "pluginVersion": "12.4.0",
+          "targets": [ { "editorMode": "code", "expr": "max(pg_database_size_bytes{app=\"postgres\",kubernetes_namespace=\"croc-shop-data\",datname=\"crocshop\"}) or vector(0)", "legendFormat": "size", "range": true, "refId": "A" } ],
+          "title": "Database Size",
+          "type": "stat"
+        },
+        {
+          "datasource": "Prometheus",
+          "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "custom": { "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0, "drawStyle": "line", "fillOpacity": 10, "gradientMode": "none", "hideFrom": { "legend": false, "tooltip": false, "vis": false }, "lineInterpolation": "linear", "lineWidth": 1, "pointSize": 5, "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": false, "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "off" } }, "thresholds": { "steps": [{ "color": "green", "value": null }] }, "unit": "ops" }, "overrides": [] },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "id": 5,
+          "options": { "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "single" } },
+          "pluginVersion": "12.4.0",
+          "targets": [
+            { "editorMode": "code", "expr": "rate(pg_stat_database_xact_commit{app=\"postgres\",kubernetes_namespace=\"croc-shop-data\",datname=\"crocshop\"}[5m])", "legendFormat": "commits", "range": true, "refId": "A" },
+            { "editorMode": "code", "expr": "rate(pg_stat_database_xact_rollback{app=\"postgres\",kubernetes_namespace=\"croc-shop-data\",datname=\"crocshop\"}[5m])", "legendFormat": "rollbacks", "range": true, "refId": "B" }
+          ],
+          "title": "Transactions",
+          "type": "timeseries"
+        },
+        {
+          "datasource": "Prometheus",
+          "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "custom": { "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0, "drawStyle": "line", "fillOpacity": 10, "gradientMode": "none", "hideFrom": { "legend": false, "tooltip": false, "vis": false }, "lineInterpolation": "linear", "lineWidth": 1, "pointSize": 5, "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": false, "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "off" } }, "thresholds": { "steps": [{ "color": "green", "value": null }] }, "unit": "short" }, "overrides": [] },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "id": 6,
+          "options": { "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "single" } },
+          "pluginVersion": "12.4.0",
+          "targets": [
+            { "editorMode": "code", "expr": "pg_stat_database_numbackends{app=\"postgres\",kubernetes_namespace=\"croc-shop-data\",datname=\"crocshop\"}", "legendFormat": "backends", "range": true, "refId": "A" },
+            { "editorMode": "code", "expr": "pg_settings_max_connections{app=\"postgres\",kubernetes_namespace=\"croc-shop-data\"}", "legendFormat": "max connections", "range": true, "refId": "B" }
+          ],
+          "title": "Connections",
+          "type": "timeseries"
+        }
+      ],
+      "refresh": "5s",
+      "schemaVersion": 39,
+      "tags": ["croc-shop", "postgres", "database"],
+      "templating": { "list": [] },
+      "time": { "from": "now-1h", "to": "now" },
+      "timepicker": {},
+      "timezone": "",
+      "title": "Croc Shop PostgreSQL",
+      "uid": "croc-shop-postgres-service",
+      "version": 1,
+      "weekStart": ""
+    }
   croc-shop-chatbot-service.json: |
     {
       "annotations": {
