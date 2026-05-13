@@ -322,6 +322,13 @@ spec:
     ports:
     - protocol: TCP
       port: 5432
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: croc-shop-monitoring
+    ports:
+    - protocol: TCP
+      port: 9187
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
