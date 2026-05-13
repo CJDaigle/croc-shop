@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: chatbot
-        image: cjdaigle2/croc-shop-chatbot:latest
+        image: cjdaigle2/croc-shop-chatbot@sha256:9e26ab87ebfcb449022eb0e81c68caa4f7c335cb0f9e53e4ace8a87be77614d7
         imagePullPolicy: Always
         ports:
         - containerPort: 3005
