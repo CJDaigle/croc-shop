@@ -131,6 +131,12 @@ spec:
             secretKeyRef:
               name: postgres-secret
               key: POSTGRES_PASSWORD
+        readinessProbe:
+          httpGet:
+            path: /metrics
+            port: 9187
+          initialDelaySeconds: 5
+          periodSeconds: 10
         resources:
           requests:
             memory: "32Mi"
