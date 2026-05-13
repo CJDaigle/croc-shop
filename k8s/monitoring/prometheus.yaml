@@ -4,6 +4,18 @@ metadata:
   name: prometheus
   namespace: croc-shop-monitoring
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prometheus-storage-pvc
+  namespace: croc-shop-monitoring
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -96,33 +108,64 @@ spec:
       labels:
         app: prometheus
     spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
       serviceAccountName: prometheus
       containers:
       - name: prometheus
-        image: prom/prometheus:latest
+        image: prom/prometheus:v2.54.1
         args:
         - '--config.file=/etc/prometheus/prometheus.yml'
         - '--storage.tsdb.path=/prometheus'
+        - '--storage.tsdb.retention.time=10d'
+        - '--storage.tsdb.retention.size=8GB'
+        - '--web.console.libraries=/etc/prometheus/console_libraries'
+        - '--web.console.templates=/etc/prometheus/consoles'
+        - '--web.enable-lifecycle'
+        - '--web.enable-admin-api'
         ports:
         - containerPort: 9090
           name: web
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /-/healthy
+            port: 9090
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /-/ready
+            port: 9090
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
         volumeMounts:
         - name: config
           mountPath: /etc/prometheus
         - name: storage
           mountPath: /prometheus
+        - name: wal
+          mountPath: /prometheus/wal
         resources:
           requests:
             memory: "512Mi"
             cpu: "250m"
           limits:
-            memory: "1Gi"
-            cpu: "500m"
+            memory: "1.5Gi"
+            cpu: "750m"
       volumes:
       - name: config
         configMap:
           name: prometheus-config
       - name: storage
+        persistentVolumeClaim:
+          claimName: prometheus-storage-pvc
+      - name: wal
         emptyDir: {}
 ---
 apiVersion: v1

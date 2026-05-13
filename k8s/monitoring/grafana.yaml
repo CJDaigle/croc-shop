@@ -28,12 +28,17 @@ spec:
       labels:
         app: grafana
     spec:
+      securityContext:
+        runAsUser: 472
+        runAsGroup: 472
+        fsGroup: 472
       containers:
       - name: grafana
-        image: grafana/grafana:latest
+        image: grafana/grafana:10.4.2
         ports:
         - containerPort: 3000
           name: web
+          protocol: TCP
         env:
         - name: GF_SECURITY_ADMIN_PASSWORD
           value: admin
@@ -43,7 +48,37 @@ spec:
           value: "%(protocol)s://%(domain)s/"
         - name: GF_SERVER_SERVE_FROM_SUB_PATH
           value: "false"
+        - name: GF_PROVISIONING_DATASOURCES_PATH
+          value: /etc/grafana/provisioning/datasources
+        - name: GF_PROVISIONING_DASHBOARDS_PATH
+          value: /etc/grafana/provisioning/dashboards
+        - name: GF_SECURITY_DISABLE_GRAVATAR
+          value: "false"
+        - name: GF_SECURITY_ALLOW_EMBEDDING
+          value: "true"
+        - name: GF_LOG_MODE
+          value: console
+        - name: GF_LOG_LEVEL
+          value: info
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
         volumeMounts:
+        - name: storage
+          mountPath: /var/lib/grafana
         - name: datasources
           mountPath: /etc/grafana/provisioning/datasources
         - name: dashboard-provisioning
@@ -55,9 +90,12 @@ spec:
             memory: "256Mi"
             cpu: "100m"
           limits:
-            memory: "512Mi"
-            cpu: "200m"
+            memory: "1Gi"
+            cpu: "500m"
       volumes:
+      - name: storage
+        persistentVolumeClaim:
+          claimName: grafana-pvc
       - name: datasources
         configMap:
           name: grafana-datasources
@@ -65,8 +103,12 @@ spec:
         configMap:
           name: grafana-dashboard-provisioning
       - name: dashboards
-        configMap:
-          name: grafana-dashboards
+        projected:
+          sources:
+          - configMap:
+              name: grafana-dashboards
+          - configMap:
+              name: grafana-service-dashboards
 ---
 apiVersion: v1
 kind: Service
