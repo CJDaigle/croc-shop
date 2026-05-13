@@ -5,7 +5,7 @@ metadata:
   namespace: croc-shop-monitoring
 spec:
   parentRefs:
-    - name: main-gateway
+    - name: cilium-gateway-application-gateway
       namespace: default
       sectionName: https-grafana
   hostnames:

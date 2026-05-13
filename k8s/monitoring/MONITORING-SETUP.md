@@ -437,7 +437,7 @@ spec:
 ```
 
 ```bash
-kubectl patch gateway main-gateway -n default --patch-file=gateway-patch-prometheus.yaml --type=merge
+kubectl patch gateway cilium-gateway-application-gateway -n default --patch-file=gateway-patch-prometheus.yaml --type=merge
 ```
 
 ### Step 9: Create HTTPRoute for Prometheus
@@ -450,7 +450,7 @@ metadata:
   namespace: croc-shop-monitoring
 spec:
   parentRefs:
-    - name: main-gateway
+    - name: cilium-gateway-application-gateway
       namespace: default
       sectionName: https-prometheus
   hostnames:
@@ -700,7 +700,7 @@ metadata:
   namespace: croc-shop-monitoring
 spec:
   parentRefs:
-    - name: main-gateway
+    - name: cilium-gateway-application-gateway
       namespace: default
       sectionName: https-grafana
   hostnames:

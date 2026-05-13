@@ -4,7 +4,7 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: main-gateway
+  name: cilium-gateway-application-gateway
   namespace: default
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
