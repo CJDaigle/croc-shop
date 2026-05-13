@@ -76,11 +76,10 @@ croc-shop/
 │   │   ├── namespaces.yaml    # 7 dedicated namespaces
 │   │   ├── *-deployment.yaml  # Per-namespace deployments
 │   │   └── network-policy.yaml # Cross-namespace policies (Cilium-enforced)
-│   ├── gateway/
+│   ├── cilium-gateway/
 │   │   ├── gateway.yaml       # Cilium Gateway API (HTTP/HTTPS listeners)
 │   │   ├── httproute.yaml     # Path-based routing to backend services
 │   │   └── reference-grants.yaml # Cross-namespace backend access
-│   ├── istio/                 # Legacy Istio configs (kept for reference)
 │   └── monitoring/
 │       ├── prometheus.yaml    # Multi-namespace scraping
 │       └── grafana.yaml       # Observability dashboards
