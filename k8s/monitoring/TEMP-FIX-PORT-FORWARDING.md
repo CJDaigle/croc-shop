@@ -26,7 +26,7 @@ This will:
 
 ```bash
 # Set up environment variables
-export NAMESPACE=monitoring
+export NAMESPACE=croc-shop-monitoring
 export PROMETHEUS_LOCAL_PORT=9090
 export GRAFANA_LOCAL_PORT=3000
 
@@ -64,17 +64,17 @@ wait
 
 ```bash
 # Check if pods are running
-kubectl get pods -n monitoring
+kubectl get pods -n croc-shop-monitoring
 
 # Check service endpoints
-kubectl get endpoints -n monitoring
+kubectl get endpoints -n croc-shop-monitoring
 
 # Test internal connectivity
 kubectl run test-pod --image=curlimages/curl --rm -it --restart=Never -- \
   curl -s -o /dev/null -w "Prometheus: %{http_code}\n" \
-  http://prometheus.monitoring.svc.cluster.local:9090/-/healthy && \
+  http://prometheus.croc-shop-monitoring.svc.cluster.local:9090/-/healthy && \
   curl -s -o /dev/null -w "Grafana: %{http_code}\n" \
-  http://grafana.monitoring.svc.cluster.local:3000/api/health
+  http://grafana.croc-shop-monitoring.svc.cluster.local:3000/api/health
 ```
 
 Expected output:
@@ -121,12 +121,12 @@ Local Machine (localhost:3000) → Kubernetes API Server → Grafana Pod (10.43.
 
 ```bash
 # Prometheus service
-kubectl get svc prometheus -n monitoring -o wide
+kubectl get svc prometheus -n croc-shop-monitoring -o wide
 # NAME         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
 # prometheus   ClusterIP   10.43.197.63   <none>        9090/TCP   20m
 
 # Grafana service
-kubectl get svc grafana -n monitoring -o wide
+kubectl get svc grafana -n croc-shop-monitoring -o wide
 # NAME      TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)    AGE
 # grafana   ClusterIP   10.43.30.33   <none>        3000/TCP   8m
 ```
@@ -149,11 +149,11 @@ kill -9 $(lsof -t -i:3000)
 
 ```bash
 # Check if services are running
-kubectl get pods -n monitoring
+kubectl get pods -n croc-shop-monitoring
 
 # Check pod logs
-kubectl logs -n monitoring -l app=prometheus
-kubectl logs -n monitoring -l app=grafana
+kubectl logs -n croc-shop-monitoring -l app=prometheus
+kubectl logs -n croc-shop-monitoring -l app=grafana
 
 # Restart port-forwarding
 # Stop existing processes first
@@ -183,8 +183,8 @@ If you need different local ports (to avoid conflicts):
 
 ```bash
 # Use different local ports
-kubectl port-forward -n monitoring svc/prometheus 19090:9090 &
-kubectl port-forward -n monitoring svc/grafana 13000:3000 &
+kubectl port-forward -n croc-shop-monitoring svc/prometheus 19090:9090 &
+kubectl port-forward -n croc-shop-monitoring svc/grafana 13000:3000 &
 
 # Access at:
 # Prometheus: http://localhost:19090
@@ -223,13 +223,13 @@ Quick access without scripts:
 
 ```bash
 # Prometheus only
-kubectl port-forward -n monitoring svc/prometheus 9090:9090 &
+kubectl port-forward -n croc-shop-monitoring svc/prometheus 9090:9090 &
 
 # Grafana only  
-kubectl port-forward -n monitoring svc/grafana 3000:3000 &
+kubectl port-forward -n croc-shop-monitoring svc/grafana 3000:3000 &
 
 # Both at once
-kubectl port-forward -n monitoring svc/prometheus 9090:9090 & kubectl port-forward -n monitoring svc/grafana 3000:3000 &
+kubectl port-forward -n croc-shop-monitoring svc/prometheus 9090:9090 & kubectl port-forward -n croc-shop-monitoring svc/grafana 3000:3000 &
 ```
 
 ## Security Notes
@@ -244,13 +244,13 @@ kubectl port-forward -n monitoring svc/prometheus 9090:9090 & kubectl port-forwa
 
 ```bash
 # Stop all port-forwarding processes
-pkill -f "port-forward.*monitoring"
+pkill -f "port-forward.*croc-shop-monitoring"
 
 # Or use the script's cleanup (Ctrl+C)
 # The access script handles cleanup automatically
 
 # Verify no processes are running
-ps aux | grep "port-forward" | grep monitoring
+ps aux | grep "port-forward" | grep croc-shop-monitoring
 ```
 
 ## Next Steps

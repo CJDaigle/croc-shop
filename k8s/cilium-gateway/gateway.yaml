@@ -77,3 +77,27 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
+    - name: https-prometheus
+      protocol: HTTPS
+      port: 443
+      hostname: prometheus.apo-llm-test.com
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: prometheus-tls
+            namespace: default
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: https-grafana
+      protocol: HTTPS
+      port: 443
+      hostname: grafana.apo-llm-test.com
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: grafana-tls
+            namespace: default
+      allowedRoutes:
+        namespaces:
+          from: All

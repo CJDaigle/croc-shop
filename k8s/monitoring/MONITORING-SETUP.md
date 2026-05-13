@@ -23,7 +23,7 @@ Internet → Cilium Gateway API → Prometheus/Grafana Services
 
 - Kubernetes cluster with Cilium Gateway API
 - cert-manager with Let's Encrypt ClusterIssuer
-- `monitoring` namespace created
+- `croc-shop-monitoring` namespace created
 
 ## Prometheus Deployment
 
@@ -33,9 +33,9 @@ Internet → Cilium Gateway API → Prometheus/Grafana Services
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: monitoring
+  name: croc-shop-monitoring
   labels:
-    name: monitoring
+    name: croc-shop-monitoring
     app: monitoring
 ```
 
@@ -50,7 +50,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: prometheus
-  namespace: monitoring
+  namespace: croc-shop-monitoring
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -84,7 +84,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: prometheus
-  namespace: monitoring
+  namespace: croc-shop-monitoring
 ```
 
 ```bash
@@ -98,7 +98,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: prometheus-config
-  namespace: monitoring
+  namespace: croc-shop-monitoring
 data:
   prometheus.yml: |
     global:
@@ -213,7 +213,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: prometheus
-  namespace: monitoring
+  namespace: croc-shop-monitoring
   labels:
     app: prometheus
 spec:
@@ -238,7 +238,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prometheus
-  namespace: monitoring
+  namespace: croc-shop-monitoring
   labels:
     app: prometheus
 spec:
@@ -309,7 +309,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: prometheus-policy
-  namespace: monitoring
+  namespace: croc-shop-monitoring
 spec:
   podSelector:
     matchLabels:
@@ -329,7 +329,7 @@ spec:
   - from:
     - namespaceSelector:
         matchLabels:
-          name: monitoring
+          name: croc-shop-monitoring
     ports:
     - protocol: TCP
       port: 9090
@@ -364,23 +364,23 @@ kubectl apply -f prometheus-networkpolicy.yaml
 
 ```bash
 # Check pod status
-kubectl get pods -n monitoring
+kubectl get pods -n croc-shop-monitoring
 
 # Check service status
-kubectl get svc -n monitoring
+kubectl get svc -n croc-shop-monitoring
 
 # Check logs
-kubectl logs -n monitoring -l app=prometheus
+kubectl logs -n croc-shop-monitoring -l app=prometheus
 
 # Test health endpoint
-kubectl exec -n monitoring -l app=prometheus -- wget -q -O - http://localhost:9090/-/healthy
+kubectl exec -n croc-shop-monitoring -l app=prometheus -- wget -q -O - http://localhost:9090/-/healthy
 ```
 
 ### Check Service Discovery
 
 ```bash
 # Port-forward to test locally
-kubectl port-forward -n monitoring svc/prometheus 9090:9090
+kubectl port-forward -n croc-shop-monitoring svc/prometheus 9090:9090
 
 # Access Prometheus UI
 # Open http://localhost:9090 in browser
@@ -437,7 +437,7 @@ spec:
 ```
 
 ```bash
-kubectl patch gateway cilium-gateway-application-gateway -n default --patch-file=gateway-patch-prometheus.yaml --type=merge
+kubectl patch gateway main-gateway -n default --patch-file=gateway-patch-prometheus.yaml --type=merge
 ```
 
 ### Step 9: Create HTTPRoute for Prometheus
@@ -447,10 +447,10 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: prometheus-route
-  namespace: monitoring
+  namespace: croc-shop-monitoring
 spec:
   parentRefs:
-    - name: cilium-gateway-application-gateway
+    - name: main-gateway
       namespace: default
       sectionName: https-prometheus
   hostnames:
@@ -462,12 +462,12 @@ spec:
             value: /
       backendRefs:
         - name: prometheus
-          namespace: monitoring
+          namespace: croc-shop-monitoring
           port: 9090
 ```
 
 ```bash
-kubectl apply -f prometheus-gateway-route.yaml
+kubectl apply -f ../cilium-gateway/prometheus-httproute.yaml
 ```
 
 ### Step 10: Test External Access
@@ -489,7 +489,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: grafana-datasources
-  namespace: monitoring
+  namespace: croc-shop-monitoring
 data:
   prometheus.yaml: |
     apiVersion: 1
@@ -497,7 +497,7 @@ data:
     - name: Prometheus
       type: prometheus
       access: proxy
-      url: http://prometheus.monitoring.svc.cluster.local:9090
+      url: http://prometheus.croc-shop-monitoring.svc.cluster.local:9090
       isDefault: true
 ```
 
@@ -512,7 +512,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: grafana
-  namespace: monitoring
+  namespace: croc-shop-monitoring
   labels:
     app: grafana
 spec:
@@ -537,7 +537,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: grafana
-  namespace: monitoring
+  namespace: croc-shop-monitoring
   labels:
     app: grafana
 spec:
@@ -605,7 +605,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: grafana-policy
-  namespace: monitoring
+  namespace: croc-shop-monitoring
 spec:
   podSelector:
     matchLabels:
@@ -625,7 +625,7 @@ spec:
   - from:
     - namespaceSelector:
         matchLabels:
-          name: monitoring
+          name: croc-shop-monitoring
     ports:
     - protocol: TCP
       port: 3000
@@ -697,10 +697,10 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: grafana-route
-  namespace: monitoring
+  namespace: croc-shop-monitoring
 spec:
   parentRefs:
-    - name: cilium-gateway-application-gateway
+    - name: main-gateway
       namespace: default
       sectionName: https-grafana
   hostnames:
@@ -712,7 +712,7 @@ spec:
             value: /
       backendRefs:
         - name: grafana
-          namespace: monitoring
+          namespace: croc-shop-monitoring
           port: 3000
 ```
 
@@ -724,11 +724,11 @@ spec:
 
 ```bash
 # Change service type to NodePort
-kubectl patch svc prometheus -n monitoring -p '{"spec":{"type":"NodePort"}}'
-kubectl patch svc grafana -n monitoring -p '{"spec":{"type":"NodePort"}}'
+kubectl patch svc prometheus -n croc-shop-monitoring -p '{"spec":{"type":"NodePort"}}'
+kubectl patch svc grafana -n croc-shop-monitoring -p '{"spec":{"type":"NodePort"}}'
 
 # Get assigned ports
-kubectl get svc -n monitoring
+kubectl get svc -n croc-shop-monitoring
 
 # Test access (will likely timeout due to Cilium issues)
 curl http://10.0.1.112:<NODEPORT>/-
@@ -739,11 +739,11 @@ curl http://10.0.1.169:<NODEPORT>/-
 
 ```bash
 # Prometheus port-forward
-kubectl port-forward -n monitoring svc/prometheus 9090:9090 &
+kubectl port-forward -n croc-shop-monitoring svc/prometheus 9090:9090 &
 # Access: http://localhost:9090
 
 # Grafana port-forward  
-kubectl port-forward -n monitoring svc/grafana 3000:3000 &
+kubectl port-forward -n croc-shop-monitoring svc/grafana 3000:3000 &
 # Access: http://localhost:3000 (admin/admin)
 
 # Kill port-forwards when done
@@ -754,11 +754,11 @@ kill %1 %2
 
 ```bash
 # Change to LoadBalancer (requires cloud provider support)
-kubectl patch svc prometheus -n monitoring -p '{"spec":{"type":"LoadBalancer"}}'
-kubectl patch svc grafana -n monitoring -p '{"spec":{"type":"LoadBalancer"}}'
+kubectl patch svc prometheus -n croc-shop-monitoring -p '{"spec":{"type":"LoadBalancer"}}'
+kubectl patch svc grafana -n croc-shop-monitoring -p '{"spec":{"type":"LoadBalancer"}}'
 
 # Get external IPs
-kubectl get svc -n monitoring
+kubectl get svc -n croc-shop-monitoring
 ```
 
 ## Service Annotations
@@ -798,8 +798,8 @@ Due to the known Cilium Gateway API issues with monitoring services, the recomme
 ./k8s/monitoring/access-monitoring.sh
 
 # Or manual port-forwarding
-kubectl port-forward -n monitoring svc/prometheus 9090:9090 &
-kubectl port-forward -n monitoring svc/grafana 3000:3000 &
+kubectl port-forward -n croc-shop-monitoring svc/prometheus 9090:9090 &
+kubectl port-forward -n croc-shop-monitoring svc/grafana 3000:3000 &
 ```
 
 ### 📊 URLs
@@ -811,7 +811,7 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000 &
 To remove the monitoring stack:
 
 ```bash
-kubectl delete namespace monitoring
+kubectl delete namespace croc-shop-monitoring
 kubectl delete clusterrole prometheus
 kubectl delete clusterrolebinding prometheus
 ```
@@ -853,8 +853,8 @@ kubectl delete clusterrolebinding prometheus
 **Test Results**:
 ```bash
 # Both services work internally
-curl http://prometheus.monitoring.svc.cluster.local:9090/-/healthy  # 200 OK
-curl http://grafana.monitoring.svc.cluster.local:3000/api/health      # 200 OK
+curl http://prometheus.croc-shop-monitoring.svc.cluster.local:9090/-/healthy  # 200 OK
+curl http://grafana.croc-shop-monitoring.svc.cluster.local:3000/api/health      # 200 OK
 
 # Both fail via NodePort
 curl http://10.0.1.112:31150/-/healthy  # Connection timeout
@@ -889,14 +889,14 @@ curl http://10.0.1.169:31150/-/healthy  # Connection timeout
 ### Port-Forwarding Issues
 ```bash
 # Check if services are running
-kubectl get pods -n monitoring
+kubectl get pods -n croc-shop-monitoring
 
 # Check service endpoints
-kubectl get endpoints -n monitoring
+kubectl get endpoints -n croc-shop-monitoring
 
 # Test internal connectivity
 kubectl run test-pod --image=curlimages/curl --rm -it --restart=Never -- \
-  curl -s http://prometheus.monitoring.svc.cluster.local:9090/-/healthy
+  curl -s http://prometheus.croc-shop-monitoring.svc.cluster.local:9090/-/healthy
 ```
 
 ### Grafana Cannot Connect to Prometheus

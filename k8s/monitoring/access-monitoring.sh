@@ -5,7 +5,7 @@
 
 set -e
 
-NAMESPACE="monitoring"
+NAMESPACE="croc-shop-monitoring"
 PROMETHEUS_PORT="9090"
 GRAFANA_PORT="3000"
 

@@ -2,12 +2,12 @@
 
 # Prometheus PVC Migration Script
 # Safely migrate Prometheus to use persistent storage
-
+ 
 set -euo pipefail
-
+ 
 KUBECONFIG="/Users/cdaigle/Documents/GitHub/croc-shop/.kube/config"
-NAMESPACE="monitoring"
-
+NAMESPACE="croc-shop-monitoring"
+ 
 echo "🔄 Prometheus PVC Migration Script"
 echo "================================="
 

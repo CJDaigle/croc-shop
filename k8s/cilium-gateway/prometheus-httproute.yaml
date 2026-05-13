@@ -1,0 +1,21 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: prometheus-route
+  namespace: croc-shop-monitoring
+spec:
+  parentRefs:
+    - name: main-gateway
+      namespace: default
+      sectionName: https-prometheus
+  hostnames:
+    - "prometheus.apo-llm-test.com"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: prometheus
+          namespace: croc-shop-monitoring
+          port: 9090

@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: grafana-dashboard-provisioning
-  namespace: monitoring
+  namespace: croc-shop-monitoring
   labels:
     app: grafana
 data:

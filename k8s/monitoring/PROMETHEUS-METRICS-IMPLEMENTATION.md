@@ -81,7 +81,7 @@ Once Prometheus picks up the new annotations (within 15-30 seconds), you should 
 
 ```bash
 # Check Prometheus targets
-curl -s "http://prometheus.monitoring.svc.cluster.local:9090/api/v1/query?query=up" | grep -E "(user|cart|product|order|chatbot)"
+curl -s "http://prometheus.croc-shop-monitoring.svc.cluster.local:9090/api/v1/query?query=up" | grep -E "(user|cart|product|order|chatbot)"
 
 # Check specific service metrics
 curl -s "http://user.croc-shop-user.svc.cluster.local:3002/metrics"

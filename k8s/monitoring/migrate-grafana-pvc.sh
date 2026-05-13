@@ -6,7 +6,7 @@
 set -euo pipefail
 
 KUBECONFIG="/Users/cdaigle/Documents/GitHub/croc-shop/.kube/config"
-NAMESPACE="monitoring"
+NAMESPACE="croc-shop-monitoring"
 
 echo "🔄 Grafana PVC Migration Script"
 echo "=============================="
