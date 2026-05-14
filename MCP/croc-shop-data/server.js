@@ -1,18 +1,41 @@
 import dotenv from 'dotenv';
+import express from 'express';
 import pg from 'pg';
+import promClient from 'prom-client';
+import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
+  isInitializeRequest,
 } from '@modelcontextprotocol/sdk/types.js';
 
 dotenv.config();
 
 const { Pool } = pg;
+const HTTP_PORT = Number.parseInt(process.env.PORT || '3006', 10);
 const DEFAULT_ROW_LIMIT = Number.parseInt(process.env.MCP_QUERY_ROW_LIMIT || '200', 10);
 const MAX_ROW_LIMIT = Number.isFinite(DEFAULT_ROW_LIMIT) && DEFAULT_ROW_LIMIT > 0 ? DEFAULT_ROW_LIMIT : 200;
+
+const registry = new promClient.Registry();
+promClient.collectDefaultMetrics({ register: registry });
+
+const httpRequestsTotal = new promClient.Counter({
+  name: 'http_requests_total',
+  help: 'Total number of HTTP requests',
+  labelNames: ['method', 'route', 'status_code'],
+  registers: [registry],
+});
+
+const httpRequestDuration = new promClient.Histogram({
+  name: 'http_request_duration_seconds',
+  help: 'Duration of HTTP requests in seconds',
+  labelNames: ['method', 'route', 'status_code'],
+  registers: [registry],
+});
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -78,6 +101,370 @@ function formatText(value) {
       },
     ],
   };
+}
+
+function createMcpServer() {
+  const server = new Server(
+    {
+      name: 'croc-shop-data-mcp',
+      version: '1.0.0',
+    },
+    {
+      capabilities: {
+        tools: {},
+      },
+    }
+  );
+
+  server.setRequestHandler(ListToolsRequestSchema, async () => ({
+    tools: [
+      {
+        name: 'get_schema_summary',
+        description: 'Get the public PostgreSQL schema summary for the Croc Shop database.',
+        inputSchema: {
+          type: 'object',
+          properties: {},
+        },
+      },
+      {
+        name: 'list_tables',
+        description: 'List public PostgreSQL tables available in the Croc Shop database.',
+        inputSchema: {
+          type: 'object',
+          properties: {},
+        },
+      },
+      {
+        name: 'describe_table',
+        description: 'Describe the columns for a public PostgreSQL table.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            table: {
+              type: 'string',
+            },
+          },
+          required: ['table'],
+        },
+      },
+      {
+        name: 'run_readonly_query',
+        description: 'Run a single read-only SQL query against Croc Shop PostgreSQL. Only SELECT, WITH, and EXPLAIN are allowed.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            sql: {
+              type: 'string',
+            },
+            limit: {
+              type: 'integer',
+              minimum: 1,
+              maximum: MAX_ROW_LIMIT,
+            },
+          },
+          required: ['sql'],
+        },
+      },
+      {
+        name: 'search_products',
+        description: 'Search products by category and optional free-text match on name or description.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            category: { type: 'string' },
+            search: { type: 'string' },
+            limit: { type: 'integer', minimum: 1, maximum: 100 },
+          },
+        },
+      },
+      {
+        name: 'get_user_by_email',
+        description: 'Fetch a Croc Shop user record by email address.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            email: { type: 'string' },
+          },
+          required: ['email'],
+        },
+      },
+      {
+        name: 'get_order_by_id',
+        description: 'Fetch a Croc Shop order by its numeric ID.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            orderId: { type: 'integer', minimum: 1 },
+          },
+          required: ['orderId'],
+        },
+      },
+      {
+        name: 'get_product_by_id',
+        description: 'Fetch a Croc Shop product by its numeric ID.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            productId: { type: 'integer', minimum: 1 },
+          },
+          required: ['productId'],
+        },
+      },
+      {
+        name: 'get_low_stock_products',
+        description: 'List products with stock at or below a threshold.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            threshold: { type: 'integer', minimum: 0, maximum: 1000 },
+            limit: { type: 'integer', minimum: 1, maximum: 100 },
+          },
+        },
+      },
+      {
+        name: 'get_user_orders',
+        description: 'Fetch recent orders for a user by user ID or email address.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            userId: { type: 'integer', minimum: 1 },
+            email: { type: 'string' },
+            limit: { type: 'integer', minimum: 1, maximum: 100 },
+          },
+        },
+      },
+      {
+        name: 'get_recent_orders',
+        description: 'Fetch recent orders, optionally filtered by order status.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            limit: { type: 'integer', minimum: 1, maximum: 100 },
+            status: { type: 'string' },
+          },
+        },
+      },
+      {
+        name: 'get_order_summary',
+        description: 'Get aggregate order totals, recent order activity, and status breakdowns.',
+        inputSchema: {
+          type: 'object',
+          properties: {},
+        },
+      },
+    ],
+  }));
+
+  server.setRequestHandler(CallToolRequestSchema, async (request) => {
+    const { name, arguments: args } = request.params;
+
+    try {
+      if (name === 'get_schema_summary') {
+        return formatText(await getSchemaSummary());
+      }
+
+      if (name === 'list_tables') {
+        return formatText(await getTables());
+      }
+
+      if (name === 'describe_table') {
+        const { table } = tableSchema.parse(args ?? {});
+        return formatText(await describeTable(table));
+      }
+
+      if (name === 'run_readonly_query') {
+        const { sql, limit } = queryToolSchema.parse(args ?? {});
+        return formatText(await runReadOnlyQuery(sql, limit));
+      }
+
+      if (name === 'search_products') {
+        return formatText(await searchProducts(searchProductsSchema.parse(args ?? {})));
+      }
+
+      if (name === 'get_user_by_email') {
+        const { email } = userByEmailSchema.parse(args ?? {});
+        return formatText(await getUserByEmail(email));
+      }
+
+      if (name === 'get_order_by_id') {
+        const { orderId } = orderByIdSchema.parse(args ?? {});
+        return formatText(await getOrderById(orderId));
+      }
+
+      if (name === 'get_product_by_id') {
+        const { productId } = productByIdSchema.parse(args ?? {});
+        return formatText(await getProductById(productId));
+      }
+
+      if (name === 'get_low_stock_products') {
+        return formatText(await getLowStockProducts(lowStockProductsSchema.parse(args ?? {})));
+      }
+
+      if (name === 'get_user_orders') {
+        return formatText(await getUserOrders(userOrdersSchema.parse(args ?? {})));
+      }
+
+      if (name === 'get_recent_orders') {
+        return formatText(await getRecentOrders(recentOrdersSchema.parse(args ?? {})));
+      }
+
+      if (name === 'get_order_summary') {
+        return formatText(await getOrderSummary());
+      }
+
+      throw new Error(`Unknown tool: ${name}`);
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: error instanceof Error ? error.message : 'Unknown error',
+          },
+        ],
+        isError: true,
+      };
+    }
+  });
+
+  return server;
+}
+
+function isJsonRpcInitializeRequest(body) {
+  return isInitializeRequest(body);
+}
+
+function withHttpMetrics(routeLabel, handler) {
+  return async (req, res, next) => {
+    const end = httpRequestDuration.startTimer();
+
+    res.on('finish', () => {
+      const statusCode = String(res.statusCode);
+      httpRequestsTotal.inc({ method: req.method, route: routeLabel, status_code: statusCode });
+      end({ method: req.method, route: routeLabel, status_code: statusCode });
+    });
+
+    try {
+      await handler(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  };
+}
+
+async function startStdioServer() {
+  const server = createMcpServer();
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+}
+
+async function startHttpServer() {
+  const app = express();
+  const transports = new Map();
+
+  app.use(express.json({ limit: '1mb' }));
+
+  app.get('/health', withHttpMetrics('/health', async (req, res) => {
+    res.json({ status: 'healthy', service: 'croc-shop-data-mcp' });
+  }));
+
+  app.get('/ready', withHttpMetrics('/ready', async (req, res) => {
+    try {
+      await pool.query('SELECT 1');
+      res.json({ status: 'ready', service: 'croc-shop-data-mcp' });
+    } catch (error) {
+      res.status(503).json({ status: 'not ready', error: error instanceof Error ? error.message : 'Unknown error' });
+    }
+  }));
+
+  app.get('/metrics', withHttpMetrics('/metrics', async (req, res) => {
+    res.set('Content-Type', registry.contentType);
+    res.end(await registry.metrics());
+  }));
+
+  app.post('/mcp', withHttpMetrics('/mcp', async (req, res) => {
+    const sessionId = req.headers['mcp-session-id'];
+    let transport = sessionId ? transports.get(sessionId) : undefined;
+
+    if (!transport) {
+      if (!isJsonRpcInitializeRequest(req.body)) {
+        res.status(400).json({
+          jsonrpc: '2.0',
+          error: {
+            code: -32000,
+            message: 'Bad Request: No valid session ID provided',
+          },
+          id: null,
+        });
+        return;
+      }
+
+      transport = new StreamableHTTPServerTransport({
+        sessionIdGenerator: () => randomUUID(),
+        onsessioninitialized: (newSessionId) => {
+          transports.set(newSessionId, transport);
+        },
+      });
+
+      transport.onclose = () => {
+        const activeSessionId = transport.sessionId;
+        if (activeSessionId) {
+          transports.delete(activeSessionId);
+        }
+      };
+
+      const server = createMcpServer();
+      await server.connect(transport);
+      await transport.handleRequest(req, res, req.body);
+      return;
+    }
+
+    await transport.handleRequest(req, res, req.body);
+  }));
+
+  app.get('/mcp', withHttpMetrics('/mcp', async (req, res) => {
+    const sessionId = req.headers['mcp-session-id'];
+    if (!sessionId || !transports.has(sessionId)) {
+      res.status(400).send('Invalid or missing session ID');
+      return;
+    }
+
+    await transports.get(sessionId).handleRequest(req, res);
+  }));
+
+  app.delete('/mcp', withHttpMetrics('/mcp', async (req, res) => {
+    const sessionId = req.headers['mcp-session-id'];
+    if (!sessionId || !transports.has(sessionId)) {
+      res.status(400).send('Invalid or missing session ID');
+      return;
+    }
+
+    await transports.get(sessionId).handleRequest(req, res);
+  }));
+
+  app.use((error, req, res, next) => {
+    console.error('Unhandled Data MCP service error:', error);
+    if (res.headersSent) {
+      next(error);
+      return;
+    }
+
+    res.status(500).json({
+      error: error instanceof Error ? error.message : 'Internal server error',
+    });
+  });
+
+  const server = app.listen(HTTP_PORT, () => {
+    console.log(`croc-shop-data-mcp listening on port ${HTTP_PORT}`);
+  });
+
+  const shutdown = async () => {
+    await new Promise((resolve) => server.close(resolve));
+    await pool.end();
+    process.exit(0);
+  };
+
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
 }
 
 function normalizeSql(sql) {
@@ -411,237 +798,18 @@ async function runReadOnlyQuery(sql, limit) {
   }
 }
 
-const server = new Server(
-  {
-    name: 'croc-shop-data-mcp',
-    version: '1.0.0',
-  },
-  {
-    capabilities: {
-      tools: {},
-    },
-  }
-);
+const startInHttpMode = process.argv.includes('--http') || (!process.argv.includes('--stdio') && process.env.MCP_TRANSPORT === 'http');
 
-server.setRequestHandler(ListToolsRequestSchema, async () => ({
-  tools: [
-    {
-      name: 'get_schema_summary',
-      description: 'Get the public PostgreSQL schema summary for the Croc Shop database.',
-      inputSchema: {
-        type: 'object',
-        properties: {},
-      },
-    },
-    {
-      name: 'list_tables',
-      description: 'List public PostgreSQL tables available in the Croc Shop database.',
-      inputSchema: {
-        type: 'object',
-        properties: {},
-      },
-    },
-    {
-      name: 'describe_table',
-      description: 'Describe the columns for a public PostgreSQL table.',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          table: {
-            type: 'string',
-          },
-        },
-        required: ['table'],
-      },
-    },
-    {
-      name: 'run_readonly_query',
-      description: 'Run a single read-only SQL query against Croc Shop PostgreSQL. Only SELECT, WITH, and EXPLAIN are allowed.',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          sql: {
-            type: 'string',
-          },
-          limit: {
-            type: 'integer',
-            minimum: 1,
-            maximum: MAX_ROW_LIMIT,
-          },
-        },
-        required: ['sql'],
-      },
-    },
-    {
-      name: 'search_products',
-      description: 'Search products by category and optional free-text match on name or description.',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          category: { type: 'string' },
-          search: { type: 'string' },
-          limit: { type: 'integer', minimum: 1, maximum: 100 },
-        },
-      },
-    },
-    {
-      name: 'get_user_by_email',
-      description: 'Fetch a Croc Shop user record by email address.',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          email: { type: 'string' },
-        },
-        required: ['email'],
-      },
-    },
-    {
-      name: 'get_order_by_id',
-      description: 'Fetch a Croc Shop order by its numeric ID.',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          orderId: { type: 'integer', minimum: 1 },
-        },
-        required: ['orderId'],
-      },
-    },
-    {
-      name: 'get_product_by_id',
-      description: 'Fetch a Croc Shop product by its numeric ID.',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          productId: { type: 'integer', minimum: 1 },
-        },
-        required: ['productId'],
-      },
-    },
-    {
-      name: 'get_low_stock_products',
-      description: 'List products with stock at or below a threshold.',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          threshold: { type: 'integer', minimum: 0, maximum: 1000 },
-          limit: { type: 'integer', minimum: 1, maximum: 100 },
-        },
-      },
-    },
-    {
-      name: 'get_user_orders',
-      description: 'Fetch recent orders for a user by user ID or email address.',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          userId: { type: 'integer', minimum: 1 },
-          email: { type: 'string' },
-          limit: { type: 'integer', minimum: 1, maximum: 100 },
-        },
-      },
-    },
-    {
-      name: 'get_recent_orders',
-      description: 'Fetch recent orders, optionally filtered by order status.',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          limit: { type: 'integer', minimum: 1, maximum: 100 },
-          status: { type: 'string' },
-        },
-      },
-    },
-    {
-      name: 'get_order_summary',
-      description: 'Get aggregate order totals, recent order activity, and status breakdowns.',
-      inputSchema: {
-        type: 'object',
-        properties: {},
-      },
-    },
-  ],
-}));
+if (startInHttpMode) {
+  await startHttpServer();
+} else {
+  await startStdioServer();
 
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
-  const { name, arguments: args } = request.params;
+  const shutdown = async () => {
+    await pool.end();
+    process.exit(0);
+  };
 
-  try {
-    if (name === 'get_schema_summary') {
-      return formatText(await getSchemaSummary());
-    }
-
-    if (name === 'list_tables') {
-      return formatText(await getTables());
-    }
-
-    if (name === 'describe_table') {
-      const { table } = tableSchema.parse(args ?? {});
-      return formatText(await describeTable(table));
-    }
-
-    if (name === 'run_readonly_query') {
-      const { sql, limit } = queryToolSchema.parse(args ?? {});
-      return formatText(await runReadOnlyQuery(sql, limit));
-    }
-
-    if (name === 'search_products') {
-      return formatText(await searchProducts(searchProductsSchema.parse(args ?? {})));
-    }
-
-    if (name === 'get_user_by_email') {
-      const { email } = userByEmailSchema.parse(args ?? {});
-      return formatText(await getUserByEmail(email));
-    }
-
-    if (name === 'get_order_by_id') {
-      const { orderId } = orderByIdSchema.parse(args ?? {});
-      return formatText(await getOrderById(orderId));
-    }
-
-    if (name === 'get_product_by_id') {
-      const { productId } = productByIdSchema.parse(args ?? {});
-      return formatText(await getProductById(productId));
-    }
-
-    if (name === 'get_low_stock_products') {
-      return formatText(await getLowStockProducts(lowStockProductsSchema.parse(args ?? {})));
-    }
-
-    if (name === 'get_user_orders') {
-      return formatText(await getUserOrders(userOrdersSchema.parse(args ?? {})));
-    }
-
-    if (name === 'get_recent_orders') {
-      return formatText(await getRecentOrders(recentOrdersSchema.parse(args ?? {})));
-    }
-
-    if (name === 'get_order_summary') {
-      return formatText(await getOrderSummary());
-    }
-
-    throw new Error(`Unknown tool: ${name}`);
-  } catch (error) {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: error instanceof Error ? error.message : 'Unknown error',
-        },
-      ],
-      isError: true,
-    };
-  }
-});
-
-const transport = new StdioServerTransport();
-await server.connect(transport);
-
-process.on('SIGINT', async () => {
-  await pool.end();
-  process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-  await pool.end();
-  process.exit(0);
-});
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
+}
