@@ -21,6 +21,9 @@ This application demonstrates a **multi-namespace Kubernetes architecture** wher
 - **Prometheus**: Metrics collection across all namespaces
 - **Grafana**: Visualization and dashboards
 
+### MCP Servers (`MCP`)
+- **Croc Shop Data MCP**: Read-only PostgreSQL access for LLM-driven querying
+
 ## Technology Stack
 
 - **Platform**: RKE2 on AWS EC2 (Rancher managed)
@@ -90,6 +93,9 @@ croc-shop/
 │       ├── gateway-api-overrides.yaml
 │       ├── cilium-values.yaml
 │       └── cluster.RKE2.yaml
+├── MCP/
+│   ├── README.md               # MCP server index
+│   └── croc-shop-data/         # Read-only PostgreSQL MCP server
 ├── scripts/                    # Deployment automation
 └── docker-compose.yml         # Local development
 ```

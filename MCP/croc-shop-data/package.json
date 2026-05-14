@@ -1,0 +1,16 @@
+{
+  "name": "croc-shop-data-mcp",
+  "version": "1.0.0",
+  "description": "Read-only MCP server for querying Croc Shop PostgreSQL data",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "dotenv": "^16.4.5",
+    "pg": "^8.11.5",
+    "zod": "^3.23.8"
+  }
+}

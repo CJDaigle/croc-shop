@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "croc-shop-data": {
+      "command": "node",
+      "args": [
+        "/Users/cdaigle/Documents/GitHub/croc-shop/MCP/croc-shop-data/server.js"
+      ],
+      "cwd": "/Users/cdaigle/Documents/GitHub/croc-shop/MCP/croc-shop-data",
+      "env": {
+        "DATABASE_URL": "postgresql://postgres:postgres@localhost:5432/crocshop",
+        "MCP_QUERY_ROW_LIMIT": "200"
+      }
+    }
+  }
+}
