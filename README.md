@@ -8,7 +8,7 @@ This application demonstrates a **multi-namespace Kubernetes architecture** wher
 
 ### Microservices (Each in Dedicated Namespace)
 - **Frontend Service** (`croc-shop-frontend`): React-based web UI
-- **Product Catalog Service** (`croc-shop-product-catalog`): Postgres-backed product catalog (Node.js)
+`- **Product Catalog Service** (`croc-shop-product-catalog`): Postgres-backed product catalog (Node.js)`
 - **Shopping Cart Service** (`croc-shop-cart`): Handles user shopping carts (Python/Flask)
 - **Order Service** (`croc-shop-order`): Processes orders (Go)
 - **User Service** (`croc-shop-user`): User authentication and profiles (Node.js)
