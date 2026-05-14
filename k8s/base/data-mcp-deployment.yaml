@@ -1,0 +1,99 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: data-mcp-config
+  namespace: croc-shop-data
+data:
+  PORT: "3006"
+  MCP_TRANSPORT: http
+  DB_HOST: postgres.croc-shop-data.svc.cluster.local
+  DB_PORT: "5432"
+  DB_NAME: crocshop
+  DB_USER: postgres
+  MCP_QUERY_ROW_LIMIT: "200"
+---
+# WARNING: Plaintext secrets for dev/demo only.
+# In production, use External Secrets Operator, Sealed Secrets, or Vault.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: data-mcp-secret
+  namespace: croc-shop-data
+type: Opaque
+stringData:
+  DB_PASSWORD: postgres
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-mcp
+  namespace: croc-shop-data
+  labels:
+    app: data-mcp
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-mcp
+  template:
+    metadata:
+      labels:
+        app: data-mcp
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3006"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: data-mcp
+        image: cjdaigle2/croc-shop-data-mcp:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3006
+          name: http
+        envFrom:
+        - configMapRef:
+            name: data-mcp-config
+        env:
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: data-mcp-secret
+              key: DB_PASSWORD
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3006
+          initialDelaySeconds: 10
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3006
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 300m
+            memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-mcp
+  namespace: croc-shop-data
+  labels:
+    app: data-mcp
+spec:
+  selector:
+    app: data-mcp
+  ports:
+  - name: http
+    port: 3006
+    targetPort: 3006
+  type: ClusterIP

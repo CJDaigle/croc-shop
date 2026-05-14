@@ -2,6 +2,10 @@
 
 Read-only MCP server for querying the Croc Shop PostgreSQL database.
 
+This server supports two runtime modes:
+- local `stdio` MCP mode for desktop and IDE clients
+- deployable HTTP service mode for the in-cluster demo
+
 ## Tools
 
 - `get_schema_summary`
@@ -48,10 +52,22 @@ Queries run in a read-only transaction with a statement timeout.
 ```bash
 cp .env.example .env
 npm install
-npm start
+npm run start:stdio
 ```
 
 You can also use the repo-level `.mcp.json` configuration to register this server with an MCP client.
+
+To run the deployable HTTP service locally:
+
+```bash
+npm run start:http
+```
+
+HTTP service endpoints:
+- `/health`
+- `/ready`
+- `/metrics`
+- `/mcp`
 
 ## Environment variables
 
@@ -61,6 +77,8 @@ You can also use the repo-level `.mcp.json` configuration to register this serve
 - `PGDATABASE`
 - `PGUSER`
 - `PGPASSWORD`
+- `PORT`
+- `MCP_TRANSPORT`
 - `MCP_QUERY_ROW_LIMIT`
 
 `DATABASE_URL` is optional if the individual `PG*` variables are set.
@@ -73,3 +91,10 @@ This MCP server is intended for LLM-driven data inspection of the Croc Shop demo
 - orders
 
 It is intentionally scoped to PostgreSQL and does not query Redis carts.
+
+## Deployment assets
+
+- `Dockerfile`
+- `k8s/base/data-mcp-deployment.yaml`
+
+The Kubernetes deployment runs this server in HTTP mode inside the `croc-shop-data` namespace.

@@ -22,7 +22,7 @@ This application demonstrates a **multi-namespace Kubernetes architecture** wher
 - **Grafana**: Visualization and dashboards
 
 ### MCP Servers (`MCP`)
-- **Croc Shop Data MCP**: Read-only PostgreSQL access for LLM-driven querying
+- **Croc Shop Data MCP**: Read-only PostgreSQL access for LLM-driven querying, available as a deployable in-cluster service and a local MCP server
 
 ## Technology Stack
 
@@ -95,7 +95,7 @@ croc-shop/
 │       └── cluster.RKE2.yaml
 ├── MCP/
 │   ├── README.md               # MCP server index
-│   └── croc-shop-data/         # Read-only PostgreSQL MCP server
+│   └── croc-shop-data/         # Deployable PostgreSQL MCP service + local MCP server
 ├── scripts/                    # Deployment automation
 └── docker-compose.yml         # Local development
 ```

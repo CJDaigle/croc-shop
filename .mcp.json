@@ -3,7 +3,8 @@
     "croc-shop-data": {
       "command": "node",
       "args": [
-        "/Users/cdaigle/Documents/GitHub/croc-shop/MCP/croc-shop-data/server.js"
+        "/Users/cdaigle/Documents/GitHub/croc-shop/MCP/croc-shop-data/server.js",
+        "--stdio"
       ],
       "cwd": "/Users/cdaigle/Documents/GitHub/croc-shop/MCP/croc-shop-data",
       "env": {
