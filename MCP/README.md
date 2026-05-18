@@ -10,6 +10,10 @@ Some MCP servers in this repo can run in two modes:
 
 - `croc-shop-data/` — Read-only PostgreSQL data access for LLM-driven querying
 
+## Clients
+
+- `client/` — Claude-to-MCP host application that discovers MCP tools, calls the Anthropic API, executes MCP tool calls, and returns final responses to the caller
+
 ## Deploying an MCP server as a service
 
 For deployable MCP servers, the source lives under `MCP/`, while the deployment assets live in the main repo infrastructure directories.

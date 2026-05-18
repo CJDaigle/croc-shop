@@ -1,0 +1,16 @@
+{
+  "name": "croc-shop-mcp-client",
+  "version": "1.0.0",
+  "description": "Claude-to-MCP host application for the Croc Shop MCP services",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "zod": "^3.23.8"
+  }
+}

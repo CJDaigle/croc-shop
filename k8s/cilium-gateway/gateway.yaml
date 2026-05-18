@@ -113,3 +113,15 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
+    - name: https-mcp-client
+      protocol: HTTPS
+      port: 443
+      hostname: mcp-client.apo-llm-test.com
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: mcp-client-tls
+            namespace: default
+      allowedRoutes:
+        namespaces:
+          from: All

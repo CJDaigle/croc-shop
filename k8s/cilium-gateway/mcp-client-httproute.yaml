@@ -1,0 +1,21 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: mcp-client-route
+  namespace: croc-shop-mcp-client
+spec:
+  parentRefs:
+    - name: cilium-gateway-application-gateway
+      namespace: default
+      sectionName: https-mcp-client
+  hostnames:
+    - "mcp-client.apo-llm-test.com"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: mcp-client
+          namespace: croc-shop-mcp-client
+          port: 3010

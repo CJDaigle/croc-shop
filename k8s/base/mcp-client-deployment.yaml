@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-client-config
+  namespace: croc-shop-mcp-client
+data:
+  PORT: "3010"
+  MCP_SERVER_URL: https://data-mcp.apo-llm-test.com/mcp
+  ANTHROPIC_MODEL: claude-sonnet-4-20250514
+  ANTHROPIC_MAX_TOKENS: "1024"
+  SYSTEM_PROMPT: You are a helpful assistant for the Croc Shop demo. Use MCP tools when they help answer the user accurately.
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mcp-client-secret
+  namespace: croc-shop-mcp-client
+type: Opaque
+stringData:
+  ANTHROPIC_API_KEY: ""
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-client
+  namespace: croc-shop-mcp-client
+  labels:
+    app: mcp-client
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mcp-client
+  template:
+    metadata:
+      labels:
+        app: mcp-client
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3010"
+        prometheus.io/path: "/metrics"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: mcp-client
+        image: cjdaigle2/croc-shop-mcp-client:latest
+        imagePullPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        ports:
+        - containerPort: 3010
+          name: http
+        envFrom:
+        - configMapRef:
+            name: mcp-client-config
+        env:
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mcp-client-secret
+              key: ANTHROPIC_API_KEY
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3010
+          initialDelaySeconds: 10
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3010
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 300m
+            memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp-client
+  namespace: croc-shop-mcp-client
+  labels:
+    app: mcp-client
+spec:
+  selector:
+    app: mcp-client
+  ports:
+  - name: http
+    port: 3010
+    targetPort: 3010
+  type: ClusterIP

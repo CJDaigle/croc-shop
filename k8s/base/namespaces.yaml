@@ -49,6 +49,14 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
+  name: croc-shop-mcp-client
+  labels:
+    name: croc-shop-mcp-client
+    app: croc-shop
+---
+apiVersion: v1
+kind: Namespace
+metadata:
   name: croc-shop-data
   labels:
     name: croc-shop-data

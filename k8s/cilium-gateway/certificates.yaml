@@ -37,3 +37,17 @@ spec:
     kind: ClusterIssuer
   dnsNames:
     - data-mcp.apo-llm-test.com
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: mcp-client-tls
+  namespace: default
+spec:
+  secretName: mcp-client-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - mcp-client.apo-llm-test.com

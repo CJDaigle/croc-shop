@@ -390,3 +390,44 @@ spec:
       port: 53
     - protocol: UDP
       port: 53
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mcp-client-policy
+  namespace: croc-shop-mcp-client
+spec:
+  podSelector:
+    matchLabels:
+      app: mcp-client
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - ports:
+    - protocol: TCP
+      port: 3010
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: croc-shop-data
+      podSelector:
+        matchLabels:
+          app: data-mcp
+    ports:
+    - protocol: TCP
+      port: 3006
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
+  - to:
+    - ipBlock:
+        cidr: 0.0.0.0/0
+    ports:
+    - protocol: TCP
+      port: 443
