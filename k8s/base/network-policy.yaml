@@ -372,18 +372,32 @@ spec:
   - from:
     - namespaceSelector:
         matchLabels:
-          kubernetes.io/metadata.name: kube-system
-      podSelector:
+          name: croc-shop-data
+    - namespaceSelector:
         matchLabels:
-          k8s-app: cilium-envoy
+          kubernetes.io/metadata.name: kube-system
+    ports:
+    - protocol: TCP
+      port: 3006
+  - from:
     - namespaceSelector:
         matchLabels:
           name: croc-shop-monitoring
+    ports:
+    - protocol: TCP
+      port: 3006
+  - from:
     - namespaceSelector:
         matchLabels:
           name: croc-shop-chatbot
+    ports:
+    - protocol: TCP
+      port: 3006
+  - from:
     - ipBlock:
         cidr: 10.0.0.0/16
+    - ipBlock:
+        cidr: 172.16.0.0/16
     ports:
     - protocol: TCP
       port: 3006
