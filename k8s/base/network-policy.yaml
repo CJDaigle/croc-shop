@@ -369,36 +369,7 @@ spec:
   - Ingress
   - Egress
   ingress:
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          name: croc-shop-data
-    - namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: kube-system
-    ports:
-    - protocol: TCP
-      port: 3006
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          name: croc-shop-monitoring
-    ports:
-    - protocol: TCP
-      port: 3006
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          name: croc-shop-chatbot
-    ports:
-    - protocol: TCP
-      port: 3006
-  - from:
-    - ipBlock:
-        cidr: 10.0.0.0/16
-    - ipBlock:
-        cidr: 172.16.0.0/16
-    ports:
+  - ports:
     - protocol: TCP
       port: 3006
   egress:
