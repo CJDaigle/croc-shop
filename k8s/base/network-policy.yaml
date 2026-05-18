@@ -372,6 +372,9 @@ spec:
   - from:
     - namespaceSelector:
         matchLabels:
+          kubernetes.io/metadata.name: default
+    - namespaceSelector:
+        matchLabels:
           name: croc-shop-monitoring
     - namespaceSelector:
         matchLabels:

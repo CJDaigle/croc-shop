@@ -101,3 +101,15 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
+    - name: https-data-mcp
+      protocol: HTTPS
+      port: 443
+      hostname: data-mcp.apo-llm-test.com
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: data-mcp-tls
+            namespace: default
+      allowedRoutes:
+        namespaces:
+          from: All

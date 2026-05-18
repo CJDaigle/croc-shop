@@ -137,3 +137,22 @@ kubectl get pods -n croc-shop-data
 kubectl get svc -n croc-shop-data data-mcp
 kubectl describe deployment -n croc-shop-data data-mcp
 ```
+
+## Expose through the shared Gateway
+
+The Data MCP service can also be exposed externally at `https://data-mcp.apo-llm-test.com` through the shared Cilium Gateway.
+
+Gateway-related manifests:
+- `k8s/cilium-gateway/gateway.yaml`
+- `k8s/cilium-gateway/certificates.yaml`
+- `k8s/cilium-gateway/data-mcp-httproute.yaml`
+- `k8s/cilium-gateway/reference-grants.yaml`
+
+Apply them with:
+
+```bash
+kubectl apply -f k8s/cilium-gateway/certificates.yaml
+kubectl apply -f k8s/cilium-gateway/gateway.yaml
+kubectl apply -f k8s/cilium-gateway/reference-grants.yaml
+kubectl apply -f k8s/cilium-gateway/data-mcp-httproute.yaml
+```

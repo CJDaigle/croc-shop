@@ -38,6 +38,8 @@ kubectl apply -f k8s/base/network-policy.yaml
 
 After deployment, the service is exposed internally in Kubernetes as `data-mcp` in the `croc-shop-data` namespace and serves HTTP endpoints on port `3006`, including the MCP endpoint at `/mcp`.
 
+It can also be exposed externally through the shared Cilium Gateway at `https://data-mcp.apo-llm-test.com` using the manifests under `k8s/cilium-gateway/`.
+
 Additional MCP servers can be added here later, for example:
 - operations and observability tools
 - admin and deployment tools

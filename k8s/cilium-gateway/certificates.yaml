@@ -23,3 +23,17 @@ spec:
     kind: ClusterIssuer
   dnsNames:
     - prometheus.apo-llm-test.com
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: data-mcp-tls
+  namespace: default
+spec:
+  secretName: data-mcp-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - data-mcp.apo-llm-test.com

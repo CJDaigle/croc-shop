@@ -1,0 +1,21 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: data-mcp-route
+  namespace: croc-shop-data
+spec:
+  parentRefs:
+    - name: cilium-gateway-application-gateway
+      namespace: default
+      sectionName: https-data-mcp
+  hostnames:
+    - "data-mcp.apo-llm-test.com"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: data-mcp
+          namespace: croc-shop-data
+          port: 3006
