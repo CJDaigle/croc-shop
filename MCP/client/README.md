@@ -27,6 +27,7 @@ For the current Croc Shop setup, the default MCP target is the deployed HTTP MCP
 
 - `GET /health`
 - `GET /ready`
+- `GET /metrics`
 - `GET /tools`
 - `POST /chat`
 
@@ -45,8 +46,11 @@ For the current Croc Shop setup, the default MCP target is the deployed HTTP MCP
 - `PORT`
 - `MCP_SERVER_URL`
 - `ANTHROPIC_API_KEY`
+- `CLIENT_API_KEY`
 - `ANTHROPIC_MODEL`
 - `ANTHROPIC_MAX_TOKENS`
+- `RATE_LIMIT_WINDOW_MS`
+- `RATE_LIMIT_MAX_REQUESTS`
 - `SYSTEM_PROMPT`
 
 Example `.env`:
@@ -59,9 +63,37 @@ cp .env.example .env
 PORT=3010
 MCP_SERVER_URL=https://data-mcp.apo-llm-test.com/mcp
 ANTHROPIC_API_KEY=your-key-here
+CLIENT_API_KEY=shared-client-api-key
 ANTHROPIC_MODEL=claude-sonnet-4-20250514
 ANTHROPIC_MAX_TOKENS=1024
+RATE_LIMIT_WINDOW_MS=60000
+RATE_LIMIT_MAX_REQUESTS=30
 SYSTEM_PROMPT=You are a helpful assistant for the Croc Shop demo. Use MCP tools when they help answer the user accurately.
+```
+
+## Authentication and rate limiting
+
+The public `GET /tools` and `POST /chat` endpoints require a shared API key in the `x-api-key` request header.
+
+The service also enforces a simple in-memory per-client rate limit using:
+
+- `RATE_LIMIT_WINDOW_MS`
+- `RATE_LIMIT_MAX_REQUESTS`
+
+Example authenticated request:
+
+```bash
+curl -X POST http://localhost:3010/chat \
+  -H 'Content-Type: application/json' \
+  -H 'x-api-key: shared-client-api-key' \
+  -d '{
+    "messages": [
+      {
+        "role": "user",
+        "content": "Show me the three lowest stock products."
+      }
+    ]
+  }'
 ```
 
 ## Local development
@@ -108,6 +140,12 @@ Example response:
 
 ```bash
 curl http://localhost:3010/tools
+```
+
+Authenticated form:
+
+```bash
+curl http://localhost:3010/tools -H 'x-api-key: shared-client-api-key'
 ```
 
 ## Chat API
@@ -231,6 +269,8 @@ The service runs in the `croc-shop-mcp-client` namespace and is exposed internal
 ### Required secret configuration
 
 Before deploying, populate the `ANTHROPIC_API_KEY` value in `k8s/base/mcp-client-deployment.yaml` or replace that secret management approach with your preferred secret workflow.
+
+You must also set a non-empty `CLIENT_API_KEY` for callers of the public `mcp-client` endpoint.
 
 ### Apply the service manifests
 
