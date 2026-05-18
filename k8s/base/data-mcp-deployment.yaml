@@ -6,10 +6,10 @@ metadata:
 data:
   PORT: "3006"
   MCP_TRANSPORT: http
-  DB_HOST: postgres.croc-shop-data.svc.cluster.local
-  DB_PORT: "5432"
-  DB_NAME: crocshop
-  DB_USER: postgres
+  PGHOST: postgres.croc-shop-data.svc.cluster.local
+  PGPORT: "5432"
+  PGDATABASE: crocshop
+  PGUSER: postgres
   MCP_QUERY_ROW_LIMIT: "200"
 ---
 # WARNING: Plaintext secrets for dev/demo only.
