@@ -98,3 +98,42 @@ It is intentionally scoped to PostgreSQL and does not query Redis carts.
 - `k8s/base/data-mcp-deployment.yaml`
 
 The Kubernetes deployment runs this server in HTTP mode inside the `croc-shop-data` namespace.
+
+## Deploy as a Kubernetes service
+
+From the repo root:
+
+```bash
+docker build -t cjdaigle2/croc-shop-data-mcp:latest ./MCP/croc-shop-data
+docker push cjdaigle2/croc-shop-data-mcp:latest
+kubectl apply -f k8s/base/data-mcp-deployment.yaml
+kubectl apply -f k8s/base/network-policy.yaml
+```
+
+If you publish a different tag or registry path, update the image in `k8s/base/data-mcp-deployment.yaml` before applying it.
+
+### What gets created
+
+- `ConfigMap` named `data-mcp-config`
+- `Secret` named `data-mcp-secret`
+- `Deployment` named `data-mcp`
+- `Service` named `data-mcp`
+
+All resources are created in the `croc-shop-data` namespace.
+
+### Service behavior
+
+- transport mode: HTTP MCP
+- service port: `3006`
+- liveness endpoint: `/health`
+- readiness endpoint: `/ready`
+- metrics endpoint: `/metrics`
+- MCP endpoint: `/mcp`
+
+### Verify the deployment
+
+```bash
+kubectl get pods -n croc-shop-data
+kubectl get svc -n croc-shop-data data-mcp
+kubectl describe deployment -n croc-shop-data data-mcp
+```

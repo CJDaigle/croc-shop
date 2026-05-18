@@ -17,6 +17,9 @@ docker push $DOCKER_USERNAME/croc-shop-chatbot:latest
 docker buildx build --platform linux/amd64 -t $DOCKER_USERNAME/chuck-app-chuck-norris:latest ./services/chatbot
 docker push $DOCKER_USERNAME/chuck-app-chuck-norris:latest
 
+docker buildx build --platform linux/amd64 -t $DOCKER_USERNAME/croc-shop-data-mcp:latest ./MCP/croc-shop-data
+docker push $DOCKER_USERNAME/croc-shop-data-mcp:latest
+
 
 How to insert products
 Products are created via the Product Catalog service endpoint:
