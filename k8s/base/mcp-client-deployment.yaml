@@ -27,6 +27,11 @@ metadata:
 type: Opaque
 stringData:
   CLIENT_API_KEY: ""
+  AWS_ACCESS_KEY_ID: ""
+  AWS_SECRET_ACCESS_KEY: ""
+  AWS_SESSION_TOKEN: ""
+  AWS_ROLE_ARN: ""
+  AWS_ROLE_SESSION_NAME: "mcp-client-bedrock"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -81,6 +86,36 @@ spec:
             secretKeyRef:
               name: mcp-client-secret
               key: CLIENT_API_KEY
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: mcp-client-secret
+              key: AWS_ACCESS_KEY_ID
+              optional: true
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mcp-client-secret
+              key: AWS_SECRET_ACCESS_KEY
+              optional: true
+        - name: AWS_SESSION_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: mcp-client-secret
+              key: AWS_SESSION_TOKEN
+              optional: true
+        - name: AWS_ROLE_ARN
+          valueFrom:
+            secretKeyRef:
+              name: mcp-client-secret
+              key: AWS_ROLE_ARN
+              optional: true
+        - name: AWS_ROLE_SESSION_NAME
+          valueFrom:
+            secretKeyRef:
+              name: mcp-client-secret
+              key: AWS_ROLE_SESSION_NAME
+              optional: true
         livenessProbe:
           httpGet:
             path: /health

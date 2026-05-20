@@ -2,12 +2,12 @@
 
 Host application that connects Claude to one or more MCP servers.
 
-This client is the orchestration layer between the Anthropic Messages API and the Croc Shop MCP servers. It discovers MCP tools, exposes a simple HTTP interface for your application tier, executes Claude-requested tool calls against the MCP server, and returns the final model response.
+This client is the orchestration layer between AWS Bedrock Claude models and the Croc Shop MCP servers. It discovers MCP tools, exposes a simple HTTP interface for your application tier, executes Claude-requested tool calls against the MCP server, and returns the final model response.
 
 ## Architecture
 
 ```text
-Your app -> MCP client -> Anthropic API
+Your app -> MCP client -> AWS Bedrock Claude
                   |
                   -> MCP server
 ```
@@ -18,10 +18,10 @@ For the current Croc Shop setup, the default MCP target is the deployed HTTP MCP
 
 - connects to an MCP server over Streamable HTTP
 - discovers available MCP tools
-- converts MCP tool schemas into Anthropic tool definitions
-- sends user messages plus tool definitions to Claude
+- converts MCP tool schemas into Bedrock tool definitions
+- sends user messages plus tool definitions to Claude through Bedrock
 - executes tool calls requested by Claude against the MCP server
-- sends tool results back to Claude until a final answer is produced
+- sends tool results back to Claude through Bedrock until a final answer is produced
 
 ## HTTP endpoints
 
@@ -47,6 +47,11 @@ For the current Croc Shop setup, the default MCP target is the deployed HTTP MCP
 - `MCP_SERVER_URL`
 - `CLIENT_API_KEY`
 - `AWS_REGION`
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `AWS_SESSION_TOKEN`
+- `AWS_ROLE_ARN`
+- `AWS_ROLE_SESSION_NAME`
 - `BEDROCK_MODEL_ID`
 - `BEDROCK_MAX_TOKENS`
 - `RATE_LIMIT_WINDOW_MS`
@@ -64,6 +69,11 @@ PORT=3010
 MCP_SERVER_URL=https://data-mcp.apo-llm-test.com/mcp
 CLIENT_API_KEY=shared-client-api-key
 AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=your-access-key-id
+AWS_SECRET_ACCESS_KEY=your-secret-access-key
+AWS_SESSION_TOKEN=
+AWS_ROLE_ARN=
+AWS_ROLE_SESSION_NAME=mcp-client-bedrock
 BEDROCK_MODEL_ID=us.anthropic.claude-sonnet-4-20250514-v1:0
 BEDROCK_MAX_TOKENS=1024
 RATE_LIMIT_WINDOW_MS=60000
@@ -71,7 +81,13 @@ RATE_LIMIT_MAX_REQUESTS=30
 SYSTEM_PROMPT=You are a helpful assistant for the Croc Shop demo. Use MCP tools when they help answer the user accurately.
 ```
 
-The service uses the AWS default credential chain for Bedrock access. In Kubernetes, provide IAM access through your existing node role, IRSA, or another standard AWS credential mechanism.
+Credential resolution order for Bedrock access:
+
+1. If `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` are set, the service uses them as the base credentials.
+2. If `AWS_ROLE_ARN` is also set, the service assumes that role through STS before calling Bedrock.
+3. If no explicit credentials are set, the service falls back to the default AWS credential chain.
+
+For infrastructure-agnostic Kubernetes deployments, the recommended portable path is to store AWS credentials in `mcp-client-secret` and optionally provide an `AWS_ROLE_ARN` for a Bedrock-only role.
 
 ## Authentication and rate limiting
 
@@ -178,6 +194,7 @@ Optional request fields:
 ```bash
 curl -X POST http://localhost:3010/chat \
   -H 'Content-Type: application/json' \
+  -H 'x-api-key: shared-client-api-key' \
   -d '{
     "messages": [
       {
@@ -272,7 +289,20 @@ The service runs in the `croc-shop-mcp-client` namespace and is exposed internal
 
 You must also set a non-empty `CLIENT_API_KEY` for callers of the public `mcp-client` endpoint.
 
-The service no longer requires a direct Anthropic API key. It calls Claude through AWS Bedrock using IAM credentials available to the runtime environment.
+The service no longer requires a direct Anthropic API key. It calls Claude through AWS Bedrock using either:
+
+- explicit AWS credentials from `mcp-client-secret`
+- optional STS assume-role via `AWS_ROLE_ARN`
+- or the ambient AWS credential chain if your runtime provides one
+
+For the portable demo path, populate these secret values before deploying:
+
+- `CLIENT_API_KEY`
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- optionally `AWS_SESSION_TOKEN`
+- optionally `AWS_ROLE_ARN`
+- optionally `AWS_ROLE_SESSION_NAME`
 
 ### Apply the service manifests
 

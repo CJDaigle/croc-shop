@@ -2,26 +2,48 @@ import dotenv from 'dotenv';
 import express from 'express';
 import promClient from 'prom-client';
 import { BedrockRuntimeClient, ConverseCommand } from '@aws-sdk/client-bedrock-runtime';
+import { fromTemporaryCredentials } from '@aws-sdk/credential-providers';
+import { STSClient } from '@aws-sdk/client-sts';
 import { z } from 'zod';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 
 dotenv.config();
 
+const optionalNonEmptyString = z.preprocess(
+  (value) => (typeof value === 'string' && value.trim() === '' ? undefined : value),
+  z.string().min(1).optional(),
+);
+
 const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3010),
   MCP_SERVER_URL: z.string().url(),
   CLIENT_API_KEY: z.string().min(1),
   AWS_REGION: z.string().min(1).default('us-east-1'),
+  AWS_ACCESS_KEY_ID: optionalNonEmptyString,
+  AWS_SECRET_ACCESS_KEY: optionalNonEmptyString,
+  AWS_SESSION_TOKEN: optionalNonEmptyString,
+  AWS_ROLE_ARN: optionalNonEmptyString,
+  AWS_ROLE_SESSION_NAME: optionalNonEmptyString.default('mcp-client-bedrock'),
   BEDROCK_MODEL_ID: z.string().min(1).default('us.anthropic.claude-sonnet-4-20250514-v1:0'),
   BEDROCK_MAX_TOKENS: z.coerce.number().int().positive().default(1024),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60000),
   RATE_LIMIT_MAX_REQUESTS: z.coerce.number().int().positive().default(30),
   SYSTEM_PROMPT: z.string().default('You are a helpful assistant for the Croc Shop demo. Use MCP tools when they help answer the user accurately.'),
+}).superRefine((value, ctx) => {
+  const hasAccessKey = Boolean(value.AWS_ACCESS_KEY_ID);
+  const hasSecretKey = Boolean(value.AWS_SECRET_ACCESS_KEY);
+
+  if (hasAccessKey !== hasSecretKey) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY must be provided together.',
+      path: hasAccessKey ? ['AWS_SECRET_ACCESS_KEY'] : ['AWS_ACCESS_KEY_ID'],
+    });
+  }
 });
 
 const config = envSchema.parse(process.env);
-const bedrockClient = new BedrockRuntimeClient({ region: config.AWS_REGION });
 const registry = new promClient.Registry();
 promClient.collectDefaultMetrics({ register: registry });
 
@@ -59,6 +81,49 @@ let mcpTransport;
 let cachedTools = [];
 let connectingPromise;
 const rateLimitBuckets = new Map();
+
+function getBaseAwsCredentials() {
+  if (!config.AWS_ACCESS_KEY_ID || !config.AWS_SECRET_ACCESS_KEY) {
+    return undefined;
+  }
+
+  return {
+    accessKeyId: config.AWS_ACCESS_KEY_ID,
+    secretAccessKey: config.AWS_SECRET_ACCESS_KEY,
+    ...(config.AWS_SESSION_TOKEN ? { sessionToken: config.AWS_SESSION_TOKEN } : {}),
+  };
+}
+
+function createBedrockClient() {
+  const baseCredentials = getBaseAwsCredentials();
+
+  if (config.AWS_ROLE_ARN) {
+    const masterCredentials = baseCredentials ? async () => baseCredentials : undefined;
+    const stsClient = new STSClient({
+      region: config.AWS_REGION,
+      ...(baseCredentials ? { credentials: baseCredentials } : {}),
+    });
+
+    return new BedrockRuntimeClient({
+      region: config.AWS_REGION,
+      credentials: fromTemporaryCredentials({
+        client: stsClient,
+        masterCredentials,
+        params: {
+          RoleArn: config.AWS_ROLE_ARN,
+          RoleSessionName: config.AWS_ROLE_SESSION_NAME,
+        },
+      }),
+    });
+  }
+
+  return new BedrockRuntimeClient({
+    region: config.AWS_REGION,
+    ...(baseCredentials ? { credentials: baseCredentials } : {}),
+  });
+}
+
+const bedrockClient = createBedrockClient();
 
 function withHttpMetrics(routeLabel, handler) {
   return async (req, res, next) => {
