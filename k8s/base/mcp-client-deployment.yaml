@@ -6,8 +6,9 @@ metadata:
 data:
   PORT: "3010"
   MCP_SERVER_URL: https://data-mcp.apo-llm-test.com/mcp
-  ANTHROPIC_MODEL: claude-sonnet-4-20250514
-  ANTHROPIC_MAX_TOKENS: "1024"
+  AWS_REGION: us-east-1
+  BEDROCK_MODEL_ID: us.anthropic.claude-sonnet-4-20250514-v1:0
+  BEDROCK_MAX_TOKENS: "1024"
   RATE_LIMIT_WINDOW_MS: "60000"
   RATE_LIMIT_MAX_REQUESTS: "30"
   SYSTEM_PROMPT: You are a helpful assistant for the Croc Shop demo. Use MCP tools when they help answer the user accurately.
@@ -19,7 +20,6 @@ metadata:
   namespace: croc-shop-mcp-client
 type: Opaque
 stringData:
-  ANTHROPIC_API_KEY: ""
   CLIENT_API_KEY: ""
 ---
 apiVersion: apps/v1
@@ -69,11 +69,6 @@ spec:
         - configMapRef:
             name: mcp-client-config
         env:
-        - name: ANTHROPIC_API_KEY
-          valueFrom:
-            secretKeyRef:
-              name: mcp-client-secret
-              key: ANTHROPIC_API_KEY
         - name: CLIENT_API_KEY
           valueFrom:
             secretKeyRef:

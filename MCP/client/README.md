@@ -36,19 +36,19 @@ For the current Croc Shop setup, the default MCP target is the deployed HTTP MCP
 1. Your application sends chat history to `POST /chat`
 2. The client ensures it can connect to the MCP server
 3. The client lists available tools from the MCP server
-4. The client calls Anthropic with the message history and tool definitions
+4. The client calls Claude through AWS Bedrock with the message history and tool definitions
 5. If Claude returns `tool_use` blocks, the client executes those MCP tools
-6. The client sends `tool_result` blocks back to Anthropic
+6. The client sends `tool_result` blocks back through AWS Bedrock
 7. The loop continues until Claude returns a final answer
 
 ## Environment variables
 
 - `PORT`
 - `MCP_SERVER_URL`
-- `ANTHROPIC_API_KEY`
 - `CLIENT_API_KEY`
-- `ANTHROPIC_MODEL`
-- `ANTHROPIC_MAX_TOKENS`
+- `AWS_REGION`
+- `BEDROCK_MODEL_ID`
+- `BEDROCK_MAX_TOKENS`
 - `RATE_LIMIT_WINDOW_MS`
 - `RATE_LIMIT_MAX_REQUESTS`
 - `SYSTEM_PROMPT`
@@ -62,14 +62,16 @@ cp .env.example .env
 ```env
 PORT=3010
 MCP_SERVER_URL=https://data-mcp.apo-llm-test.com/mcp
-ANTHROPIC_API_KEY=your-key-here
 CLIENT_API_KEY=shared-client-api-key
-ANTHROPIC_MODEL=claude-sonnet-4-20250514
-ANTHROPIC_MAX_TOKENS=1024
+AWS_REGION=us-east-1
+BEDROCK_MODEL_ID=us.anthropic.claude-sonnet-4-20250514-v1:0
+BEDROCK_MAX_TOKENS=1024
 RATE_LIMIT_WINDOW_MS=60000
 RATE_LIMIT_MAX_REQUESTS=30
 SYSTEM_PROMPT=You are a helpful assistant for the Croc Shop demo. Use MCP tools when they help answer the user accurately.
 ```
+
+The service uses the AWS default credential chain for Bedrock access. In Kubernetes, provide IAM access through your existing node role, IRSA, or another standard AWS credential mechanism.
 
 ## Authentication and rate limiting
 
@@ -190,7 +192,7 @@ curl -X POST http://localhost:3010/chat \
 
 ```json
 {
-  "model": "claude-sonnet-4-20250514",
+  "model": "us.anthropic.claude-sonnet-4-20250514-v1:0",
   "stopReason": "end_turn",
   "text": "The three lowest-stock products are ...",
   "content": [],
@@ -241,7 +243,7 @@ Recommended placement:
 Recommended responsibilities for the surrounding app stack:
 
 - authenticate end users before calling this client
-- keep the Anthropic API key in Secrets Manager or Kubernetes secrets
+- provide AWS IAM credentials with Bedrock invoke permissions
 - log tool usage and request IDs
 - add rate limits and request validation at the edge
 
@@ -268,9 +270,9 @@ The service runs in the `croc-shop-mcp-client` namespace and is exposed internal
 
 ### Required secret configuration
 
-Before deploying, populate the `ANTHROPIC_API_KEY` value in `k8s/base/mcp-client-deployment.yaml` or replace that secret management approach with your preferred secret workflow.
-
 You must also set a non-empty `CLIENT_API_KEY` for callers of the public `mcp-client` endpoint.
+
+The service no longer requires a direct Anthropic API key. It calls Claude through AWS Bedrock using IAM credentials available to the runtime environment.
 
 ### Apply the service manifests
 

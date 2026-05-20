@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import promClient from 'prom-client';
+import { BedrockRuntimeClient, ConverseCommand } from '@aws-sdk/client-bedrock-runtime';
 import { z } from 'zod';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
@@ -10,16 +11,17 @@ dotenv.config();
 const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3010),
   MCP_SERVER_URL: z.string().url(),
-  ANTHROPIC_API_KEY: z.string().min(1),
   CLIENT_API_KEY: z.string().min(1),
-  ANTHROPIC_MODEL: z.string().min(1).default('claude-sonnet-4-20250514'),
-  ANTHROPIC_MAX_TOKENS: z.coerce.number().int().positive().default(1024),
+  AWS_REGION: z.string().min(1).default('us-east-1'),
+  BEDROCK_MODEL_ID: z.string().min(1).default('us.anthropic.claude-sonnet-4-20250514-v1:0'),
+  BEDROCK_MAX_TOKENS: z.coerce.number().int().positive().default(1024),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60000),
   RATE_LIMIT_MAX_REQUESTS: z.coerce.number().int().positive().default(30),
   SYSTEM_PROMPT: z.string().default('You are a helpful assistant for the Croc Shop demo. Use MCP tools when they help answer the user accurately.'),
 });
 
 const config = envSchema.parse(process.env);
+const bedrockClient = new BedrockRuntimeClient({ region: config.AWS_REGION });
 const registry = new promClient.Registry();
 promClient.collectDefaultMetrics({ register: registry });
 
@@ -122,10 +124,45 @@ function rateLimit(req, res, next) {
 
 function normalizeMessageContent(content) {
   if (typeof content === 'string') {
-    return [{ type: 'text', text: content }];
+    return [{ text: content }];
   }
 
-  return content;
+  return content.map((block) => {
+    if (block.type === 'text' && typeof block.text === 'string') {
+      return { text: block.text };
+    }
+
+    if (block.type === 'tool_use') {
+      return {
+        toolUse: {
+          toolUseId: block.id,
+          name: block.name,
+          input: block.input ?? {},
+        },
+      };
+    }
+
+    if (block.type === 'tool_result') {
+      let parsedJson;
+      if (typeof block.content === 'string') {
+        try {
+          parsedJson = JSON.parse(block.content);
+        } catch (error) {
+          parsedJson = undefined;
+        }
+      }
+
+      return {
+        toolResult: {
+          toolUseId: block.tool_use_id,
+          status: block.is_error ? 'error' : 'success',
+          content: parsedJson !== undefined ? [{ json: parsedJson }] : [{ text: String(block.content ?? '') }],
+        },
+      };
+    }
+
+    return { text: JSON.stringify(block) };
+  });
 }
 
 async function ensureMcpConnection() {
@@ -173,13 +210,17 @@ async function refreshTools() {
   return cachedTools;
 }
 
-function toAnthropicTool(tool) {
+function toBedrockTool(tool) {
   return {
-    name: tool.name,
-    description: tool.description ?? '',
-    input_schema: tool.inputSchema ?? {
-      type: 'object',
-      properties: {},
+    toolSpec: {
+      name: tool.name,
+      description: tool.description ?? '',
+      inputSchema: {
+        json: tool.inputSchema ?? {
+          type: 'object',
+          properties: {},
+        },
+      },
     },
   };
 }
@@ -204,28 +245,56 @@ function stringifyToolResult(result) {
   return JSON.stringify(result, null, 2);
 }
 
-async function callAnthropic(payload) {
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'x-api-key': config.ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify(payload),
+function bedrockContentToPublicContent(content = []) {
+  return content.flatMap((block) => {
+    if (typeof block.text === 'string') {
+      return [{ type: 'text', text: block.text }];
+    }
+
+    if (block.toolUse) {
+      return [{
+        type: 'tool_use',
+        id: block.toolUse.toolUseId,
+        name: block.toolUse.name,
+        input: block.toolUse.input ?? {},
+      }];
+    }
+
+    if (block.toolResult) {
+      return [{
+        type: 'tool_result',
+        tool_use_id: block.toolResult.toolUseId,
+        is_error: block.toolResult.status === 'error',
+        content: JSON.stringify(block.toolResult.content ?? []),
+      }];
+    }
+
+    return [];
   });
+}
 
-  if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`Anthropic API error ${response.status}: ${body}`);
+async function callBedrock({ system, messages, tools, modelId, maxTokens }) {
+  try {
+    return await bedrockClient.send(new ConverseCommand({
+      modelId,
+      system: [{ text: system }],
+      messages,
+      toolConfig: {
+        tools,
+      },
+      inferenceConfig: {
+        maxTokens,
+      },
+    }));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown Bedrock error';
+    throw new Error(`Bedrock API error: ${message}`);
   }
-
-  return response.json();
 }
 
 function extractText(content) {
   return content
-    .filter((block) => block.type === 'text')
+    .filter((block) => typeof block.text === 'string')
     .map((block) => block.text)
     .join('\n');
 }
@@ -237,7 +306,7 @@ async function runClaudeToolLoop({ messages, system, model, maxTokens }) {
     await refreshTools();
   }
 
-  const anthropicMessages = messages.map((message) => ({
+  const bedrockMessages = messages.map((message) => ({
     role: message.role,
     content: normalizeMessageContent(message.content),
   }));
@@ -245,26 +314,31 @@ async function runClaudeToolLoop({ messages, system, model, maxTokens }) {
   const executedTools = [];
 
   for (let i = 0; i < 8; i += 1) {
-    const response = await callAnthropic({
-      model: model ?? config.ANTHROPIC_MODEL,
-      max_tokens: maxTokens ?? config.ANTHROPIC_MAX_TOKENS,
+    const response = await callBedrock({
+      modelId: model ?? config.BEDROCK_MODEL_ID,
+      maxTokens: maxTokens ?? config.BEDROCK_MAX_TOKENS,
       system: system ?? config.SYSTEM_PROMPT,
-      messages: anthropicMessages,
-      tools: cachedTools.map(toAnthropicTool),
+      messages: bedrockMessages,
+      tools: cachedTools.map(toBedrockTool),
     });
 
-    anthropicMessages.push({
+    const responseContent = response.output?.message?.content ?? [];
+
+    bedrockMessages.push({
       role: 'assistant',
-      content: response.content,
+      content: responseContent,
     });
 
-    const toolUses = response.content.filter((block) => block.type === 'tool_use');
+    const toolUses = responseContent
+      .filter((block) => block.toolUse)
+      .map((block) => block.toolUse);
+
     if (!toolUses.length) {
       return {
-        model: response.model,
-        stopReason: response.stop_reason,
-        text: extractText(response.content),
-        content: response.content,
+        model: response.modelId ?? (model ?? config.BEDROCK_MODEL_ID),
+        stopReason: response.stopReason,
+        text: extractText(responseContent),
+        content: bedrockContentToPublicContent(responseContent),
         toolResults: executedTools,
       };
     }
@@ -280,22 +354,30 @@ async function runClaudeToolLoop({ messages, system, model, maxTokens }) {
       const serialized = stringifyToolResult(toolResult);
 
       executedTools.push({
-        id: toolUse.id,
+        id: toolUse.toolUseId,
         name: toolUse.name,
         input: toolUse.input ?? {},
         isError: Boolean(toolResult.isError),
         result: serialized,
       });
 
+      let parsedJson;
+      try {
+        parsedJson = JSON.parse(serialized);
+      } catch (error) {
+        parsedJson = undefined;
+      }
+
       toolResultContent.push({
-        type: 'tool_result',
-        tool_use_id: toolUse.id,
-        content: serialized,
-        is_error: Boolean(toolResult.isError),
+        toolResult: {
+          toolUseId: toolUse.toolUseId,
+          status: toolResult.isError ? 'error' : 'success',
+          content: parsedJson !== undefined ? [{ json: parsedJson }] : [{ text: serialized }],
+        },
       });
     }
 
-    anthropicMessages.push({
+    bedrockMessages.push({
       role: 'user',
       content: toolResultContent,
     });
