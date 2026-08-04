@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 # Prometheus metrics
 REQUEST_COUNT = Counter('http_requests_total', 'Total HTTP requests', ['method', 'endpoint', 'status'])
 REQUEST_DURATION = Histogram('http_request_duration_seconds', 'HTTP request duration', ['method', 'endpoint'])
-DEFAULT_MODEL_ID = "us.anthropic.claude-sonnet-4-20250514-v1:0"
+DEFAULT_MODEL_ID = "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
 CHATBOT_SYSTEM_PROMPT = (
     "You are the Croc Shop assistant. Answer clearly and concisely using plain English. "
     "Use short paragraphs or short bullet lists when helpful. Keep product names exact. "
