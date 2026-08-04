@@ -301,6 +301,14 @@ The script will:
 5. **Deploy monitoring stack**
    ```bash
    kubectl apply -f k8s/monitoring/prometheus.yaml
+
+   # Create the Grafana admin secret before applying the Grafana deployment
+   kubectl create secret generic grafana-admin-secret \
+     -n croc-shop-monitoring \
+     --from-literal=admin-user=admin \
+     --from-literal=admin-password='change-me-strong-password' \
+     --dry-run=client -o yaml | kubectl apply -f -
+
    kubectl apply -f k8s/monitoring/grafana.yaml
    
    # Wait for monitoring to be ready
@@ -354,7 +362,7 @@ kubectl port-forward -n croc-shop-monitoring svc/prometheus 9090:9090
 ```bash
 kubectl port-forward -n croc-shop-monitoring svc/grafana 3000:3000
 # Open: http://localhost:3000
-# Default credentials: admin/admin
+# Credentials are sourced from the grafana-admin-secret in the croc-shop-monitoring namespace
 ```
 
 **Hubble (Cilium Observability):**

@@ -8,7 +8,6 @@
       ],
       "cwd": "./MCP/croc-shop-data",
       "env": {
-        "DATABASE_URL": "postgresql://postgres:postgres@localhost:5432/crocshop",
         "MCP_QUERY_ROW_LIMIT": "200"
       }
     }

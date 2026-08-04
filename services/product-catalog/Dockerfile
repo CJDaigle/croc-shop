@@ -1,12 +1,13 @@
-FROM node:18-alpine
+FROM node:18-alpine3.20
 
+ENV NODE_ENV=production
 WORKDIR /app
 
 COPY package*.json ./
+RUN npm ci --omit=dev
 
-RUN npm install --production
-
-COPY . .
+COPY --chown=node:node . .
+USER node
 
 EXPOSE 3001
 

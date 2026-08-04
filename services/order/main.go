@@ -153,21 +153,19 @@ func ensureSchema() error {
 	if err != nil {
 		return err
 	}
-	cols := []struct{ name, typ string }{
-		{"shipping_address", "TEXT"},
-		{"shipping_city", "TEXT"},
-		{"shipping_state", "TEXT"},
-		{"shipping_zip", "TEXT"},
-		{"payment_method", "TEXT"},
-		{"paid_at", "TIMESTAMPTZ"},
-		{"shipped_at", "TIMESTAMPTZ"},
+	alterStatements := []string{
+		`ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_address TEXT;`,
+		`ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_city TEXT;`,
+		`ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_state TEXT;`,
+		`ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_zip TEXT;`,
+		`ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method TEXT;`,
+		`ALTER TABLE orders ADD COLUMN IF NOT EXISTS paid_at TIMESTAMPTZ;`,
+		`ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipped_at TIMESTAMPTZ;`,
 	}
-	validTypes := map[string]bool{"TEXT": true, "INTEGER": true, "BOOLEAN": true, "TIMESTAMPTZ": true, "NUMERIC": true}
-	for _, c := range cols {
-		if !validTypes[c.typ] {
-			return fmt.Errorf("invalid column type: %s", c.typ)
+	for _, stmt := range alterStatements {
+		if _, err := db.Exec(stmt); err != nil {
+			return err
 		}
-		db.Exec(fmt.Sprintf(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS "%s" %s;`, c.name, c.typ))
 	}
 	return nil
 }
@@ -197,9 +195,23 @@ func scanOrder(row interface {
 	return &o, nil
 }
 
-const orderCols = `id, user_id, items, total::float8, status, 
+const (
+	orderCols = `id, user_id, items, total::float8, status, 
 	COALESCE(shipping_address,''), COALESCE(shipping_city,''), COALESCE(shipping_state,''), COALESCE(shipping_zip,''),
 	COALESCE(payment_method,''), paid_at, shipped_at, created_at`
+
+	selectOrdersSQL = "SELECT " + orderCols + " FROM orders WHERE user_id = $1 ORDER BY created_at DESC"
+
+	insertOrderSQL = `INSERT INTO orders (user_id, items, total, status, shipping_address, shipping_city, shipping_state, shipping_zip, payment_method, paid_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+		RETURNING ` + orderCols
+
+	selectOrderSQL = "SELECT " + orderCols + " FROM orders WHERE id = $1 AND user_id = $2"
+
+	updateOrderStatusSQL = "UPDATE orders SET status = $1 WHERE id = $2 AND user_id = $3 RETURNING " + orderCols
+	updateOrderStatusPaidSQL = "UPDATE orders SET status = $1, paid_at = NOW() WHERE id = $2 AND user_id = $3 RETURNING " + orderCols
+	updateOrderStatusShippedSQL = "UPDATE orders SET status = $1, shipped_at = NOW() WHERE id = $2 AND user_id = $3 RETURNING " + orderCols
+)
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -227,7 +239,7 @@ func getOrdersHandler(w http.ResponseWriter, r *http.Request) {
 
 	var rows *sql.Rows
 	var err error
-	rows, err = db.Query(fmt.Sprintf("SELECT %s FROM orders WHERE user_id = $1 ORDER BY created_at DESC", orderCols), authUserID)
+	rows, err = db.Query(selectOrdersSQL, authUserID)
 
 	if err != nil {
 		httpRequestsTotal.WithLabelValues("GET", "/api/orders", "500").Inc()
@@ -286,9 +298,7 @@ func createOrderHandler(w http.ResponseWriter, r *http.Request) {
 
 	status := "paid"
 	row := db.QueryRow(
-		fmt.Sprintf(`INSERT INTO orders (user_id, items, total, status, shipping_address, shipping_city, shipping_state, shipping_zip, payment_method, paid_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
-		RETURNING %s`, orderCols),
+		insertOrderSQL,
 		req.UserID, itemsJSON, req.Total, status,
 		req.ShippingAddress, req.ShippingCity, req.ShippingState, req.ShippingZip,
 		req.PaymentMethod,
@@ -350,7 +360,7 @@ func getOrderHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	row := db.QueryRow(fmt.Sprintf("SELECT %s FROM orders WHERE id = $1 AND user_id = $2", orderCols), orderID, authUserID)
+	row := db.QueryRow(selectOrderSQL, orderID, authUserID)
 	order, err := scanOrder(row)
 	if err != nil {
 		httpRequestsTotal.WithLabelValues("GET", "/api/orders/:id", "404").Inc()
@@ -393,17 +403,17 @@ func updateOrderStatusHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var extra string
-	if req.Status == "shipped" {
-		extra = ", shipped_at = NOW()"
-	} else if req.Status == "paid" {
-		extra = ", paid_at = NOW()"
+	var updateSQL string
+	switch req.Status {
+	case "paid":
+		updateSQL = updateOrderStatusPaidSQL
+	case "shipped":
+		updateSQL = updateOrderStatusShippedSQL
+	default:
+		updateSQL = updateOrderStatusSQL
 	}
 
-	row := db.QueryRow(
-		fmt.Sprintf("UPDATE orders SET status = $1%s WHERE id = $2 AND user_id = $3 RETURNING %s", extra, orderCols),
-		req.Status, orderID, authUserID,
-	)
+	row := db.QueryRow(updateSQL, req.Status, orderID, authUserID)
 	order, err := scanOrder(row)
 	if err != nil {
 		httpRequestsTotal.WithLabelValues("PATCH", "/api/orders/:id/status", "404").Inc()
@@ -419,7 +429,7 @@ func updateOrderStatusHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
-		secret = "dev-secret-change-in-production"
+		log.Fatal("JWT_SECRET environment variable is required")
 	}
 	jwtSecret = []byte(secret)
 
@@ -446,7 +456,7 @@ func main() {
 	}
 	dbPassword := os.Getenv("DB_PASSWORD")
 	if dbPassword == "" {
-		dbPassword = "postgres"
+		log.Fatal("DB_PASSWORD environment variable is required")
 	}
 
 	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",

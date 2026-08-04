@@ -47,6 +47,10 @@ yarn-error.log*
 .kube/
 istio-1.28.3/
 set-k8s.sh
+cluster-dump-*.yaml
+
+# Generated test/scan reports
+croc-shop-testing/results/
 
 # Local notes
 k8s/istio/mac fix.txt

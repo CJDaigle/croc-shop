@@ -8,7 +8,10 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3002;
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
 
 app.use(cors());
 app.use(express.json());
@@ -28,7 +31,7 @@ const pool = new Pool({
   port: process.env.DB_PORT || 5432,
   database: process.env.DB_NAME || 'crocshop',
   user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'postgres'
+  password: process.env.DB_PASSWORD
 });
 
 async function ensureSchema() {
@@ -45,19 +48,10 @@ async function ensureSchema() {
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
   `);
-  const cols = [
-    { name: 'shipping_address', type: 'TEXT' },
-    { name: 'shipping_city', type: 'TEXT' },
-    { name: 'shipping_state', type: 'TEXT' },
-    { name: 'shipping_zip', type: 'TEXT' }
-  ];
-  const validTypes = ['TEXT', 'INTEGER', 'BOOLEAN', 'TIMESTAMPTZ', 'NUMERIC'];
-  for (const col of cols) {
-    if (!/^[a-z_]+$/.test(col.name) || !validTypes.includes(col.type)) {
-      throw new Error(`Invalid column definition: ${col.name} ${col.type}`);
-    }
-    await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS "${col.name}" ${col.type};`);
-  }
+  await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS shipping_address TEXT;`);
+  await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS shipping_city TEXT;`);
+  await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS shipping_state TEXT;`);
+  await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS shipping_zip TEXT;`);
 }
 
 app.get('/health', (req, res) => {

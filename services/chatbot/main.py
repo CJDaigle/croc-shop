@@ -158,8 +158,8 @@ async def chat_stream(
         async with httpx.AsyncClient(timeout=timeout) as client:
             async with client.stream("POST", gateway_url, content=body, headers=headers) as resp:
                 if resp.status_code != 200:
-                    err = await resp.aread()
-                    yield f"event: error\ndata: upstream_status={resp.status_code} body={err.decode(errors='ignore')}\n\n".encode()
+                    await resp.aread()
+                    yield f"event: error\ndata: upstream_status={resp.status_code}\n\n".encode()
                     return
 
                 buffer = EventStreamBuffer()

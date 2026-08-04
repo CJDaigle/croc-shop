@@ -1,16 +1,15 @@
-FROM node:18-alpine AS builder
+FROM node:18-alpine3.20 AS builder
 
+ENV NODE_ENV=production
 WORKDIR /app
 
 COPY package*.json ./
-
-RUN npm install
+RUN npm ci
 
 COPY . .
-
 RUN npm run build
 
-FROM nginx:alpine
+FROM nginx:1.27-alpine-slim
 
 COPY --from=builder /app/build /usr/share/nginx/html
 

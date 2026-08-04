@@ -23,7 +23,9 @@ redis_client = redis.Redis(
 REQUEST_COUNT = Counter('http_requests_total', 'Total HTTP requests', ['method', 'endpoint', 'status'])
 REQUEST_DURATION = Histogram('http_request_duration_seconds', 'HTTP request duration', ['method', 'endpoint'])
 
-JWT_SECRET = os.getenv('JWT_SECRET', 'dev-secret-change-in-production')
+JWT_SECRET = os.getenv('JWT_SECRET')
+if not JWT_SECRET:
+    raise RuntimeError('JWT_SECRET environment variable is required')
 
 def require_auth(f):
     @wraps(f)

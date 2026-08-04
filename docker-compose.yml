@@ -5,14 +5,14 @@ services:
     image: postgres:15-alpine
     environment:
       POSTGRES_DB: crocshop
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     ports:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -37,8 +37,8 @@ services:
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: crocshop
-      DB_USER: postgres
-      DB_PASSWORD: postgres
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
     depends_on:
       postgres:
         condition: service_healthy
@@ -50,12 +50,12 @@ services:
       - "3002:3002"
     environment:
       PORT: 3002
-      JWT_SECRET: dev-secret-change-in-production
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production}
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: crocshop
-      DB_USER: postgres
-      DB_PASSWORD: postgres
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
     depends_on:
       postgres:
         condition: service_healthy
@@ -69,7 +69,7 @@ services:
       PORT: 3003
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      JWT_SECRET: dev-secret-change-in-production
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production}
     depends_on:
       redis:
         condition: service_healthy
@@ -84,9 +84,9 @@ services:
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: crocshop
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      JWT_SECRET: dev-secret-change-in-production
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production}
       PRODUCT_CATALOG_URL: http://product-catalog:3001
     depends_on:
       postgres:
@@ -98,9 +98,9 @@ services:
     ports:
       - "3005:3005"
     environment:
-      AWS_REGION: us-east-1
-      CHATBOT_API_TOKEN: "200"
-      BEDROCK_GATEWAY_URL: https://us.gateway.aidefense.security.cisco.com/fe399c8a-8aa7-41a9-b64e-a6a8a04ab49f/connections/5bf35e34-c75f-40b8-bae0-d0083e39cbcc/model/us.anthropic.claude-sonnet-4-20250514-v1:0/converse-stream
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      CHATBOT_API_TOKEN: ${CHATBOT_API_TOKEN:-200}
+      BEDROCK_GATEWAY_URL: ${BEDROCK_GATEWAY_URL:-https://us.gateway.aidefense.security.cisco.com/fe399c8a-8aa7-41a9-b64e-a6a8a04ab49f/connections/5bf35e34-c75f-40b8-bae0-d0083e39cbcc/model/us.anthropic.claude-sonnet-4-20250514-v1:0/converse-stream}
     volumes:
       - ~/.aws:/root/.aws:ro
 
