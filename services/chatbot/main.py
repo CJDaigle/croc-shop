@@ -1,5 +1,7 @@
 import os
 import json
+import logging
+import re
 from typing import AsyncGenerator, Optional
 
 import httpx
@@ -15,6 +17,9 @@ from urllib.parse import urlsplit, urlunsplit, quote
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 
 app = FastAPI()
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Prometheus metrics
 REQUEST_COUNT = Counter('http_requests_total', 'Total HTTP requests', ['method', 'endpoint', 'status'])
@@ -128,6 +133,9 @@ async def chat_stream(
 
     region = _get_env("AWS_REGION", "us-east-1")
     model_id = _get_env("BEDROCK_MODEL_ID", DEFAULT_MODEL_ID)
+    if not re.fullmatch(r"^[A-Za-z0-9._:\-]+$", model_id):
+        raise HTTPException(status_code=400, detail=f"Invalid Bedrock model ID: {model_id}")
+
     gateway_base_url = _get_env(
         "BEDROCK_GATEWAY_URL",
         "https://us.gateway.aidefense.security.cisco.com/fe399c8a-8aa7-41a9-b64e-a6a8a04ab49f/connections/5bf35e34-c75f-40b8-bae0-d0083e39cbcc",
@@ -146,7 +154,6 @@ async def chat_stream(
         "inferenceConfig": {
             "maxTokens": 350,
             "temperature": 0.2,
-            "topP": 0.9,
         },
     }
     body = json.dumps(body_obj)
@@ -158,7 +165,12 @@ async def chat_stream(
         async with httpx.AsyncClient(timeout=timeout) as client:
             async with client.stream("POST", gateway_url, content=body, headers=headers) as resp:
                 if resp.status_code != 200:
-                    await resp.aread()
+                    resp_body = await resp.aread()
+                    logger.error(
+                        "Bedrock gateway returned %s for model_id=%s gateway_url=%s aws_sign_url=%s body=%s",
+                        resp.status_code, model_id, gateway_url, aws_sign_url,
+                        resp_body.decode(errors="ignore"),
+                    )
                     yield f"event: error\ndata: upstream_status={resp.status_code}\n\n".encode()
                     return
 
